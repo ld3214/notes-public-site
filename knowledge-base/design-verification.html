@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design Verification 知识库 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link active" href="design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="../projects-hr/index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="../projects-hr/axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">knowledge-base/design-verification.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <p><a href="../index.html">返回目录</a></p>
+<h1 id="design-verification">Design Verification 知识库</h1>
+<p>这个文件集中放 DV flow、testplan、coverage、scoreboard、debug 和 regression。</p>
+<h2 id="_1">页内目录</h2>
+<ul>
+<li><a href="#dv-overview">DV 总览</a></li>
+<li><a href="#verification-plan">Verification Plan</a></li>
+<li><a href="#functional-coverage">Functional Coverage</a></li>
+<li><a href="#debug-methods">Debug 方法</a></li>
+<li><a href="#dv-interview-answers">面试回答速查（中文 + English）</a></li>
+</ul>
+<hr>
+<p><a id="dv-overview"></a></p>
+<h2 id="dv">DV 总览</h2>
+<p>标签：<code>#dv</code> <code>#interview</code></p>
+<h2 id="_2">学习地图</h2>
+<ul>
+<li>Verification plan</li>
+<li>Testbench architecture</li>
+<li>Directed test</li>
+<li>Constrained random verification</li>
+<li>Functional coverage</li>
+<li>Code coverage</li>
+<li>Assertions</li>
+<li>Scoreboard/reference model</li>
+<li>Debug and regression</li>
+</ul>
+<h2 id="_3">面试表达</h2>
+<p>Design Verification is about proving that the design behaves as intended under realistic and corner-case scenarios, using a combination of stimulus generation, checking, coverage, assertions, and systematic debug.</p>
+<h2 id="_4">面经高频入口</h2>
+<ul>
+<li><a href="../question-bank/dv-online-digest.html#common-directions">DV 面经知识点汇总</a></li>
+<li><a href="#verification-plan">Verification Plan</a></li>
+<li><a href="#functional-coverage">Functional Coverage</a></li>
+<li><a href="#debug-methods">Debug 方法</a></li>
+</ul>
+<h2 id="_5">高频能力模型</h2>
+<ul>
+<li>能从 spec 拆 verification plan。</li>
+<li>能解释 testbench architecture 和各组件职责。</li>
+<li>能用 constrained random + coverage closure 收敛验证。</li>
+<li>能设计 self-checking scoreboard/reference model。</li>
+<li>能用 assertion 捕捉协议和时序规则。</li>
+<li>能系统 debug regression failure。</li>
+</ul>
+<h2 id="_6">待补充</h2>
+<ul>
+<li>一个完整 DV flow 怎么讲</li>
+<li>Verification plan 怎么写</li>
+<li>Coverage closure 怎么做</li>
+</ul>
+<hr>
+<p><a id="verification-plan"></a></p>
+<h2 id="verification-plan">Verification Plan</h2>
+<p>标签：<code>#dv</code> <code>#testplan</code> <code>#interview</code></p>
+<h2 id="_7">核心概念</h2>
+<p>Verification plan（testplan）是从 spec 出发，系统列出"要验证什么"、"怎么验证"和"怎么判断验证完成"的文档。它是 coverage model 和测试用例的基础，也是 DV 工程师和设计工程师对齐的主要沟通工具。</p>
+<p><strong>为什么需要 Verification Plan</strong></p>
+<ul>
+<li>防止重要 feature 被遗漏。</li>
+<li>让 functional coverage model 有据可查，每个 coverpoint 都能对应 spec 里的一个功能点。</li>
+<li>提供 pass/fail 判断依据，避免"跑完没 error 就算通过"的不严谨做法。</li>
+<li>为 regression 策略、优先级排序提供框架。</li>
+</ul>
+<p><strong>Verification Plan 的典型内容</strong></p>
+<ol>
+<li>
+<p><strong>Feature list</strong>：从 spec 拆出所有需要验证的功能，例如正常读写、边界地址、burst 类型、错误响应、reset 行为、低功耗状态等。</p>
+</li>
+<li>
+<p><strong>Test scenarios</strong>：每个 feature 对应哪些测试场景，包括 happy path、corner case、error injection、concurrent stimulus。</p>
+</li>
+<li>
+<p><strong>Checkers / Assertions</strong>：每个场景用什么方式检查正确性——scoreboard 比较、property assertion、output signal check、protocol checker。</p>
+</li>
+<li>
+<p><strong>Functional coverage model</strong>：把 feature 转成 covergroup/coverpoint/cross。每个 bin 对应 spec 里可数的一种状态或事件。</p>
+</li>
+<li>
+<p><strong>Pass/fail criteria</strong>：什么叫"通过"？功能正确 + coverage 达标 + assertion 无违例 + regression 通过率满足要求。</p>
+</li>
+<li>
+<p><strong>Regression strategy</strong>：哪些 test 进 nightly regression、哪些只在 feature 开发时跑、seed 管理策略、覆盖率 merge 和报告。</p>
+</li>
+</ol>
+<p><strong>从 spec 到 testplan 的步骤（以 FIFO 为例）</strong></p>
+<ol>
+<li>读 spec：depth、width、sync/async、almost full/empty、overflow/underflow、reset。</li>
+<li>拆 feature：basic write、basic read、full/empty、simultaneous read-write、wrap-around、reset during traffic、backpressure。</li>
+<li>写 coverage model：occupancy bins（0, 1, half, full-1, full）、full/empty flag、同时读写 bins。</li>
+<li>写 assertion：full 时 write 不允许写入数据、empty 时 read 输出无效、指针回绕一致性。</li>
+<li>写 scoreboard/reference model：用 queue 建 reference FIFO，逐笔比较读出数据。</li>
+<li>确定 regression：directed bring-up test + constrained random test，coverage closure 目标。</li>
+</ol>
+<h2 id="_8">面试回答</h2>
+<p>A verification plan starts from the specification and lists all features to be verified, the corresponding test scenarios, the checking strategy, the functional coverage model, and the pass/fail criteria. For each feature in the spec, I would create a coverpoint in the coverage model so that coverage results can be traced back to specific design requirements. Verification is considered sufficient when all functional coverage bins are closed, all assertions pass, and the regression meets the agreed pass rate. If coverage cannot be closed, I would analyze each hole to determine whether the scenario is unreachable by design, blocked by a constraint, or missing a directed test.</p>
+<h2 id="_9">常见追问</h2>
+<ul>
+<li>Testplan 和 coverage model 怎么对应？</li>
+<li>Testplan 里每个 feature 对应 coverage model 里的一个或多个 coverpoint；bin 表示 feature 的不同子状态或事件，跑完后通过 bin 命中情况判断 feature 是否被覆盖到。</li>
+<li>如何判断验证已经足够？</li>
+<li>Functional coverage 目标达成 + assertions 无违例 + regression pass rate 满足要求 + 关键 feature 有 directed test 验证 + 设计工程师确认边界条件正确。</li>
+<li>如果 coverage 上不去怎么办？</li>
+<li>先分析 hole 是因为 constraint 太严、seed 不够多、feature 被配置关闭、coverage model 写错，还是真实缺测试；然后针对性调 constraint、加 directed test 或修 coverage model。</li>
+</ul>
+<hr>
+<p><a id="functional-coverage"></a></p>
+<h2 id="functional-coverage">Functional Coverage</h2>
+<p>标签：<code>#dv</code> <code>#coverage</code> <code>#systemverilog</code> <code>#interview</code></p>
+<h2 id="_10">核心概念</h2>
+<p><strong>Functional coverage vs Code coverage</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Functional Coverage</th>
+<th>Code Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>测量对象</td>
+<td>Spec 中的功能场景是否被命中</td>
+<td>RTL 代码是否被执行</td>
+</tr>
+<tr>
+<td>定义者</td>
+<td>DV 工程师根据 spec 手写</td>
+<td>仿真工具自动统计</td>
+</tr>
+<tr>
+<td>类型</td>
+<td>Covergroup / coverpoint / cross</td>
+<td>Line、branch、toggle、FSM、condition</td>
+</tr>
+<tr>
+<td>100% 的含义</td>
+<td>所有定义的功能场景都被命中</td>
+<td>所有 RTL 行/分支/信号翻转都被触发</td>
+</tr>
+<tr>
+<td>局限</td>
+<td>没写到的场景不会被统计</td>
+<td>代码被执行不等于功能逻辑正确</td>
+</tr>
+</tbody>
+</table>
+<p>两者互补，不能互相替代。100% code coverage + 0% functional coverage = 跑了很多仿真但没覆盖到目标场景；100% functional coverage + 没 checker = 覆盖了场景但不知道对不对。</p>
+<p><strong>Covergroup / Coverpoint / Cross</strong></p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">covergroup</span><span class="w"> </span><span class="n">fifo_cg</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// Coverpoint：观察 occupancy，按 bins 分桶</span>
+<span class="w">  </span><span class="nl">cp_occ:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">occupancy</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">empty</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">partial</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="o">:</span><span class="n">DEPTH</span><span class="o">-</span><span class="mi">1</span><span class="p">]};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">full</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">DEPTH</span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Coverpoint：读写操作类型</span>
+<span class="w">  </span><span class="nl">cp_op:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="p">{</span><span class="n">wr_en</span><span class="p">,</span><span class="w"> </span><span class="n">rd_en</span><span class="p">}</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">write_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">2&#39;b10</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">read_only</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">2&#39;b01</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">both</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">2&#39;b11</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">idle</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">2&#39;b00</span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Cross：覆盖 occupancy × operation 的组合</span>
+<span class="w">  </span><span class="nl">cx_occ_op:</span><span class="w"> </span><span class="k">cross</span><span class="w"> </span><span class="n">cp_occ</span><span class="p">,</span><span class="w"> </span><span class="n">cp_op</span><span class="p">;</span>
+<span class="k">endgroup</span>
+</code></pre></div>
+
+<ul>
+<li><strong>Covergroup</strong>：采样单元，绑定到时钟或调用时机。</li>
+<li><strong>Coverpoint</strong>：观察一个表达式，按 bins 分类计数。</li>
+<li><strong>Cross coverage</strong>：自动生成两个 coverpoint 的笛卡尔积，检查所有组合是否都被命中。</li>
+<li><strong>Bins</strong>：每个 bin 代表 coverpoint 取值空间的一个子集，命中一次计数加 1。</li>
+</ul>
+<p><strong>Bins 类型</strong></p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">coverpoint</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">bins</span><span class="w"> </span><span class="n">zero</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">  </span><span class="k">bins</span><span class="w"> </span><span class="k">small</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="o">:</span><span class="mi">10</span><span class="p">]};</span>
+<span class="w">  </span><span class="k">bins</span><span class="w"> </span><span class="k">medium</span><span class="p">[]</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">11</span><span class="o">:</span><span class="mi">100</span><span class="p">]};</span><span class="w">     </span><span class="c1">// auto bins，每个值独立一个 bin</span>
+<span class="w">  </span><span class="k">bins</span><span class="w"> </span><span class="k">large</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">101</span><span class="o">:</span><span class="mi">255</span><span class="p">]};</span>
+<span class="w">  </span><span class="k">ignore_bins</span><span class="w"> </span><span class="n">x</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">8&#39;hFF</span><span class="p">};</span><span class="w">        </span><span class="c1">// 忽略，不统计也不影响 coverage</span>
+<span class="w">  </span><span class="k">illegal_bins</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mh">8&#39;hFE</span><span class="p">};</span><span class="w">        </span><span class="c1">// 命中则报错</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>Coverage Closure 流程</strong></p>
+<ol>
+<li>跑初始 regression，收集 coverage report（各 coverpoint 命中率和 holes）。</li>
+<li>对每个 hole 分析原因：
+   - 场景在 spec 里根本不可达（illegal_bins 或 ignore_bins 处理）。
+   - 约束太严，random test 碰不到（放宽 constraint 或加 dist 权重）。
+   - Coverage model 写错（bin 范围不合理，或场景定义有误）。
+   - 确实缺少 directed test（需要手写 directed test 补充）。</li>
+<li>迭代：调整 constraint、增加 seed、补 directed test，重跑 regression。</li>
+<li>Merge coverage 数据，生成最终 report。</li>
+</ol>
+<h2 id="_11">面试回答</h2>
+<p>Functional coverage is user-defined and measures whether specification-level scenarios have been exercised. It uses covergroups, coverpoints, and cross coverage in SystemVerilog. Each coverpoint observes an expression and counts how many bins have been hit. Cross coverage checks combinations of multiple coverpoints. Code coverage, in contrast, is tool-generated and measures whether RTL constructs such as lines, branches, and toggles have been executed. They are complementary: code coverage catches dead code, functional coverage catches uncovered spec behavior. Coverage closure is an iterative process of analyzing holes, adjusting constraints or adding directed tests, and re-running regression until all meaningful bins are hit.</p>
+<h2 id="_12">常见追问</h2>
+<ul>
+<li>Functional coverage 和 code coverage 的区别？</li>
+<li>Functional coverage 来自 spec，由工程师手写，反映场景覆盖；code coverage 由工具自动统计 RTL 执行情况，反映代码覆盖。两者互补，均需关注。</li>
+<li>Covergroup、coverpoint、cross coverage 怎么用？</li>
+<li>Covergroup 定义采样时机；coverpoint 观察一个表达式并按 bins 分类统计；cross coverage 检查两个或多个 coverpoint 所有组合是否都被命中。</li>
+<li>Coverage closure 的流程是什么？</li>
+<li>运行 regression 收集 report → 分析 hole 原因（不可达/约束太严/model 错误/真实缺测） → 针对性调 constraint / 补 directed test / 修 model → 重跑合并 coverage → 迭代直到目标达成。</li>
+</ul>
+<h2 id="_13">易错点</h2>
+<ul>
+<li>把 coverpoint 的 bins 写得太细（auto bins 太多），coverage 数据量大但没有意义。</li>
+<li>Coverage 上去了但 checker 不够，"覆盖到了但没验证对错"。</li>
+<li>使用 <code>@(posedge clk)</code> 但忘记 <code>disable iff (!rst_n)</code>，reset 期间也在采样，命中的 bins 可能无效。</li>
+<li>Cross coverage bin 过多但大部分是不可达组合，导致 report 里 coverage 永远上不到 100%，应使用 <code>ignore_bins</code> 排除。</li>
+<li>认为 100% functional coverage = 验证完成，忽略了 coverage model 本身是否完整覆盖 spec。</li>
+</ul>
+<hr>
+<p><a id="debug-methods"></a></p>
+<h2 id="debug">Debug 方法</h2>
+<p>标签：<code>#dv</code> <code>#debug</code> <code>#interview</code></p>
+<h2 id="_14">核心思路</h2>
+<p>DV debug 的核心是<strong>系统化缩小范围</strong>：先确认能复现 → 找到第一个错误 → 判断是 TB 问题还是 DUT 问题 → 定位到具体信号或逻辑 → 最小化 testcase 方便定案。</p>
+<p>避免两个常见误区：
+- 盲目看最后一个 error：最后的 error 往往是第一个 error 的级联效应，找第一个 error 才能找到根本原因。
+- 直接改代码：在没弄清根本原因之前修改 RTL 或 TB，很可能掩盖真正的 bug 或引入新问题。</p>
+<h2 id="debug_1">常用 Debug 路线</h2>
+<p><strong>Step 1：Reproduce（复现）</strong></p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code># 固定 seed 和版本，确保同样命令能复现同样失败
+sim_run +ntb_random_seed=&lt;seed&gt; -snapshot=&lt;design_version&gt;
+</code></pre></div>
+
+<p>记录：RTL 版本（git hash）、TB 版本、仿真命令、seed。如果不能复现，先排查是否是时序竞争、OS 调度或环境差异问题。</p>
+<p><strong>Step 2：Check log and locate first failure</strong></p>
+<ul>
+<li>看 log 找第一个 error/failure，而不是最后一个。</li>
+<li>记录 first failure 的仿真时间点（timestamp）。</li>
+<li>确认是 assertion violation、scoreboard mismatch、timeout、still pending transaction 还是 UVM fatal。</li>
+</ul>
+<p><strong>Step 3：Open waveform around first failure</strong></p>
+<ul>
+<li>在 first failure 时间前后开 waveform（通常加 <code>-10ns</code> ~ <code>-100ns</code> 的窗口）。</li>
+<li>检查接口信号的时序：valid/ready handshake 是否正确、data 是否有效、控制信号是否按协议到来。</li>
+<li>观察 DUT 内部关键信号（如果有 probe 或 access）。</li>
+</ul>
+<p><strong>Step 4：Trace transaction</strong></p>
+<p>从接口到内部逐层追踪：</p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Driver → DUT interface → DUT internal → DUT output interface → Monitor → Scoreboard
+</code></pre></div>
+
+<ul>
+<li>Driver 送出的 stimulus 是否正确？（检查 driver log 和 interface waveform）</li>
+<li>Monitor 采集到的是什么？（检查 monitor log）</li>
+<li>Scoreboard 的 expected 和 actual 分别是什么？（检查 scoreboard log）</li>
+<li>是 expected 生成错误，还是 actual 采集错误，还是 DUT 输出本身错误？</li>
+</ul>
+<p><strong>Step 5：Distinguish TB issue vs DUT issue</strong></p>
+<ul>
+<li>TB issue：driver 发了错误 stimulus、monitor 采集时机错误、constraint 不合理产生非法 input、scoreboard 的 reference model 逻辑有 bug。</li>
+<li>DUT issue：在正确 stimulus 下输出错误结果，查 RTL 逻辑、timing 或 boundary condition。</li>
+</ul>
+<p>区分方法：先用 directed test 排除 constraint/random 因素，用已知正确的 stimulus 单步验证 DUT 行为。</p>
+<p><strong>Step 6：Minimize testcase</strong></p>
+<p>找到 failure 后，把 testcase 缩到最小——最少的 stimulus、最短的仿真时间、只触发这一个 bug。好处：方便和设计工程师对齐，方便 regression 复检，避免其他 noise 干扰。</p>
+<p><strong>Debug Checklist</strong></p>
+<ul>
+<li>[ ] seed 固定，能稳定复现。</li>
+<li>[ ] 找到 first failure 而不是最后一个 error。</li>
+<li>[ ] 在 first failure 附近开 waveform。</li>
+<li>[ ] 区分 TB 问题和 DUT 问题。</li>
+<li>[ ] 确认是否有已知 bug / open issue 可以解释这个现象。</li>
+<li>[ ] Testcase 最小化后能 standalone 复现。</li>
+<li>[ ] 修复后在原来 failing seed 上验证已 pass。</li>
+</ul>
+<h2 id="_15">面试回答</h2>
+<p>My debug flow starts with reproducing the failure using the exact same seed, RTL version, and simulation command. Then I locate the first failure in the log rather than the last error, because later errors are often cascaded effects. I open the waveform around that timestamp and trace the transaction through the driver, monitor, and scoreboard to determine whether the issue is in the testbench, the constraint, or the DUT. If it is in the DUT, I inspect the RTL around the relevant signals. Once I understand the root cause, I minimize the testcase to isolate the bug as clearly as possible before discussing with the design engineer.</p>
+<h2 id="_16">常见追问</h2>
+<ul>
+<li>怎么判断是 TB 问题还是 DUT 问题？</li>
+<li>用 directed test 发已知正确的 stimulus，观察 DUT 响应；或检查 scoreboard 的 expected 生成逻辑是否和 spec 一致。</li>
+<li>Intermittent failure 怎么 debug？</li>
+<li>固定 seed 先确认能复现；如果 seed 固定仍然随机出现，检查 TB race condition（例如异步 event、always block sensitivity 问题）或仿真工具 non-deterministic 行为。</li>
+<li>Coverage hole 分析怎么做？</li>
+<li>对每个 hole 判断：场景是否不可达（ignore）、constraint 太严（放宽）、coverage model 写错（修 model）、还是真实缺测试（补 directed test）。</li>
+</ul>
+<hr>
+<p><a id="dv-interview-answers"></a></p>
+<h2 id="english">面试回答速查（中文 + English）</h2>
+<h3 id="coverage-driven-verification">Coverage-driven verification</h3>
+<p>中文：Coverage-driven verification 是从 spec 出发建立 verification plan，再把 feature 转成 coverage model。测试不是只为了跑过，而是要不断看 coverage hole，调整 constraint、seed、directed test 和 checker，直到关键 feature 被覆盖并且测试通过。功能覆盖率必须和 checker/scoreboard/assertion 一起看，否则“覆盖到了但没检查对错”没有意义。</p>
+<p>English: Coverage-driven verification starts from the specification and verification plan, then converts features into a coverage model. Tests are used to close coverage holes through constraints, seeds, directed cases, and checkers. Coverage is meaningful only when the environment is self-checking.</p>
+<h3 id="functional-coverage-vs-code-coverage">Functional coverage vs code coverage</h3>
+<p>中文：Code coverage 看 RTL 代码有没有被执行，比如 line、branch、toggle、FSM；functional coverage 看 spec 里的功能场景有没有被命中，是用户定义的。100% code coverage 不代表功能都测到了，100% functional coverage 也不代表 RTL 每个分支都跑到了，两者互补。</p>
+<p>English: Code coverage measures exercised RTL structure, such as line, branch, toggle, and FSM coverage. Functional coverage is user-defined and measures whether specification-level scenarios were hit. They are complementary and cannot replace each other.</p>
+<h3 id="debug-regression-failure">Debug regression failure</h3>
+<p>中文：Debug regression failure 我会先固定 seed 复现，记录 RTL/TB 版本和仿真命令；然后看 log 找 first failure，而不是最后一个 error；接着在 waveform 里 trace transaction，从 driver、monitor、scoreboard 到 DUT interface 判断是 TB 问题、constraint 问题还是 DUT 问题；最后缩小 testcase，方便和 designer 对齐。</p>
+<p>English: I would first reproduce the failure with the same seed and versions, then locate the first failure in the log, inspect the waveform around that time, trace the transaction through driver, monitor, scoreboard, and DUT interface, and finally minimize the testcase.</p>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AXI DMA UVM 验证项目 - 详细技术实现 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link active" href="axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">projects-hr/axi-dma-uvm-details.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="axi-dma-uvm-">AXI DMA UVM 验证项目 - 详细技术实现</h1>
+<h2 id="_1">项目概述</h2>
+<p>这是一个完整的AXI DMA控制器UVM验证环境，基于开源<code>aignacio/axi_dma</code> RTL设计。项目验证了AXI-Lite CSR编程、AXI4主设备数据搬移、descriptor-based传输、中断处理、错误注入和abort功能。</p>
+<h2 id="_2">验证环境架构</h2>
+<h3 id="_3">目录结构</h3>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>axi_dma_uvm_verification/
+├── rtl/                    # DUT RTL代码
+│   ├── dma_core/          # 核心DMA控制器
+│   ├── csr/              # 控制状态寄存器
+│   └── bus/              # AXI总线接口
+├── uvm/                   # UVM验证环境
+│   ├── interfaces/       # 接口定义
+│   ├── src/             # UVM组件
+│   │   ├── agents/      # 代理组件
+│   │   ├── env/         # 环境组件
+│   │   ├── ral/         # 寄存器抽象层
+│   │   └── sequences/   # 序列
+│   └── top/             # 顶层testbench
+├── docs/                 # 文档
+└── sim/                 # 仿真脚本
+</code></pre></div>
+
+<h3 id="uvm">UVM组件详解</h3>
+<h4 id="1">1. 接口定义</h4>
+<ul>
+<li><code>dma_axil_if.sv</code>: AXI-Lite接口，用于CSR编程</li>
+<li><code>dma_axi_mem_if.sv</code>: AXI4接口，用于DMA数据搬移</li>
+<li><code>dma_irq_if.sv</code>: 中断接口</li>
+</ul>
+<h4 id="2">2. 代理组件</h4>
+<ul>
+<li><strong>AXI-Lite Master Agent</strong> (<code>dma_axil_agent.svh</code>)</li>
+<li>用于CSR寄存器编程</li>
+<li>支持RAL frontdoor访问</li>
+<li>
+<p>包含driver、monitor、sequencer</p>
+</li>
+<li>
+<p><strong>AXI Memory Slave Agent</strong> (<code>dma_axi_mem_agent.svh</code>)</p>
+</li>
+<li>作为AXI slave响应DMA读写请求</li>
+<li>支持可配置的ready delay和response delay</li>
+<li>支持error response注入</li>
+</ul>
+<h4 id="3">3. 寄存器抽象层</h4>
+<ul>
+<li><code>dma_ral_pkg.svh</code>: 完整的DMA寄存器模型</li>
+<li><code>dma_reg_adapter.svh</code>: 寄存器适配器</li>
+<li>支持explicit predictor，通过analysis port更新mirror值</li>
+</ul>
+<h4 id="4">4. 内存模型</h4>
+<ul>
+<li><code>dma_memory_model.svh</code>: 共享内存模型</li>
+<li>支持preload、readback、数据比对</li>
+<li>提供<code>fill_incrementing()</code>、<code>check_copy()</code>等实用方法</li>
+</ul>
+<h4 id="5">5. 环境组件</h4>
+<ul>
+<li><code>dma_env.svh</code>: 顶层验证环境</li>
+<li><code>dma_scoreboard.svh</code>: 记分板，检查数据完整性</li>
+<li><code>dma_virtual_sequencer.svh</code>: 虚拟序列器，持有共享资源</li>
+</ul>
+<h2 id="_4">关键技术实现</h2>
+<h3 id="1-slave-bfm">1. Slave BFM设计</h3>
+<p>AXI memory slave agent的driver实现为slave BFM，关键特性：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">task</span><span class="w"> </span><span class="n">dma_axi_mem_driver</span><span class="o">::</span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
+<span class="w">  </span><span class="k">forever</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">vif</span><span class="p">.</span><span class="n">drive_slave_idle</span><span class="p">();</span>
+<span class="w">    </span><span class="k">wait</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">vif</span><span class="p">.</span><span class="n">rst</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">fork</span>
+<span class="w">      </span><span class="n">write_address_channel</span><span class="p">();</span>
+<span class="w">      </span><span class="n">write_data_channel</span><span class="p">();</span>
+<span class="w">      </span><span class="n">write_response_channel</span><span class="p">();</span>
+<span class="w">      </span><span class="n">read_address_channel</span><span class="p">();</span>
+<span class="w">      </span><span class="n">read_response_channel</span><span class="p">();</span>
+<span class="w">      </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">rst</span><span class="p">);</span>
+<span class="w">    </span><span class="k">join_any</span>
+<span class="w">    </span><span class="k">disable</span><span class="w"> </span><span class="k">fork</span><span class="p">;</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">endtask</span>
+</code></pre></div>
+
+<h3 id="2-error-injection">2. Error Injection机制</h3>
+<p>通过<code>try_next_item()</code>实现非阻塞error注入：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">protected</span><span class="w"> </span><span class="k">task</span><span class="w"> </span><span class="k">automatic</span><span class="w"> </span><span class="n">get_next_response</span><span class="p">(</span><span class="k">input</span><span class="w">  </span><span class="n">axi_resp_t</span><span class="w"> </span><span class="n">default_resp</span><span class="p">,</span>
+<span class="w">                                           </span><span class="k">output</span><span class="w"> </span><span class="n">axi_resp_t</span><span class="w"> </span><span class="n">use_resp</span><span class="p">);</span>
+<span class="w">  </span><span class="n">dma_axi_mem_item</span><span class="w"> </span><span class="n">req</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">seq_item_port</span><span class="p">.</span><span class="n">try_next_item</span><span class="p">(</span><span class="n">req</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">req</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">null</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">use_resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">req</span><span class="p">.</span><span class="n">resp</span><span class="p">;</span><span class="w">      </span><span class="c1">// 有 error injection item 时使用它</span>
+<span class="w">    </span><span class="n">seq_item_port</span><span class="p">.</span><span class="n">item_done</span><span class="p">();</span>
+<span class="w">  </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">use_resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">default_resp</span><span class="p">;</span><span class="w">  </span><span class="c1">// 无 item 时 fallback 到 OKAY/默认响应</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">endtask</span>
+</code></pre></div>
+
+<h3 id="3_1">3. 虚拟序列器资源共享</h3>
+<p>虚拟序列器持有所有关键资源引用：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">dma_virtual_sequencer</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_sequencer</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 子序列器</span>
+<span class="w">    </span><span class="n">dma_axil_sequencer</span><span class="w"> </span><span class="n">axil_sqr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dma_axi_mem_sequencer</span><span class="w"> </span><span class="n">mem_sqr</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 共享资源</span>
+<span class="w">    </span><span class="n">dma_memory_model</span><span class="w"> </span><span class="n">mem</span><span class="p">;</span>
+<span class="w">    </span><span class="n">dma_ral_block</span><span class="w"> </span><span class="n">ral</span><span class="p">;</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="n">dma_irq_if</span><span class="w"> </span><span class="n">irq_vif</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 实用方法</span>
+<span class="w">    </span><span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">preload_memory</span><span class="p">(</span><span class="kt">bit</span><span class="w"> </span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">base_addr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">        </span><span class="n">mem</span><span class="p">.</span><span class="n">fill_incrementing</span><span class="p">(</span><span class="n">base_addr</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">);</span>
+<span class="w">    </span><span class="k">endfunction</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="4_1">4. 中断等待超时保护</h3>
+<p>使用<code>fork/join_any + disable fork</code>防止仿真挂死：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">task</span><span class="w"> </span><span class="n">wait_for_irq</span><span class="p">(</span><span class="k">output</span><span class="w"> </span><span class="kt">bit</span><span class="w"> </span><span class="n">timed_out</span><span class="p">,</span><span class="w"> </span><span class="k">input</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">timeout_cycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">);</span>
+<span class="w">    </span><span class="k">fork</span>
+<span class="w">        </span><span class="k">begin</span><span class="o">:</span><span class="w"> </span><span class="n">irq_wait</span>
+<span class="w">            </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">irq</span><span class="p">);</span>
+<span class="w">            </span><span class="n">timed_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">end</span>
+
+<span class="w">        </span><span class="k">begin</span><span class="o">:</span><span class="w"> </span><span class="n">timeout</span>
+<span class="w">            </span><span class="p">#(</span><span class="n">timeout_cycles</span><span class="p">);</span>
+<span class="w">            </span><span class="n">timed_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">join_any</span>
+<span class="w">    </span><span class="k">disable</span><span class="w"> </span><span class="k">fork</span><span class="p">;</span><span class="w">  </span><span class="c1">// 确保只有一个分支执行</span>
+<span class="k">endtask</span>
+</code></pre></div>
+
+<h2 id="_5">测试用例实现</h2>
+<h3 id="1-csr">1. CSR读写测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">csr_rw_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// 读取version寄存器</span>
+<span class="w">        </span><span class="n">uvm_reg_data_t</span><span class="w"> </span><span class="n">version</span><span class="p">;</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_STATUS</span><span class="p">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">UVM_CHECK</span><span class="p">);</span>
+<span class="w">        </span><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_STATUS</span><span class="p">.</span><span class="n">version</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+
+<span class="w">        </span><span class="c1">// 写入control寄存器</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">go</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mb">1&#39;b1</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">);</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="2_1">2. 单描述符传输测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">single_desc_transfer_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// 预加载源内存</span>
+<span class="w">        </span><span class="n">p_sequencer</span><span class="p">.</span><span class="n">mem</span><span class="p">.</span><span class="n">fill_incrementing</span><span class="p">(</span><span class="n">SRC_ADDR</span><span class="p">,</span><span class="w"> </span><span class="n">TRANSFER_SIZE</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 编程描述符</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_DESC_SRC_ADDR</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set</span><span class="p">(</span><span class="n">SRC_ADDR</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_DESC_DST_ADDR</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set</span><span class="p">(</span><span class="n">DST_ADDR</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_DESC_NUM_BYTES</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">set</span><span class="p">(</span><span class="n">TRANSFER_SIZE</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_DESC_CFG</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">enable</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mb">1&#39;b1</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 启动DMA</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">go</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mb">1&#39;b1</span><span class="p">);</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 等待中断</span>
+<span class="w">        </span><span class="n">wait_for_irq</span><span class="p">(</span><span class="n">timed_out</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 数据检查由 scoreboard 根据 monitor transaction 和 memory model 自动完成</span>
+<span class="w">        </span><span class="c1">// vseq 只负责配置、启动和等待 done/error。</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="3-burst-sweep">3. Burst Sweep测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">burst_sweep_transfer_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">burst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">burst</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">255</span><span class="p">;</span><span class="w"> </span><span class="n">burst</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="c1">// 设置max_burst</span>
+<span class="w">            </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">max_burst</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="n">burst</span><span class="p">);</span>
+<span class="w">            </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 执行传输</span>
+<span class="w">            </span><span class="n">run_single_transfer</span><span class="p">();</span>
+
+<span class="w">            </span><span class="c1">// 检查结果由 scoreboard/report phase 汇总；</span>
+<span class="w">            </span><span class="c1">// vseq 负责覆盖不同 max_burst 配置。</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="4_2">4. 未对齐地址测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">unaligned_transfer_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
+<span class="w">        </span><span class="kt">bit</span><span class="w"> </span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">unaligned_addrs</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">&#39;{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="w">        </span><span class="k">foreach</span><span class="w"> </span><span class="p">(</span><span class="n">unaligned_addrs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="c1">// 设置未对齐地址</span>
+<span class="w">            </span><span class="n">src_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BASE_ADDR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">unaligned_addrs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">            </span><span class="n">dst_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">BASE_ADDR</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">0</span><span class="n">x1000</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">unaligned_addrs</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+
+<span class="w">            </span><span class="c1">// 执行传输</span>
+<span class="w">            </span><span class="n">run_transfer</span><span class="p">(</span><span class="n">src_addr</span><span class="p">,</span><span class="w"> </span><span class="n">dst_addr</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 检查WSTRB正确性</span>
+<span class="w">            </span><span class="n">check_wstrb_pattern</span><span class="p">();</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="5-outstanding">5. Outstanding压力测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">outstanding_stress_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
+<span class="w">        </span><span class="c1">// 配置最大response delay</span>
+<span class="w">        </span><span class="n">p_sequencer</span><span class="p">.</span><span class="n">mem_agent_cfg</span><span class="p">.</span><span class="n">max_resp_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 使用最小burst长度（1 beat）</span>
+<span class="w">        </span><span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">max_burst</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 执行大尺寸传输，迫使outstanding窗口填满</span>
+<span class="w">        </span><span class="n">run_transfer</span><span class="p">(...,</span><span class="w"> </span><span class="n">LARGE_SIZE</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// outstanding 深度由 scoreboard/coverage 统计；</span>
+<span class="w">        </span><span class="c1">// test 配置要求达到设计窗口时，在 scoreboard 中检查。</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h2 id="_6">覆盖率模型</h2>
+<h3 id="_7">功能覆盖率点</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">covergroup</span><span class="w"> </span><span class="n">dma_cg</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 描述符选择</span>
+<span class="w">    </span><span class="nl">desc_sel:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">desc_index</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">desc0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">desc1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">both</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 传输大小</span>
+<span class="w">    </span><span class="nl">xfer_size:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">transfer_size</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="k">small</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">1</span><span class="o">:</span><span class="mi">16</span><span class="p">]};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">cacheline</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">17</span><span class="o">:</span><span class="mi">64</span><span class="p">]};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">page</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">65</span><span class="o">:</span><span class="mi">4096</span><span class="p">]};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="k">large</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">4097</span><span class="o">:</span><span class="mi">65536</span><span class="p">]};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 地址对齐</span>
+<span class="w">    </span><span class="nl">alignment:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="p">{</span><span class="n">src_addr</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">dst_addr</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]}</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">aligned</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">unaligned_1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">unaligned_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">unaligned_3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// AXI响应类型</span>
+<span class="w">    </span><span class="nl">resp_type:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">axi_resp</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">okay</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">AXI_OKAY</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">slverr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">AXI_SLVERR</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">decerr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">AXI_DECERR</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Outstanding深度</span>
+<span class="w">    </span><span class="nl">outstanding_depth:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">outstanding_cnt</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">depth</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{[</span><span class="mi">0</span><span class="o">:</span><span class="mi">8</span><span class="p">]};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Cross coverage</span>
+<span class="w">    </span><span class="nl">outstanding_x_resp:</span><span class="w"> </span><span class="k">cross</span><span class="w"> </span><span class="n">outstanding_depth</span><span class="p">,</span><span class="w"> </span><span class="n">resp_type</span><span class="p">;</span>
+<span class="w">    </span><span class="nl">alignment_x_size:</span><span class="w"> </span><span class="k">cross</span><span class="w"> </span><span class="n">alignment</span><span class="p">,</span><span class="w"> </span><span class="n">xfer_size</span><span class="p">;</span>
+<span class="k">endgroup</span>
+</code></pre></div>
+
+<h3 id="_8">断言检查</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// AXI协议断言</span>
+<span class="k">property</span><span class="w"> </span><span class="n">axi_valid_ready_handshake</span><span class="p">;</span>
+<span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">disable</span><span class="w"> </span><span class="k">iff</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="n">valid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">ready</span><span class="p">)</span><span class="w"> </span><span class="o">|=&gt;</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="k">until</span><span class="w"> </span><span class="n">ready</span><span class="p">;</span>
+<span class="k">endproperty</span>
+
+<span class="nl">assert_axi_handshake:</span><span class="w"> </span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(</span><span class="n">axi_valid_ready_handshake</span><span class="p">);</span>
+
+<span class="c1">// 中断断言</span>
+<span class="k">property</span><span class="w"> </span><span class="n">irq_asserted_on_done</span><span class="p">;</span>
+<span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">disable</span><span class="w"> </span><span class="k">iff</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span>
+<span class="w">    </span><span class="p">(</span><span class="n">status_reg</span><span class="p">.</span><span class="n">done</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">prev_done</span><span class="p">)</span><span class="w"> </span><span class="o">|-&gt;</span><span class="w"> </span><span class="p">##[</span><span class="mi">1</span><span class="o">:</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="n">irq</span><span class="p">;</span>
+<span class="k">endproperty</span>
+
+<span class="nl">assert_irq_done:</span><span class="w"> </span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(</span><span class="n">irq_asserted_on_done</span><span class="p">);</span>
+</code></pre></div>
+
+<h2 id="_9">仿真流程</h2>
+<h3 id="1-dut">1. 编译DUT</h3>
+<div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 使用Questa</span>
+vlog<span class="w"> </span>-work<span class="w"> </span>work<span class="w"> </span>+define+AXI_ADDR_WIDTH<span class="o">=</span><span class="m">32</span><span class="w"> </span>+define+AXI_DATA_WIDTH<span class="o">=</span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-f<span class="w"> </span>sim/filelists/dut.f
+</code></pre></div>
+
+<h3 id="2-testbench">2. 编译Testbench</h3>
+<div class="codehilite" data-lang="Bash"><pre><span></span><code>vlog<span class="w"> </span>-work<span class="w"> </span>work<span class="w"> </span>-sv<span class="w"> </span>+incdir+<span class="nv">$UVM_HOME</span>/src<span class="w"> </span><span class="nv">$UVM_HOME</span>/src/uvm_pkg.sv<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>-f<span class="w"> </span>sim/filelists/tb.f
+</code></pre></div>
+
+<h3 id="3_2">3. 运行测试</h3>
+<div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 运行CSR读写测试</span>
+vsim<span class="w"> </span>-c<span class="w"> </span>work.tb_top<span class="w"> </span>+UVM_TESTNAME<span class="o">=</span>csr_rw_test<span class="w"> </span>-do<span class="w"> </span><span class="s2">&quot;run -all; quit&quot;</span>
+
+<span class="c1"># 运行单描述符传输测试</span>
+vsim<span class="w"> </span>-c<span class="w"> </span>work.tb_top<span class="w"> </span>+UVM_TESTNAME<span class="o">=</span>single_desc_transfer_test<span class="w"> </span>-do<span class="w"> </span><span class="s2">&quot;run -all; quit&quot;</span>
+
+<span class="c1"># 运行回归测试</span>
+vsim<span class="w"> </span>-c<span class="w"> </span>work.tb_top<span class="w"> </span>+UVM_TESTNAME<span class="o">=</span>regression_test<span class="w"> </span>-do<span class="w"> </span><span class="s2">&quot;run -all; quit&quot;</span>
+</code></pre></div>
+
+<h3 id="4_3">4. 覆盖率收集</h3>
+<div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 启用覆盖率收集</span>
+vsim<span class="w"> </span>-c<span class="w"> </span>work.tb_top<span class="w"> </span>+UVM_TESTNAME<span class="o">=</span>coverage_test<span class="w"> </span>-coverage<span class="w"> </span>-do<span class="w"> </span><span class="s2">&quot;run -all; coverage save -onexit coverage.ucdb; quit&quot;</span>
+
+<span class="c1"># 生成覆盖率报告</span>
+vcover<span class="w"> </span>report<span class="w"> </span>-html<span class="w"> </span>coverage.ucdb<span class="w"> </span>-output<span class="w"> </span>coverage_report
+</code></pre></div>
+
+<h2 id="regression-debug-coverage-closure">Regression Debug 与 Coverage Closure 实战</h2>
+<h3 id="1-bring-up">1. Bring-up 问题定位</h3>
+<p>早期 regression 的第一个问题不是编译错误，而是多个 test 在等待 DMA <code>done/error</code> interrupt 时 timeout。Debug 顺序是：</p>
+<ol>
+<li>先看 log 中的 first failure，而不是最后一个 error summary。</li>
+<li>确认 RAL frontdoor CSR write/read 都能返回 <code>UVM_IS_OK</code>，排除 AXI-Lite/RAL 路径卡死。</li>
+<li>再沿着 DMA start 后的 <code>go</code>、descriptor、AXI request、memory response、IRQ 状态往后 trace。</li>
+<li>区分 testbench 问题和 DUT 问题：如果是 response item/scoreboard policy 缺失，就修 UVM；如果是 DUT 没产生 expected error/done，就修 RTL。</li>
+</ol>
+<h3 id="2-testbench_1">2. Testbench 修复点</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>修复方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通 sequence 和 virtual sequence 职责混在一起</td>
+<td>普通 sequence 只在对应 agent sequencer 上产生 transaction；virtual sequence 负责 RAL 编程、reset/interrupt、普通 sequence 调度</td>
+</tr>
+<tr>
+<td>已有 RAL 但 sequence 仍手写复杂 CSR transaction</td>
+<td>CSR 编程统一走 RAL frontdoor，减少 hard-code address 和 mirror mismatch</td>
+</tr>
+<tr>
+<td>AXI-Lite/RAL 曾经卡住</td>
+<td>driver 对每次 read/write 都产生 response item，adapter 用完成后的 item 填回 status/data</td>
+</tr>
+<tr>
+<td>AXI memory slave 被误当作主动流量源</td>
+<td>memory agent driver 作为 slave BFM 响应 DUT master 请求；<code>try_next_item()</code> 只用于可选 error override</td>
+</tr>
+<tr>
+<td>expected error 被 scoreboard 当失败</td>
+<td>error test 打开 <code>allow_error_responses</code>，分别覆盖 read/write SLVERR 和 DECERR</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-rtl-bug">3. RTL Bug 修复点</h3>
+<table>
+<thead>
+<tr>
+<th>Bug</th>
+<th>Root cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>invalid config 只 done 不 error</td>
+<td>FSM 只判断是否存在 nonzero descriptor，没有把 enabled zero-byte descriptor 视为错误</td>
+<td><code>dma_fsm</code> 增加 config error latch，并驱动 STATUS.error / ERROR_STATS</td>
+</tr>
+<tr>
+<td>ERROR_STATS error type 编码反了</td>
+<td>enum 顺序和 register map 说明不一致</td>
+<td>调整 <code>DMA_ERR_OPE</code> / <code>DMA_ERR_CFG</code> 编码</td>
+</tr>
+<tr>
+<td><code>DMA_PROGRESS_TIMEOUT</code> 编译 undefined</td>
+<td>Questa filelist 独立 compilation unit 下模块看不到宏</td>
+<td>在 DUT filelist 中补 <code>+define+DMA_PROGRESS_TIMEOUT=16383</code></td>
+</tr>
+<tr>
+<td>内部 FIFO overflow/underflow 没上报</td>
+<td>多个 FIFO 的 <code>error_o</code> 悬空</td>
+<td>将 internal FIFO error 汇总到 DMA error path</td>
+</tr>
+<tr>
+<td>首个 error 可能被后续 error 覆盖</td>
+<td>error latch 保护不完整</td>
+<td><code>dma_error_ff.valid</code> 置位后保持，直到 clear</td>
+</tr>
+<tr>
+<td>AXI/FIFO 卡住时只靠 UVM timeout</td>
+<td>FSM 没有 progress watchdog</td>
+<td><code>dma_axi_if</code> 输出 progress pulse，<code>dma_fsm</code> 增加 watchdog timeout error</td>
+</tr>
+<tr>
+<td>clear 后 tracking state 可能残留</td>
+<td>内部 request/error FIFO 没接 clear</td>
+<td>FIFO 和 pending counter/write lock/beat counter/sticky valid 在 clear 时复位</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-coverage-100">4. Coverage 结果与未到 100% 的原因</h3>
+<p>最新 Questa merged report：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total coverage</td>
+<td><code>91.98%</code></td>
+</tr>
+<tr>
+<td>Code-only filtered coverage</td>
+<td><code>88.44%</code></td>
+</tr>
+<tr>
+<td>Statement</td>
+<td><code>96.36%</code></td>
+</tr>
+<tr>
+<td>Branch</td>
+<td><code>96.25%</code></td>
+</tr>
+<tr>
+<td>FEC condition</td>
+<td><code>79.33%</code></td>
+</tr>
+<tr>
+<td>Toggle</td>
+<td><code>79.95%</code></td>
+</tr>
+<tr>
+<td>Covergroup / assertion</td>
+<td><code>100%</code></td>
+</tr>
+</tbody>
+</table>
+<p>没有到 100% 的主要原因：</p>
+<ol>
+<li><strong>FEC condition 是主短板</strong>：剩余 hole 集中在 <code>progress_timeout</code>、<code>local_error_ff.valid</code>、<code>FIFO full</code>、<code>abort + rvalid + full</code>、<code>clear + AR/AW/W valid stall</code> 等组合。这些不是普通数据搬移自然会 hit 的路径。</li>
+<li><strong>部分防御性路径需要极端协议时序</strong>：例如 clear 当拍刚好遇到 AR/AW/W valid 且 ready stall，需要非常刻意的 slave delay 和 CSR clear 时序，不适合混入普通 passing regression。</li>
+<li><strong>部分结构信号是常量或 tie-off</strong>：AXI optional sideband、ID/user/prot/cache/qos/region、固定 size、对齐地址低位等不应该为了 toggle 而写非法 stimulus。</li>
+<li><strong>合法配置已经挡住了某些错误组合</strong>：例如 enabled zero-byte descriptor 已在 CFG 阶段报 config error，因此 RUN 阶段再覆盖 <code>num_bytes==0</code> 的条件接近不可达。</li>
+<li><strong>FIFO overflow/underflow 属于 defensive error path</strong>：正常约束下 BFM 不应该持续非法压垮内部 FIFO；如果要覆盖，应作为单独 error/debug test，并让 scoreboard 预期该错误。</li>
+</ol>
+<h3 id="5-coverage">5. Coverage 补充动作</h3>
+<table>
+<thead>
+<tr>
+<th>补充动作</th>
+<th>目的</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>增加 <code>random_mixed_transfer_test</code></td>
+<td>用 constrained random 扩展 address/size/max_burst 组合</td>
+<td>扩展正常功能空间</td>
+</tr>
+<tr>
+<td>增加 <code>high_addr_toggle_test</code></td>
+<td>交替 desc0/desc1，扫高位 src/dst address 和 INCR/FIXED mode</td>
+<td>补 descriptor/AXI address toggle</td>
+</tr>
+<tr>
+<td>增加 read/write DECERR test</td>
+<td>在 SLVERR 之外覆盖 DECERR response</td>
+<td>补 AXI error response 类型</td>
+</tr>
+<tr>
+<td>增强 <code>csr_all_regs_test</code></td>
+<td>idle 状态下通过 RAL/CSR 写 <code>ffff_ffff -&gt; 0 -&gt; 5555_5555 -&gt; aaaa_aaaa -&gt; 0</code></td>
+<td>code-only coverage 从 <code>85.79%</code> 涨到 <code>88.44%</code>，toggle 从 <code>70.13%</code> 涨到 <code>79.95%</code></td>
+</tr>
+<tr>
+<td>加结构性 toggle waiver</td>
+<td>对 AXI optional/tie-off/固定对齐信号做有理由排除</td>
+<td>不关闭全局 toggle，只忽略不可达 bins</td>
+</tr>
+</tbody>
+</table>
+<p>面试里可以强调：coverage closure 不是盲目追 100%，而是把 hole 分成 real missing test、constraint issue、DUT bug、known issue 和 structural waiver。真正的目标是“每个 spec feature 都被验证并且每个未覆盖项都有解释”。</p>
+<h2 id="_10">调试技巧</h2>
+<h3 id="1_1">1. 波形调试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 在测试中设置波形dump</span>
+<span class="k">initial</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="p">$</span><span class="n">dumpfile</span><span class="p">(</span><span class="s">&quot;dma_wave.vcd&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">$</span><span class="n">dumpvars</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">tb_top</span><span class="p">);</span>
+<span class="k">end</span>
+
+<span class="c1">// 或者使用Questa命令</span>
+<span class="c1">// vsim -view vsim.wlf -do &quot;add wave *; run -all&quot;</span>
+</code></pre></div>
+
+<h3 id="2-uvm">2. UVM消息控制</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 设置消息冗余度</span>
+<span class="n">uvm_report_server</span><span class="o">::</span><span class="n">set_verbosity_level</span><span class="p">(</span><span class="n">UVM_MEDIUM</span><span class="p">);</span>
+
+<span class="c1">// 特定组件消息控制</span>
+<span class="n">axil_agent</span><span class="p">.</span><span class="n">set_report_verbosity_level_hier</span><span class="p">(</span><span class="n">UVM_HIGH</span><span class="p">);</span>
+<span class="n">mem_agent</span><span class="p">.</span><span class="n">set_report_verbosity_level_hier</span><span class="p">(</span><span class="n">UVM_LOW</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="3_3">3. 寄存器调试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 打印寄存器值</span>
+<span class="n">ral</span><span class="p">.</span><span class="n">DMA_STATUS</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+<span class="n">ral</span><span class="p">.</span><span class="n">DMA_CONTROL</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+
+<span class="c1">// 比较mirror和desired值</span>
+<span class="n">ral</span><span class="p">.</span><span class="n">mirror</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">UVM_CHECK</span><span class="p">);</span>
+<span class="n">ral</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">UVM_BACKDOOR</span><span class="p">);</span>
+</code></pre></div>
+
+<h2 id="_11">项目经验总结</h2>
+<h3 id="_12">技术收获</h3>
+<ol>
+<li><strong>完整UVM环境搭建</strong>: 从零搭建包含agent、env、RAL、scoreboard的完整验证环境</li>
+<li><strong>AXI协议深入理解</strong>: 掌握AXI-Lite和AXI4协议细节，包括burst类型、outstanding、response处理</li>
+<li><strong>高级UVM特性应用</strong>: 使用virtual sequencer、explicit predictor、analysis port等高级特性</li>
+<li><strong>覆盖率驱动验证</strong>: 设计功能覆盖率模型，实现覆盖率闭环</li>
+</ol>
+<h3 id="_13">调试经验</h3>
+<ol>
+<li><strong>AXI握手时序</strong>: 确保valid/ready握手符合协议要求</li>
+<li><strong>指针同步问题</strong>: 格雷码指针在跨时钟域同步时的时序要求</li>
+<li><strong>中断竞争条件</strong>: 中断产生和清除的时序关系</li>
+<li><strong>内存数据完整性</strong>: 确保源和目标内存数据完全一致</li>
+</ol>
+<h3 id="_14">最佳实践</h3>
+<ol>
+<li><strong>模块化设计</strong>: 各UVM组件职责清晰，便于复用</li>
+<li><strong>配置灵活性</strong>: 通过config_db提供灵活的配置选项</li>
+<li><strong>错误注入机制</strong>: 支持多种错误注入方式，提高验证完备性</li>
+<li><strong>自动化回归</strong>: 建立自动化回归测试流程，提高验证效率</li>
+</ol>
+<p><a id="axi-dma-innosilicon-followups"></a></p>
+<h2 id="_15">芯动科技验证面试追问复盘</h2>
+<p>这一节用于回答 2026-06-03 芯动科技验证实习一面中围绕 AXI DMA UVM 项目的追问。</p>
+<h3 id="1-dutvip">1. 怎么将信号驱动到 DUT？VIP 还是自己写的？</h3>
+<p>中文版回答：</p>
+<p>我这个 DMA 验证环境没有用商业 VIP，AXI-Lite master agent 和 AXI memory slave BFM 都是自己写的。控制路径上，test/virtual sequence 通过 RAL frontdoor 发起寄存器访问，RAL adapter 把 register operation 转成 AXI-Lite sequence item，AXI-Lite driver 再把 AW/W/B 或 AR/R 握手驱动到 interface 上。数据搬运路径上，DUT 自己是 AXI4 master，testbench 这边不是主动发数据，而是一个 AXI memory slave BFM，被动接收 DUT 发出的 AR/AW/W 请求，再从 shared memory model 返回 RDATA 或写入 memory model。为了验证 backpressure，我在 slave BFM 里随机插 ready delay 和 response delay。</p>
+<p>回答关键词：</p>
+<ul>
+<li>AXI-Lite：主动 master agent，用于 CSR/RAL frontdoor。</li>
+<li>AXI4 memory：被动 slave BFM，响应 DUT master。</li>
+<li>没用商业 VIP；自己写 driver/monitor/BFM/scoreboard。</li>
+<li>Backpressure 通过 ready/response delay 实现。</li>
+</ul>
+<p>容易说错：</p>
+<ul>
+<li>不要把 memory slave BFM 说成“主动往 DUT 发送 data”。更准确的说法是：DUT 发读请求，BFM 返回读数据；DUT 发写请求，BFM 接收写数据并更新 memory model。</li>
+<li>不要把这个项目和 TVIP-AXI crossbar 项目混在一起。DMA 项目是自写 BFM；crossbar 项目才是使用开源 AXI VIP。</li>
+</ul>
+<h3 id="2-abort">2. abort 注入怎么实现？</h3>
+<p>中文版回答：</p>
+<p>我会把 abort 分成两类说明。正常 DMA abort 测试应该走 frontdoor：在传输进行中，通过 AXI-Lite/RAL 写 <code>CONTROL.abort</code> bit，然后检查 DUT 是否停止继续发起新的 AXI transaction，已经 pending 的 transaction 是否被正确 drain 或清理，最后检查 <code>STATUS</code>、<code>ERROR_STATS</code>、interrupt 和 scoreboard 状态。这个路径最接近真实软件行为。</p>
+<p>如果是为了覆盖很难从外部触发的内部错误，也可以在白盒验证中用 <code>force/release</code> 临时拉高内部 fault/abort-like 信号，但这属于 fault injection，不应该替代正常 CSR abort path。使用 <code>force</code> 时要有明确的 cleanup，test 结束或 reset 后必须 <code>release</code>，并且 scoreboard 要把这个场景标记为 expected error。</p>
+<p>面试回答顺序：</p>
+<ol>
+<li>先讲 frontdoor CSR abort：<code>RAL/AXI-Lite write CONTROL.abort</code>。</li>
+<li>再讲检查点：no new request、pending cleanup、IRQ/status/error stats、scoreboard 不误报。</li>
+<li>最后补充：白盒 <code>force/release</code> 只用于特殊 fault injection。</li>
+</ol>
+<h3 id="3-dma">3. 整个 DMA 是多路一起搬运还是单独搬运？</h3>
+<p>中文版回答：</p>
+<p>这个问题要先澄清“多路”指什么。如果指物理数据通道，我这个 DUT 不是多个独立 DMA channel 同时并行搬，而是一个 AXI master datapath 根据 descriptor 配置执行搬运。如果指 descriptor slot，DUT 有两个 descriptor 配置槽，可以存两笔传输配置；testbench 主要把 desc0 作为完整数据 copy path 来验证，desc1 做 CSR/RAL readback 和配置覆盖，并把 desc1-only completion 作为 known issue 记录。如果指 AXI outstanding，那么一笔较长 transfer 会被 DUT 内部拆成多个 AXI burst，在前一个 burst response 回来之前继续发起后续请求，从而形成 outstanding。</p>
+<p>简短版：</p>
+<ul>
+<li>Descriptor slot：可以配置多笔传输任务。</li>
+<li>Physical channel：不是多个独立 DMA 数据通道并行搬。</li>
+<li>AXI outstanding：长 transfer 被拆成多个 burst，请求可以同时 pending。</li>
+<li>Testbench：只配置 descriptor 和 backpressure，不直接“发 outstanding”；outstanding 是 DUT AXI master 行为。</li>
+</ul>
+<h3 id="4-outstanding">4. outstanding 是谁发起的？怎么验证？</h3>
+<p>中文版回答：</p>
+<p>Outstanding 不是 testbench 直接发给 DUT 的信号，而是 DUT 作为 AXI master 在数据搬运时自己发起多个未完成 transaction。Testbench 通过配置大 transfer size、较小 max burst、以及 memory slave BFM 的 response delay 来创造压力，让 DUT 在前一笔还没返回时继续发后续 AR/AW 请求。Monitor 统计发出的 request 和返回的 response，scoreboard 维护 pending counter 或按 ID/方向记录 outstanding depth，并在 coverage 中采样深度 bins。</p>
+<p>检查点：</p>
+<ul>
+<li>outstanding depth 是否能达到设计目标。</li>
+<li>达到上限后 DUT 是否 backpressure/停止继续发新请求。</li>
+<li>response 回来后 pending counter 是否正确减少。</li>
+<li>error response 或 abort 时 pending 状态是否能清理干净。</li>
+</ul>
+<h3 id="5-transfer-wstrb">5. 未对齐 transfer 和 WSTRB 怎么讲？</h3>
+<p>中文版回答：</p>
+<p>AXI 总线每个 beat 仍然按 data width 传，比如 32-bit data bus 一拍是 4 byte；但对于起始地址或传输长度不对齐的情况，并不是所有 byte lane 都有效。WSTRB 每一 bit 对应 WDATA 中的一个 byte，1 表示该 byte 有效、slave 应该写入，0 表示该 byte 无效、slave 应忽略。因此 5 byte transfer 可能被拆成两个 beat，首尾 beat 通过 WSTRB 只选择有效 byte。验证时 memory model 和 scoreboard 最好按 byte 粒度检查，而不是只按 32-bit word 比较。</p>
+<h3 id="6-vip">6. 如果面试官追问“为什么不用 VIP？”</h3>
+<p>中文版回答：</p>
+<p>这个项目的目标之一是展示我能理解 AXI valid-ready、burst、response 和 backpressure 的底层机制，所以我选择自己写一个轻量 AXI-Lite master agent 和 AXI memory slave BFM。这样我能控制 ready delay、response delay、error response 和 memory model 行为，也方便 debug。实际工业项目里，如果团队已有成熟 AXI VIP，我会优先复用 VIP 做协议合法性检查和覆盖，再把自己的 scoreboard、RAL、testplan 和场景约束接到 VIP 的 transaction/analysis port 上。</p>
+<h2 id="_16">面试要点</h2>
+<h3 id="_17">技术深度问题</h3>
+<ol>
+<li><strong>AXI协议细节</strong>: outstanding transaction管理、burst类型区别、response类型</li>
+<li><strong>UVM架构设计</strong>: virtual sequencer作用、RAL predictor实现、analysis port使用</li>
+<li><strong>验证完备性</strong>: 如何确保覆盖所有corner case、错误注入策略</li>
+<li><strong>性能优化</strong>: 如何提高仿真速度、减少内存占用</li>
+</ol>
+<h3 id="_18">项目经验问题</h3>
+<ol>
+<li><strong>遇到的最大挑战</strong>: 可能是outstanding深度验证、错误注入机制设计等</li>
+<li><strong>团队协作</strong>: 如何与设计工程师协作、问题定位流程</li>
+<li><strong>质量保证</strong>: 如何确保验证质量、覆盖率目标达成</li>
+<li><strong>持续改进</strong>: 如果重做项目，会做哪些改进</li>
+</ol>
+<h3 id="_19">扩展思考</h3>
+<ol>
+<li><strong>协议断言</strong>: 如何添加SVA断言提高验证效率</li>
+<li><strong>形式验证</strong>: 哪些部分适合使用形式验证</li>
+<li><strong>VIP集成</strong>: 如何集成商业VIP提高验证效率</li>
+<li><strong>跨平台验证</strong>: 如何支持不同仿真器</li>
+</ol>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

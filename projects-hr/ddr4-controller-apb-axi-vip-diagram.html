@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APB + AXI VIP 验证 DDR4 Controller 详细讲解</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5d6877;
+      --paper: #f6f8fb;
+      --panel: #ffffff;
+      --line: #cbd5e1;
+      --apb: #245fa8;
+      --apb-soft: #e9f1fb;
+      --axi: #157a61;
+      --axi-soft: #e6f4ee;
+      --ddr: #8a5a1f;
+      --ddr-soft: #f8efe0;
+      --check: #6d4aa0;
+      --check-soft: #f0eafa;
+      --warn: #b44535;
+      --gray: #64748b;
+      --shadow: 0 8px 24px rgba(29, 42, 58, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .page {
+      width: min(1220px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 26px 0 42px;
+    }
+
+    header {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 29px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 940px;
+    }
+
+    .quick-answer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 16px 0 18px;
+    }
+
+    .qa-item,
+    .panel,
+    .step,
+    .table-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .qa-item {
+      padding: 12px;
+      min-height: 108px;
+      border-top: 5px solid var(--gray);
+    }
+
+    .qa-item.apb {
+      border-top-color: var(--apb);
+    }
+
+    .qa-item.axi {
+      border-top-color: var(--axi);
+    }
+
+    .qa-item.ddr {
+      border-top-color: var(--ddr);
+    }
+
+    .qa-item.check {
+      border-top-color: var(--check);
+    }
+
+    .qa-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .qa-item span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .diagram-shell {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: auto;
+      margin-bottom: 18px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 1120px;
+      height: auto;
+    }
+
+    .box {
+      fill: #fff;
+      stroke: #94a3b8;
+      stroke-width: 1.5;
+      rx: 8;
+      ry: 8;
+    }
+
+    .box.apb {
+      fill: var(--apb-soft);
+      stroke: var(--apb);
+    }
+
+    .box.axi {
+      fill: var(--axi-soft);
+      stroke: var(--axi);
+    }
+
+    .box.ddr {
+      fill: var(--ddr-soft);
+      stroke: var(--ddr);
+    }
+
+    .box.check {
+      fill: var(--check-soft);
+      stroke: var(--check);
+    }
+
+    .box.core {
+      fill: #f3f6f9;
+      stroke: #6b7b8d;
+    }
+
+    .svg-title {
+      font-size: 17px;
+      font-weight: 700;
+      fill: var(--ink);
+    }
+
+    .svg-small {
+      font-size: 13px;
+      fill: var(--muted);
+    }
+
+    .svg-mini {
+      font-size: 12px;
+      fill: var(--muted);
+    }
+
+    .svg-label {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .svg-label.apb {
+      fill: var(--apb);
+    }
+
+    .svg-label.axi {
+      fill: var(--axi);
+    }
+
+    .svg-label.ddr {
+      fill: var(--ddr);
+    }
+
+    .svg-label.check {
+      fill: var(--check);
+    }
+
+    .arrow-apb,
+    .arrow-axi,
+    .arrow-ddr,
+    .arrow-check,
+    .arrow-gray {
+      fill: none;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .arrow-apb {
+      stroke: var(--apb);
+      marker-end: url(#arrow-apb);
+    }
+
+    .arrow-axi {
+      stroke: var(--axi);
+      marker-end: url(#arrow-axi);
+    }
+
+    .arrow-ddr {
+      stroke: var(--ddr);
+      marker-end: url(#arrow-ddr);
+    }
+
+    .arrow-check {
+      stroke: var(--check);
+      marker-end: url(#arrow-check);
+    }
+
+    .arrow-gray {
+      stroke: var(--gray);
+      marker-end: url(#arrow-gray);
+    }
+
+    .dash {
+      stroke-dasharray: 7 7;
+    }
+
+    .section-title {
+      margin: 24px 0 10px;
+      font-size: 21px;
+      letter-spacing: 0;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .panel {
+      padding: 15px;
+    }
+
+    .panel h3,
+    .table-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .panel p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .tag {
+      border: 1px solid #d8e0ea;
+      border-radius: 999px;
+      background: #f8fafc;
+      padding: 4px 8px;
+      color: #344256;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .code {
+      margin: 10px 0 0;
+      border: 1px solid #d7e0ea;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #101923;
+    }
+
+    .code-title {
+      padding: 7px 10px;
+      background: #1d2a38;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    pre {
+      margin: 0;
+      padding: 12px;
+      color: #e5edf7;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      overflow: auto;
+    }
+
+    code {
+      background: #edf2f7;
+      border: 1px solid #d7e0ea;
+      border-radius: 4px;
+      padding: 1px 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92em;
+      color: #26384c;
+    }
+
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+
+    .step {
+      position: relative;
+      padding: 12px;
+      min-height: 150px;
+      border-top: 5px solid var(--gray);
+    }
+
+    .step.apb {
+      border-top-color: var(--apb);
+    }
+
+    .step.axi {
+      border-top-color: var(--axi);
+    }
+
+    .step.ddr {
+      border-top-color: var(--ddr);
+    }
+
+    .step.check {
+      border-top-color: var(--check);
+    }
+
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      margin-bottom: 7px;
+      border-radius: 999px;
+      background: var(--gray);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .step.apb .num {
+      background: var(--apb);
+    }
+
+    .step.axi .num {
+      background: var(--axi);
+    }
+
+    .step.ddr .num {
+      background: var(--ddr);
+    }
+
+    .step.check .num {
+      background: var(--check);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .table-card h3 {
+      padding: 14px 15px 0;
+    }
+
+    .table {
+      display: grid;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 12px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 180px 1.2fr 1.2fr;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .row > div {
+      padding: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .row > div:last-child {
+      border-right: 0;
+    }
+
+    .row.head > div {
+      background: #f3f6f9;
+      color: #26384c;
+      font-weight: 700;
+    }
+
+    .row > div:first-child {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .callout {
+      margin-top: 14px;
+      border: 1px solid #e2d6a5;
+      border-left: 5px solid #b38a21;
+      border-radius: 8px;
+      background: #fff9e8;
+      padding: 13px 14px;
+      color: #5b4a1f;
+      font-size: 14px;
+    }
+
+    .path-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .path-list a {
+      color: #245fa8;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+      font-size: 13px;
+    }
+
+    .path-list a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+      .page {
+        width: min(100vw - 20px, 1220px);
+        padding-top: 18px;
+      }
+
+      h1 {
+        font-size: 23px;
+      }
+
+      .quick-answer,
+      .grid-2,
+      .grid-3,
+      .flow-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .row > div {
+        border-right: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>APB + AXI VIP 怎么验证 DDR4 Controller</h1>
+      <p class="lead">这页讲的是最常见的使用场景：你不直接写 DDR4 pin-level driver，而是用 APB VIP 配寄存器、用 AXI VIP 产生读写流量，再用 monitor、scoreboard、DDR/DFI checker 判断 controller 有没有正确控制 DDR4。</p>
+    </header>
+
+    <section class="quick-answer" aria-label="一句话总览">
+      <div class="qa-item apb">
+        <strong>APB VIP 发控制事务</strong>
+        <span>写 timing、地址映射、端口、refresh、DFI/PHY init 相关寄存器；再读状态寄存器确认初始化完成。</span>
+      </div>
+      <div class="qa-item axi">
+        <strong>AXI VIP 发数据事务</strong>
+        <span>发 write/read burst 到 DDR memory 地址空间，用不同地址、长度、ID、QoS、数据 pattern 制造压力。</span>
+      </div>
+      <div class="qa-item ddr">
+        <strong>Controller 生成 DDR4 行为</strong>
+        <span>把 AXI 请求调度成 ACT、RD、WR、PRE、REF 等 DDR4 操作，并满足 timing 约束。</span>
+      </div>
+      <div class="qa-item check">
+        <strong>结果由多层检查判断</strong>
+        <span>协议 checker、read-hash、AXI-HIF、HIF-DFI、DDR model、log postprocess 一起决定 PASS/FAIL。</span>
+      </div>
+    </section>
+
+    <section class="diagram-shell" aria-label="APB AXI VIP 验证总图">
+      <svg viewBox="0 0 1220 760" role="img" aria-labelledby="diagram-title diagram-desc">
+        <title id="diagram-title">APB 和 AXI VIP 验证 DDR4 controller 的完整路径</title>
+        <desc id="diagram-desc">UVM test sequence 通过 APB VIP 配寄存器，通过 AXI VIP 发读写流量。DDR controller 将 AXI 请求转成 HIF、DFI、PHY 和 DDR4 命令。APB monitor、AXI monitor、HIF monitor、DFI monitor、DDR checker 和 postprocess 检查结果。</desc>
+
+        <defs>
+          <marker id="arrow-apb" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#245fa8"></path>
+          </marker>
+          <marker id="arrow-axi" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#157a61"></path>
+          </marker>
+          <marker id="arrow-ddr" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#8a5a1f"></path>
+          </marker>
+          <marker id="arrow-check" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#6d4aa0"></path>
+          </marker>
+          <marker id="arrow-gray" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+            <path d="M0,0 L10,5 L0,10 Z" fill="#64748b"></path>
+          </marker>
+        </defs>
+
+        <rect x="22" y="24" width="1176" height="710" rx="8" fill="#fbfcfe" stroke="#d8e0ea"></rect>
+
+        <text x="52" y="58" class="svg-label apb">配置路径：APB register/control space</text>
+        <text x="52" y="280" class="svg-label axi">数据路径：AXI memory space</text>
+        <text x="52" y="600" class="svg-label check">检查路径：monitor + scoreboard + postprocess</text>
+
+        <rect x="58" y="82" width="180" height="88" class="box check"></rect>
+        <text x="148" y="116" text-anchor="middle" class="svg-title">UVM Test</text>
+        <text x="148" y="140" text-anchor="middle" class="svg-small">virtual sequence</text>
+        <text x="148" y="158" text-anchor="middle" class="svg-mini">mss_initialize + traffic seq</text>
+
+        <rect x="310" y="72" width="178" height="110" class="box apb"></rect>
+        <text x="399" y="106" text-anchor="middle" class="svg-title">APB VIP</text>
+        <text x="399" y="131" text-anchor="middle" class="svg-small">svt_apb_if apb_if0</text>
+        <text x="399" y="150" text-anchor="middle" class="svg-mini">WRITE / READ transaction</text>
+
+        <rect x="568" y="72" width="226" height="110" class="box core"></rect>
+        <text x="681" y="106" text-anchor="middle" class="svg-title">DDRC / PHY CSR</text>
+        <text x="681" y="131" text-anchor="middle" class="svg-small">MSTR / TIMING / ADDRMAP</text>
+        <text x="681" y="150" text-anchor="middle" class="svg-mini">PCTRL / DFIMISC / STAT / PHY init</text>
+
+        <rect x="880" y="82" width="168" height="88" class="box core"></rect>
+        <text x="964" y="116" text-anchor="middle" class="svg-title">Init Ready</text>
+        <text x="964" y="140" text-anchor="middle" class="svg-small">polling status</text>
+        <text x="964" y="158" text-anchor="middle" class="svg-mini">ready 后再发 AXI</text>
+
+        <path d="M238 126 H310" class="arrow-apb"></path>
+        <text x="274" y="112" text-anchor="middle" class="svg-label apb">配置 sequence</text>
+        <path d="M488 126 H568" class="arrow-apb"></path>
+        <text x="528" y="112" text-anchor="middle" class="svg-label apb">寄存器写/读</text>
+        <path d="M794 126 H880" class="arrow-apb"></path>
+        <text x="837" y="112" text-anchor="middle" class="svg-label apb">状态轮询</text>
+        <path d="M964 170 C964 222 681 222 681 182" class="arrow-apb dash"></path>
+        <text x="814" y="214" text-anchor="middle" class="svg-small">未完成就继续读 status register</text>
+
+        <rect x="58" y="306" width="180" height="96" class="box check"></rect>
+        <text x="148" y="339" text-anchor="middle" class="svg-title">Traffic Test</text>
+        <text x="148" y="364" text-anchor="middle" class="svg-small">directed / random</text>
+        <text x="148" y="383" text-anchor="middle" class="svg-mini">write then read</text>
+
+        <rect x="310" y="296" width="178" height="116" class="box axi"></rect>
+        <text x="399" y="331" text-anchor="middle" class="svg-title">AXI VIP</text>
+        <text x="399" y="356" text-anchor="middle" class="svg-small">svt_axi_if axi_if</text>
+        <text x="399" y="375" text-anchor="middle" class="svg-mini">AW/W/B and AR/R</text>
+
+        <rect x="568" y="296" width="178" height="116" class="box axi"></rect>
+        <text x="657" y="331" text-anchor="middle" class="svg-title">AXI Port</text>
+        <text x="657" y="356" text-anchor="middle" class="svg-small">N ports / ID / QoS</text>
+        <text x="657" y="375" text-anchor="middle" class="svg-mini">memory address</text>
+
+        <rect x="826" y="296" width="178" height="116" class="box core"></rect>
+        <text x="915" y="331" text-anchor="middle" class="svg-title">ARB / HIF</text>
+        <text x="915" y="356" text-anchor="middle" class="svg-small">仲裁、排队、转换</text>
+        <text x="915" y="375" text-anchor="middle" class="svg-mini">RD / WR internal cmd</text>
+
+        <rect x="1052" y="296" width="142" height="116" class="box core"></rect>
+        <text x="1123" y="331" text-anchor="middle" class="svg-title">DDRC Core</text>
+        <text x="1123" y="356" text-anchor="middle" class="svg-small">scheduler</text>
+        <text x="1123" y="375" text-anchor="middle" class="svg-mini">page/bank/timing</text>
+
+        <rect x="568" y="476" width="178" height="82" class="box ddr"></rect>
+        <text x="657" y="509" text-anchor="middle" class="svg-title">DFI</text>
+        <text x="657" y="533" text-anchor="middle" class="svg-small">controller to PHY</text>
+
+        <rect x="826" y="476" width="178" height="82" class="box ddr"></rect>
+        <text x="915" y="509" text-anchor="middle" class="svg-title">PHY</text>
+        <text x="915" y="533" text-anchor="middle" class="svg-small">DQ / DQS / CA</text>
+
+        <rect x="1052" y="476" width="142" height="82" class="box ddr"></rect>
+        <text x="1123" y="509" text-anchor="middle" class="svg-title">DDR4 Model</text>
+        <text x="1123" y="533" text-anchor="middle" class="svg-small">rank/bank/row/col</text>
+
+        <path d="M238 354 H310" class="arrow-axi"></path>
+        <text x="274" y="340" text-anchor="middle" class="svg-label axi">AXI seq</text>
+        <path d="M488 354 H568" class="arrow-axi"></path>
+        <text x="528" y="340" text-anchor="middle" class="svg-label axi">burst</text>
+        <path d="M746 354 H826" class="arrow-axi"></path>
+        <text x="786" y="340" text-anchor="middle" class="svg-label axi">内部命令</text>
+        <path d="M1004 354 H1052" class="arrow-axi"></path>
+        <path d="M1123 412 C1123 458 657 452 657 476" class="arrow-ddr"></path>
+        <text x="920" y="452" text-anchor="middle" class="svg-label ddr">DFI command/data</text>
+        <path d="M746 517 H826" class="arrow-ddr"></path>
+        <path d="M1004 517 H1052" class="arrow-ddr"></path>
+        <path d="M1123 476 C1123 446 1123 430 1123 412" class="arrow-ddr dash"></path>
+
+        <rect x="58" y="626" width="184" height="72" class="box check"></rect>
+        <text x="150" y="655" text-anchor="middle" class="svg-title">APB Monitor</text>
+        <text x="150" y="678" text-anchor="middle" class="svg-small">RAL predictor / fcov</text>
+
+        <rect x="290" y="626" width="184" height="72" class="box check"></rect>
+        <text x="382" y="655" text-anchor="middle" class="svg-title">AXI Monitor</text>
+        <text x="382" y="678" text-anchor="middle" class="svg-small">protocol / read hash</text>
+
+        <rect x="522" y="626" width="184" height="72" class="box check"></rect>
+        <text x="614" y="655" text-anchor="middle" class="svg-title">AXI-HIF SB</text>
+        <text x="614" y="678" text-anchor="middle" class="svg-small">上层请求是否转对</text>
+
+        <rect x="754" y="626" width="184" height="72" class="box check"></rect>
+        <text x="846" y="655" text-anchor="middle" class="svg-title">HIF-DFI SB</text>
+        <text x="846" y="678" text-anchor="middle" class="svg-small">DDR 命令/timing/数据</text>
+
+        <rect x="986" y="626" width="184" height="72" class="box check"></rect>
+        <text x="1078" y="655" text-anchor="middle" class="svg-title">Postprocess</text>
+        <text x="1078" y="678" text-anchor="middle" class="svg-small">checklog + completed</text>
+
+        <path d="M399 412 C399 570 382 570 382 626" class="arrow-check dash"></path>
+        <path d="M657 412 C657 570 614 570 614 626" class="arrow-check dash"></path>
+        <path d="M915 412 C915 570 846 570 846 626" class="arrow-check dash"></path>
+        <path d="M681 182 C681 570 150 570 150 626" class="arrow-check dash"></path>
+        <path d="M1123 558 C1123 590 1078 590 1078 626" class="arrow-check dash"></path>
+      </svg>
+    </section>
+
+    <h2 class="section-title">1. 在这个工程里怎么使用 VIP</h2>
+    <section class="grid-2">
+      <article class="panel">
+        <h3>APB VIP：作为“软件/寄存器访问通道”</h3>
+        <p>APB VIP 的 master sequencer 会被挂到寄存器模型和 APB sequence 上。测试初始化时，sequence 通过 APB 写 controller 和 PHY 相关 CSR，然后读状态寄存器确认 DDR 初始化、训练、DFI ready。</p>
+        <p>你的工程里有两种常见用法：一种是通过 RAL/register utilities 间接访问寄存器；另一种是直接跑 <code>dwc_ddrctl_apb_master_wr_sequence</code> / <code>dwc_ddrctl_apb_master_rd_sequence</code>。</p>
+        <div class="code">
+          <div class="code-title">APB transaction 的本质</div>
+          <pre><code>`uvm_do_with(req, {
+  xact_type == svt_apb_transaction::WRITE;
+  address   == local::address;
+  data      == local::data;
+})
+
+`uvm_do_with(req, {
+  xact_type == svt_apb_transaction::READ;
+  address   == local::address;
+})</code></pre>
+        </div>
+        <div class="tag-row">
+          <span class="tag">PADDR</span>
+          <span class="tag">PWDATA</span>
+          <span class="tag">PWRITE</span>
+          <span class="tag">PSEL</span>
+          <span class="tag">PENABLE</span>
+          <span class="tag">PREADY</span>
+          <span class="tag">PRDATA</span>
+          <span class="tag">PSLVERR</span>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>AXI VIP：作为“内存访问 master”</h3>
+        <p>AXI VIP 的每个 master sequencer 对应一个 AXI port。测试可以在所有 port 上并行启动 directed/random AXI sequence，产生 write burst、read burst、不同 ID、不同地址、不同 burst length 的数据流。</p>
+        <p>典型 directed sequence 会先写一批地址，再读同一批地址。这样可以检查数据是否真的经过 controller 写进 DDR4，又能否正确读回来。</p>
+        <div class="code">
+          <div class="code-title">AXI directed sequence 的本质</div>
+          <pre><code>l_wr_tran.xact_type   = svt_axi_transaction::WRITE;
+l_wr_tran.addr        = target_addr;
+l_wr_tran.burst_type  = svt_axi_transaction::INCR;
+l_wr_tran.burst_length = axi_len;
+l_wr_tran.data[k]     = expected_pattern;
+
+execute_xact_and_proc_resp(l_wr_tran, wait_for_rsp);</code></pre>
+        </div>
+        <div class="tag-row">
+          <span class="tag">AWADDR</span>
+          <span class="tag">AWLEN</span>
+          <span class="tag">WDATA</span>
+          <span class="tag">WSTRB</span>
+          <span class="tag">BRESP</span>
+          <span class="tag">ARADDR</span>
+          <span class="tag">RDATA</span>
+          <span class="tag">RRESP</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="callout">
+      你写 test 时主要是在控制 sequence：先初始化子系统，再启动 AXI traffic。你不需要写 AXI pin toggling，也不需要自己写 APB handshake，VIP driver 会把 transaction 转成总线信号。
+    </div>
+
+    <h2 class="section-title">2. APB 配置到底在配置什么</h2>
+    <section class="grid-3">
+      <article class="panel">
+        <h3>内存类型和基础模式</h3>
+        <p>设置 DDR4 模式、rank 数、数据宽度、burst 相关选项、是否启用 ECC/DBI/CRC 等。这里决定 controller 后面应该按什么内存规格工作。</p>
+        <div class="tag-row">
+          <span class="tag">MSTR</span>
+          <span class="tag">DBICTL</span>
+          <span class="tag">ECCCFG</span>
+        </div>
+      </article>
+      <article class="panel">
+        <h3>timing 参数</h3>
+        <p>配置 controller 要遵守的 DDR4 timing，例如 activate 到 read/write 的间隔、precharge 时间、refresh 时间、read/write 切换间隔。</p>
+        <div class="tag-row">
+          <span class="tag">tRCD</span>
+          <span class="tag">tRP</span>
+          <span class="tag">tRAS</span>
+          <span class="tag">tFAW</span>
+          <span class="tag">tRFC</span>
+        </div>
+      </article>
+      <article class="panel">
+        <h3>地址映射</h3>
+        <p>决定 AXI/system address 的哪些 bit 映射到 DDR4 的 rank、bank group、bank、row、column。这个是 DDR controller 验证里非常关键的点。</p>
+        <div class="tag-row">
+          <span class="tag">ADDRMAP</span>
+          <span class="tag">rank</span>
+          <span class="tag">bank group</span>
+          <span class="tag">row</span>
+          <span class="tag">column</span>
+        </div>
+      </article>
+      <article class="panel">
+        <h3>端口和 QoS</h3>
+        <p>配置 AXI port 是否打开、优先级、读写队列、urgent、high priority read 等。多端口同时访问时，controller 的仲裁行为会被这些配置影响。</p>
+      </article>
+      <article class="panel">
+        <h3>refresh 和 low power</h3>
+        <p>DDR4 必须周期性 refresh。controller 还可能进入 self-refresh、power-down 等低功耗状态。APB 配置会决定这些状态机如何启动和退出。</p>
+      </article>
+      <article class="panel">
+        <h3>DFI/PHY 初始化</h3>
+        <p>通过 APB 触发 PHY init/training，等待 <code>dfi_init_complete</code> 或相关 status。AXI 流量通常必须等这些 ready 后才能开始。</p>
+      </article>
+    </section>
+
+    <h2 class="section-title">3. AXI 流量进入 controller 后，DDR4 协议发生了什么</h2>
+    <section class="grid-2">
+      <article class="panel">
+        <h3>DDR4 内存组织</h3>
+        <p>DDR4 不是一个平坦 SRAM。一个 AXI 地址会被 controller 映射成 DDR4 的 <code>rank / bank group / bank / row / column</code>。</p>
+        <p>如果目标 row 已经打开，访问可能是 page hit；如果要访问另一个 row，controller 可能需要先 precharge 旧 row，再 activate 新 row，这就是 page miss 或 bank conflict。</p>
+        <div class="code">
+          <div class="code-title">地址理解方式</div>
+          <pre><code>AXI byte address
+  -> system address
+  -> rank / bank group / bank / row / column
+  -> DDR4 command schedule</code></pre>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>一次 DDR4 read/write 的典型命令</h3>
+        <p>如果目标 row 还没打开，controller 要先发 <code>ACT</code> 打开 row；等待 <code>tRCD</code> 后才能发 <code>RD</code> 或 <code>WR</code>；完成后可能保持 row 打开，也可能发 <code>PRE</code> 关闭 row。</p>
+        <div class="code">
+          <div class="code-title">简化后的 DDR4 命令时序</div>
+          <pre><code>Write miss:
+  ACT  rank/bank/row
+  wait tRCD
+  WR   column + write data burst
+  wait write recovery
+  PRE  optional
+
+Read miss:
+  ACT  rank/bank/row
+  wait tRCD
+  RD   column
+  wait read latency
+  receive read data burst
+  PRE  optional</code></pre>
+        </div>
+      </article>
+    </section>
+
+    <section class="table-card" style="margin-top:14px;">
+      <h3>DDR4 协议里 controller 要自动处理的事情</h3>
+      <div class="table">
+        <div class="row head">
+          <div>DDR4 行为</div>
+          <div>controller 做什么</div>
+          <div>验证时怎么抓错</div>
+        </div>
+        <div class="row">
+          <div>ACT / RD / WR / PRE</div>
+          <div>根据 bank/row/column 调度命令，处理 page hit、page miss、bank conflict。</div>
+          <div>HIF-DFI scoreboard、DDR model、SVA/monitor 检查命令顺序和地址。</div>
+        </div>
+        <div class="row">
+          <div>timing 约束</div>
+          <div>满足 <code>tRCD</code>、<code>tRP</code>、<code>tRAS</code>、<code>tCCD</code>、<code>tFAW</code>、<code>tRFC</code> 等。</div>
+          <div>DFI/DDR checker 会报 timing violation；scoreboard 也能发现预测命令和实际命令不一致。</div>
+        </div>
+        <div class="row">
+          <div>refresh</div>
+          <div>周期性插入 refresh，并在 refresh 和正常读写之间做调度。</div>
+          <div>检查 refresh 期间访问是否被正确阻塞、延后或恢复。</div>
+        </div>
+        <div class="row">
+          <div>读写数据返回</div>
+          <div>写数据要落到正确地址；读数据要从正确地址返回，且满足 AXI response 顺序。</div>
+          <div>AXI read-hash / HIF read-hash / memory model 比对 expected data 与 observed data。</div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">4. 一个典型 APB + AXI 测试怎么跑</h2>
+    <section class="flow-steps">
+      <article class="step">
+        <span class="num">1</span>
+        <strong>创建配置</strong>
+        <span>test 随机化或指定 DDR4 配置，例如 rank、bus width、timing、addrmap、AXI port 数。</span>
+      </article>
+      <article class="step apb">
+        <span class="num">2</span>
+        <strong>APB 初始化</strong>
+        <span>通过 APB VIP 写 controller/PHY 寄存器，启动 DDR/PHY 初始化和训练。</span>
+      </article>
+      <article class="step apb">
+        <span class="num">3</span>
+        <strong>APB polling</strong>
+        <span>读 status register，确认 init done、training done、DFI ready，避免 DDR 未 ready 就发 AXI。</span>
+      </article>
+      <article class="step axi">
+        <span class="num">4</span>
+        <strong>AXI 写入</strong>
+        <span>AXI VIP 向 DDR memory 地址写入 pattern。monitor 同时记录写事务。</span>
+      </article>
+      <article class="step axi">
+        <span class="num">5</span>
+        <strong>AXI 读回</strong>
+        <span>AXI VIP 从相同或指定地址读回数据，检查 response、last、data。</span>
+      </article>
+      <article class="step check">
+        <span class="num">6</span>
+        <strong>收尾检查</strong>
+        <span>scoreboard 对比数据和内部事务；postprocess 扫 log，找到 completed 且无 error 才 PASS。</span>
+      </article>
+    </section>
+
+    <h2 class="section-title">5. 验证结果是否正确，是怎么判断的</h2>
+    <section class="table-card">
+      <h3>检查层次</h3>
+      <div class="table">
+        <div class="row head">
+          <div>检查层</div>
+          <div>检查对象</div>
+          <div>为什么能说明 DDR controller 对或错</div>
+        </div>
+        <div class="row">
+          <div>APB VIP checker</div>
+          <div>APB 握手、读写响应、<code>PSLVERR</code>、APB4 sideband。</div>
+          <div>保证配置事务本身合法，寄存器访问没有总线级错误。</div>
+        </div>
+        <div class="row">
+          <div>Register predictor / subscriber</div>
+          <div>APB monitor 观察到的寄存器写入、读回、状态变化。</div>
+          <div>确认 test 以为写进去的配置，和 monitor 看到的配置一致。</div>
+        </div>
+        <div class="row">
+          <div>AXI VIP checker</div>
+          <div>AXI 五通道协议、burst、ID、response、<code>RLAST</code>/<code>WLAST</code>。</div>
+          <div>保证流量入口合法；如果 AXI 本身错了，不能怪 DDR controller。</div>
+        </div>
+        <div class="row">
+          <div>Read-hash scoreboard</div>
+          <div>写入的 byte/pattern 和读回的 byte/pattern。</div>
+          <div>这是最直观的 end-to-end data integrity：写到 DDR 的数据必须能正确读回来。</div>
+        </div>
+        <div class="row">
+          <div>AXI-HIF scoreboard</div>
+          <div>AXI memory transaction 是否正确转换成 controller 内部 HIF 请求。</div>
+          <div>能抓地址映射、长度、方向、数据、优先级转换中的错误。</div>
+        </div>
+        <div class="row">
+          <div>HIF-DFI scoreboard</div>
+          <div>HIF 请求和 DFI/DDR 命令、数据、timing 的对应关系。</div>
+          <div>能抓 controller 调度 DDR4 命令时的错误，例如 page/bank/timing 行为不符合预测。</div>
+        </div>
+        <div class="row">
+          <div>DDR/DFI VIP checker</div>
+          <div>DFI interface、DDR4 command/data/timing。</div>
+          <div>能抓真正靠近 DDR4 协议侧的 violation。</div>
+        </div>
+        <div class="row">
+          <div>postprocess</div>
+          <div><code>checklog.pl</code> 扫 <code>test.log</code>/<code>compile.log</code>，并要求 <code>COMPLETED - done with Env</code>。</div>
+          <div>把所有 checker、scoreboard、fatal、timeout 的结果收敛成最终 <code>PASSED</code>/<code>FAILED</code>。</div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">6. 这和“只验证 APB/AXI”有什么不同</h2>
+    <section class="grid-2">
+      <article class="panel">
+        <h3>如果只是 APB/AXI 协议验证</h3>
+        <p>你只关心 APB 有没有握手成功、AXI 有没有满足五通道协议、response 是否 OKAY。只要总线 transaction 合法，测试可能就通过。</p>
+        <p>这种测试的重点是 bus protocol，不关心后面的 DDR4 bank、row、timing、refresh。</p>
+      </article>
+
+      <article class="panel">
+        <h3>这里是 DDR controller 验证</h3>
+        <p>APB/AXI 只是入口。真正要验证的是 controller 接到 AXI 请求后，能否正确映射地址、仲裁多端口、安排 DDR4 命令、处理 refresh、满足 timing、保持数据正确。</p>
+        <p>所以 AXI protocol 全对也不够。只要 controller 把地址映射错、bank 调度错、read data 返回错，scoreboard 仍然会报错。</p>
+      </article>
+    </section>
+
+    <h2 class="section-title">7. 工程里的对应位置</h2>
+    <section class="grid-2">
+      <article class="panel">
+        <h3>VIP 和接口绑定</h3>
+        <div class="path-list">
+          <a href="../../sim/testbench/modules/ddr_uvm_pve_tb_top.sv">sim/testbench/modules/ddr_uvm_pve_tb_top.sv：实例化 svt_apb_if / svt_axi_if，并连接 DUT wrapper</a>
+          <a href="../../sim/testbench/env/dwc_ddrctl_mss_env.sv">sim/testbench/env/dwc_ddrctl_mss_env.sv：APB/AXI VIP env、sequencer、monitor、scoreboard 连接</a>
+          <a href="../../sim/testbench/modules/dwc_ddrctl_ddr_chip_wrapper.sv">sim/testbench/modules/dwc_ddrctl_ddr_chip_wrapper.sv：AXI/APB 信号接到 DDR controller wrapper</a>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h3>常用 sequence 和最终检查</h3>
+        <div class="path-list">
+          <a href="../../sim/testbench/seq_lib/dwc_ddrctl_apb_seq_lib.sv">sim/testbench/seq_lib/dwc_ddrctl_apb_seq_lib.sv：APB read/write sequence</a>
+          <a href="../../sim/testbench/seq_lib/dwc_ddrctl_axi_master_seq_lib.sv">sim/testbench/seq_lib/dwc_ddrctl_axi_master_seq_lib.sv：AXI directed/random/read/write sequence</a>
+          <a href="../../sim/testbench/tests/test_dwc_ddrctl_axi_directed.sv">sim/testbench/tests/test_dwc_ddrctl_axi_directed.sv：典型 directed AXI write/read test</a>
+          <a href="../../sim/runtest.pm">sim/runtest.pm：postprocess、checklog、COMPLETED 字符串、PASSED/FAILED 生成</a>
+        </div>
+      </article>
+    </section>
+
+    <div class="callout">
+      最适合你的记忆版本：APB VIP 是“配置软件”，AXI VIP 是“流量发生器”，DDR controller 是“把流量变成 DDR4 命令的机器”，scoreboard/checker 是“判断这台机器有没有按 DDR4 规则正确工作的人”。
+    </div>
+  </main>
+</body>
+</html>

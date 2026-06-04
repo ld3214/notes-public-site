@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>真实问题索引 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link active" href="questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="../projects-hr/index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="../projects-hr/axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">actual-interviews/questions.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="_1">真实问题索引</h1>
+<p>标签：<code>#actual-asked</code> <code>#interview-index</code></p>
+<h2 id="_2">页内目录</h2>
+<ul>
+<li><a href="#actual-question-table">真实问题表</a></li>
+<li><a href="#review-board">复盘看板</a></li>
+<li><a href="#actual-p0">P0</a></li>
+<li><a href="#actual-p1">P1</a></li>
+</ul>
+<hr>
+<p><a id="actual-question-table"></a></p>
+<h2 id="_3">真实问题表</h2>
+<table>
+<thead>
+<tr>
+<th>公司</th>
+<th>轮次</th>
+<th>原始问题</th>
+<th>分类</th>
+<th>优先级</th>
+<th>复习链接</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>紫光展锐</td>
+<td>一面</td>
+<td>讲项目</td>
+<td>项目表达</td>
+<td>P0</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#project-stories">项目故事库</a></td>
+<td>待打磨</td>
+</tr>
+<tr>
+<td>紫光展锐</td>
+<td>一面</td>
+<td>memory compiler 设置 HVT</td>
+<td>Memory / low power / timing</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#memory-hvt">Memory compiler / HVT</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>紫光展锐</td>
+<td>一面</td>
+<td>scan chain</td>
+<td>DFT</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#scan-chain">Scan chain</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>紫光展锐</td>
+<td>一面</td>
+<td>基础题</td>
+<td>RTL/ASIC 基础</td>
+<td>P1</td>
+<td><a href="../knowledge-base/asic-frontend.html#asic-overview">ASIC 前端总览</a></td>
+<td>持续补充</td>
+</tr>
+<tr>
+<td>紫光展锐</td>
+<td>二面 HR</td>
+<td>本科情况</td>
+<td>HR / behavioral</td>
+<td>P1</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#behavioral-interview">Behavioral 面试</a></td>
+<td>待整理</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>综合报告</td>
+<td>Synthesis</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>逻辑深度</td>
+<td>Timing / micro-architecture</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>AXI</td>
+<td>Protocol</td>
+<td>P0</td>
+<td><a href="../knowledge-base/protocols.html#axi">AXI</a></td>
+<td>待加深</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>Interleaving</td>
+<td>AXI advanced</td>
+<td>P0</td>
+<td><a href="../knowledge-base/protocols.html#axi-interleaving">AXI interleaving</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>Outstanding</td>
+<td>AXI advanced</td>
+<td>P0</td>
+<td><a href="../knowledge-base/protocols.html#axi-outstanding">AXI outstanding</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>一面</td>
+<td>手撕 find first one</td>
+<td>RTL coding</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#find-first-one">find first one</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>二面</td>
+<td>详细拷打 OoO</td>
+<td>Architecture</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#ooo-basics">OoO 基础</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>二面</td>
+<td>手撕同步 FIFO</td>
+<td>RTL coding</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>字节</td>
+<td>二面</td>
+<td>手撕检测 one-hot</td>
+<td>RTL coding</td>
+<td>P0</td>
+<td><a href="../knowledge-base/asic-frontend.html#one-hot">one-hot 检测</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>笔试</td>
+<td>task 找 first1 的位置，用 FSM 形式，四个状态 IDLE/SEARCH/DONE/SEARCHFAIL，enum 定义状态，每次调用 task 切换状态</td>
+<td>SystemVerilog coding / FSM / task</td>
+<td>P0</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-task-fsm-find-first-one">task + FSM：find first 1</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>笔试</td>
+<td><code>fork/join_none</code> 并行计算二维数组 <code>bit q[M][N]</code> 每一行 1 的个数，并存到 array 里</td>
+<td>SystemVerilog concurrency / array</td>
+<td>P0</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-fork-join-none-row-count">fork/join_none 行并行统计</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>笔试</td>
+<td>valid-ready 握手：定义 transaction，task drive 发送，ready 随机拉高/拉低，monitor 收集，tb 发送 5 个 transaction <code>tx_q[5]</code></td>
+<td>SystemVerilog TB / protocol handshake</td>
+<td>P0</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-valid-ready-task-tb">valid-ready task TB</a></td>
+<td>已建笔记</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>怎么将信号驱动到 DUT？用 VIP 还是自己写 driver/BFM？</td>
+<td>UVM / driver / BFM / VIP</td>
+<td>P0</td>
+<td><a href="asic.html#innosilicon-dv-intern">芯动科技验证一面</a> / <a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a></td>
+<td>已整理</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>abort 注入怎么实现的？</td>
+<td>Error injection / abort / CSR</td>
+<td>P0</td>
+<td><a href="asic.html#innosilicon-dv-intern">芯动科技验证一面</a> / <a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a></td>
+<td>已整理</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>整个 DMA 是多路一起搬运还是单独搬运？descriptor、burst、outstanding 怎么理解？</td>
+<td>AXI DMA / descriptor / outstanding</td>
+<td>P0</td>
+<td><a href="asic.html#innosilicon-dv-intern">芯动科技验证一面</a> / <a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a></td>
+<td>已整理</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>NPU 验证环境里 C model/DPI 怎么比对？检查粒度是什么？</td>
+<td>NPU verification / DPI C model</td>
+<td>P1</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 项目</a></td>
+<td>待继续打磨</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>CPU 项目有没有反汇编/commit log 之类的检查？</td>
+<td>CPU DV / log / reference check</td>
+<td>P1</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-ibex-rv32im-uvm">Ibex 验证项目</a></td>
+<td>待继续打磨</td>
+</tr>
+<tr>
+<td>芯动科技</td>
+<td>验证实习一面</td>
+<td>跨时钟域是怎么验证的？</td>
+<td>CDC verification</td>
+<td>P1</td>
+<td><a href="../knowledge-base/asic-frontend.html#cdc-rdc">CDC/RDC</a></td>
+<td>待继续打磨</td>
+</tr>
+</tbody>
+</table>
+<p><a id="review-board"></a></p>
+<h2 id="_4">复盘看板</h2>
+<p><a id="actual-p0"></a></p>
+<h3 id="p0">P0</h3>
+<ul>
+<li>项目表达。</li>
+<li>Memory compiler / HVT。</li>
+<li>Scan chain。</li>
+<li>Synthesis report / logic depth。</li>
+<li>AXI outstanding / interleaving。</li>
+<li>OoO。</li>
+<li>RTL coding：find first one、sync FIFO、one-hot。</li>
+<li>芯动科技笔试 coding：task FSM、<code>fork/join_none</code>、valid-ready driver/monitor。</li>
+<li>芯动科技验证一面：DUT 驱动路径、VIP vs 自写 BFM、DMA abort 注入、descriptor/outstanding 表达。</li>
+</ul>
+<p><a id="actual-p1"></a></p>
+<h3 id="p1">P1</h3>
+<ul>
+<li>本科/经历解释。</li>
+<li>RTL/ASIC 基础题系统复盘。</li>
+<li>AXI 基础通道和 handshake 细节。</li>
+<li>NPU C model/DPI 比对粒度、CPU 验证 log/反汇编、CDC 验证表达。</li>
+</ul>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

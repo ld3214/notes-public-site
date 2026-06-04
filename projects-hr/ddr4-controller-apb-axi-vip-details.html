@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link active" href="ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">projects-hr/ddr4-controller-apb-axi-vip-details.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="ddr4-controller-apb-axi-vip-">DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</h1>
+<p><a id="ddr4-controller-apb-axi-vip-details"></a></p>
+<h2 id="_1">项目定位</h2>
+<p>这是一个基于 Synopsys DWC DDR54 验证环境整理出的 DDR4 controller 验证项目主线。项目重点不是自己实现 DDR4 物理协议 driver，而是使用现有 APB VIP 和 AXI4 VIP 作为上层 stimulus 入口：</p>
+<ul>
+<li><strong>APB VIP</strong>：负责 DDR controller / PHY 相关寄存器配置和状态轮询。</li>
+<li><strong>AXI4 VIP</strong>：负责向 DDR memory 地址空间产生 write/read burst 流量。</li>
+<li><strong>DDR controller</strong>：负责把 AXI 请求转换成内部 HIF、DFI、PHY、DDR4 命令和数据行为。</li>
+<li><strong>Scoreboard / checker</strong>：负责判断配置、协议、地址映射、数据完整性和 DDR4 command/timing 是否正确。</li>
+</ul>
+<p>一句话讲：<strong>APB 是配置入口，AXI 是数据入口，真正验证目标是 DDR controller 是否正确控制 DDR4。</strong></p>
+<h2 id="html">HTML 图解</h2>
+<p>已把之前画的 HTML 图加入到 notes 项目目录：</p>
+<ul>
+<li><a href="ddr4-controller-apb-axi-vip-diagram.html">打开 APB + AXI VIP 验证 DDR4 Controller HTML 图解</a></li>
+</ul>
+<p>如果 Markdown 预览器支持 raw HTML，也可以直接在本页内查看：</p>
+<iframe src="ddr4-controller-apb-axi-vip-diagram.html" title="APB + AXI VIP 验证 DDR4 Controller 图解" width="100%" height="760"></iframe>
+
+<h2 id="_2">工程对应位置</h2>
+<table>
+<thead>
+<tr>
+<th>位置</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ddr54/sim/testbench/modules/ddr_uvm_pve_tb_top.sv</code></td>
+<td>testbench top，实例化 <code>svt_apb_if apb_if0</code>、<code>svt_axi_if axi_if</code>，并把 APB/AXI interface 接到 wrapper</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/testbench/modules/dwc_ddrctl_ddr_chip_wrapper.sv</code></td>
+<td>DDR chip/controller wrapper，把 AXI/APB signal 连接到 DUT 侧</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/testbench/env/dwc_ddrctl_mss_env.sv</code></td>
+<td>UVM env 中 APB/AXI VIP env、sequencer、monitor、scoreboard 的连接</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/testbench/seq_lib/dwc_ddrctl_apb_seq_lib.sv</code></td>
+<td>APB master read/write sequence</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/testbench/seq_lib/dwc_ddrctl_axi_master_seq_lib.sv</code></td>
+<td>AXI master basic/write/read/directed/random/streaming sequence</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/testbench/tests/test_dwc_ddrctl_axi_directed.sv</code></td>
+<td>典型 directed AXI write/read test</td>
+</tr>
+<tr>
+<td><code>ddr54/sim/runtest.pm</code></td>
+<td>生成仿真脚本、plusargs、postprocess、<code>PASSED/FAILED</code> 结果文件</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">验证环境架构</h2>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>UVM test / virtual sequence
+  |
+  |-- APB VIP master sequence
+  |     |-- WRITE controller/PHY CSR
+  |     |-- READ status register
+  |     `-- polling init done / training done
+  |
+  |-- AXI VIP master sequence
+  |     |-- WRITE burst: AW + W + B
+  |     `-- READ  burst: AR + R
+  |
+  `-- monitors / scoreboards
+        |-- APB monitor / RAL predictor
+        |-- AXI protocol checker
+        |-- AXI read-hash scoreboard
+        |-- AXI-HIF scoreboard
+        |-- HIF-DFI scoreboard
+        `-- DDR/DFI VIP checker
+
+DUT path:
+  APB CSR config
+  AXI memory request
+    -&gt; AXI port
+    -&gt; ARB / HIF
+    -&gt; DDRC scheduler
+    -&gt; DFI
+    -&gt; PHY
+    -&gt; DDR4 memory model
+</code></pre></div>
+
+<h2 id="apb-vip">APB VIP 技术实现</h2>
+<p>APB VIP 的角色类似软件驱动或 firmware：它不搬大数据，而是配置 DDR controller 的控制寄存器。</p>
+<h3 id="apb-vip_1">APB VIP 发什么</h3>
+<p>APB write sequence 的本质是创建一个 APB transaction：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="no">`uvm_do_with</span><span class="p">(</span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">xact_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">svt_apb_transaction</span><span class="o">::</span><span class="n">WRITE</span><span class="p">;</span>
+<span class="w">  </span><span class="n">address</span><span class="w">   </span><span class="o">==</span><span class="w"> </span><span class="k">local</span><span class="o">::</span><span class="n">address</span><span class="p">;</span>
+<span class="w">  </span><span class="n">data</span><span class="w">      </span><span class="o">==</span><span class="w"> </span><span class="k">local</span><span class="o">::</span><span class="n">data</span><span class="p">;</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<p>APB read sequence 类似：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="no">`uvm_do_with</span><span class="p">(</span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">xact_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">svt_apb_transaction</span><span class="o">::</span><span class="n">READ</span><span class="p">;</span>
+<span class="w">  </span><span class="n">address</span><span class="w">   </span><span class="o">==</span><span class="w"> </span><span class="k">local</span><span class="o">::</span><span class="n">address</span><span class="p">;</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<p>VIP driver 会把 transaction 转成 APB pin-level 信号：</p>
+<table>
+<thead>
+<tr>
+<th>APB 信号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PADDR</code></td>
+<td>register address</td>
+</tr>
+<tr>
+<td><code>PWDATA</code></td>
+<td>write data</td>
+</tr>
+<tr>
+<td><code>PWRITE</code></td>
+<td>1 表示 write，0 表示 read</td>
+</tr>
+<tr>
+<td><code>PSEL</code> / <code>PENABLE</code></td>
+<td>APB setup/access phase 控制</td>
+</tr>
+<tr>
+<td><code>PREADY</code></td>
+<td>slave ready</td>
+</tr>
+<tr>
+<td><code>PRDATA</code></td>
+<td>read data</td>
+</tr>
+<tr>
+<td><code>PSLVERR</code></td>
+<td>APB error response</td>
+</tr>
+</tbody>
+</table>
+<h3 id="apb">APB 配什么</h3>
+<p>APB 配置的对象不是 DDR memory data，而是 controller/PHY 的 CSR：</p>
+<table>
+<thead>
+<tr>
+<th>配置类别</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DDR 模式</td>
+<td>DDR4/DDR5/LPDDR 选择、rank、bus width、device density 等</td>
+</tr>
+<tr>
+<td>Timing</td>
+<td><code>tRCD</code>、<code>tRP</code>、<code>tRAS</code>、<code>tFAW</code>、<code>tRFC</code>、read/write turn-around 等</td>
+</tr>
+<tr>
+<td>Address map</td>
+<td>AXI/system address 到 rank/bank group/bank/row/column 的映射</td>
+</tr>
+<tr>
+<td>Port/QoS</td>
+<td>AXI port enable、priority、urgent、HPR/LPR 等</td>
+</tr>
+<tr>
+<td>Refresh/low power</td>
+<td>auto-refresh、self-refresh、power-down 等</td>
+</tr>
+<tr>
+<td>DFI/PHY init</td>
+<td>触发 PHY training/init，并读取 init/training done 状态</td>
+</tr>
+</tbody>
+</table>
+<h3 id="apb_1">APB 检查什么</h3>
+<p>APB 相关检查主要分三层：</p>
+<ol>
+<li><strong>APB VIP protocol checker</strong>：检查 APB transfer 时序、握手、<code>PSLVERR</code>。</li>
+<li><strong>RAL predictor / APB subscriber</strong>：通过 APB monitor 看到真实 bus transaction，更新寄存器 mirror。</li>
+<li><strong>test sequence 语义检查</strong>：例如写完配置后 readback，或者 polling status 直到 init done。</li>
+</ol>
+<h2 id="axi4-vip">AXI4 VIP 技术实现</h2>
+<p>AXI VIP 的角色是 memory traffic generator。它发的是 DDR memory 地址空间的读写请求，不是 APB register 访问。</p>
+<h3 id="axi-vip">AXI VIP 发什么</h3>
+<p>AXI write burst：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AW channel: AWADDR, AWLEN, AWSIZE, AWBURST, AWID
+W  channel: WDATA, WSTRB, WLAST
+B  channel: BRESP
+</code></pre></div>
+
+<p>AXI read burst：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AR channel: ARADDR, ARLEN, ARSIZE, ARBURST, ARID
+R  channel: RDATA, RRESP, RLAST
+</code></pre></div>
+
+<p>典型 directed sequence 会显式设置 transaction 字段：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">l_wr_tran</span><span class="p">.</span><span class="n">xact_type</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">svt_axi_transaction</span><span class="o">::</span><span class="n">WRITE</span><span class="p">;</span>
+<span class="n">l_wr_tran</span><span class="p">.</span><span class="n">addr</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">l_bv_full_axi_addr</span><span class="p">;</span>
+<span class="n">l_wr_tran</span><span class="p">.</span><span class="n">burst_type</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">svt_axi_transaction</span><span class="o">::</span><span class="n">INCR</span><span class="p">;</span>
+<span class="n">l_wr_tran</span><span class="p">.</span><span class="n">burst_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">l_n_axi_bl</span><span class="p">;</span>
+<span class="n">l_wr_tran</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">expected_pattern</span><span class="p">;</span>
+<span class="n">l_wr_tran</span><span class="p">.</span><span class="n">wstrb</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">all_byte_lanes_enabled</span><span class="p">;</span>
+
+<span class="n">execute_xact_and_proc_resp</span><span class="p">(</span><span class="n">l_wr_tran</span><span class="p">,</span><span class="w"> </span><span class="n">wait_for_response</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="axi">AXI 流量场景</h3>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>write then read same address</td>
+<td>最基本的数据完整性检查</td>
+</tr>
+<tr>
+<td>multi-port traffic</td>
+<td>验证 controller 多端口仲裁</td>
+</tr>
+<tr>
+<td>random address / burst</td>
+<td>覆盖地址映射、bank/page 行为</td>
+</tr>
+<tr>
+<td>QoS / priority</td>
+<td>验证 urgent、HPR/LPR、port priority</td>
+</tr>
+<tr>
+<td>streaming traffic</td>
+<td>压力测试吞吐、队列、backpressure</td>
+</tr>
+<tr>
+<td>same bank/page targeted traffic</td>
+<td>定向打 page hit、page miss、bank conflict</td>
+</tr>
+</tbody>
+</table>
+<h2 id="ddr4-controller">DDR4 协议在 controller 后面发生什么</h2>
+<p>AXI 看到的是线性 memory address，但 DDR4 实际组织不是平坦数组。controller 需要把地址拆成：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AXI byte address
+  -&gt; system address
+  -&gt; rank / bank group / bank / row / column
+</code></pre></div>
+
+<h3 id="ddr4">DDR4 基本命令</h3>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ACT</code></td>
+<td>activate，打开某个 bank 的某一行 row</td>
+</tr>
+<tr>
+<td><code>RD</code></td>
+<td>read，从已打开 row 的 column 读数据</td>
+</tr>
+<tr>
+<td><code>WR</code></td>
+<td>write，向已打开 row 的 column 写数据</td>
+</tr>
+<tr>
+<td><code>PRE</code></td>
+<td>precharge，关闭当前打开 row</td>
+</tr>
+<tr>
+<td><code>REF</code></td>
+<td>refresh，周期性刷新 DRAM cell</td>
+</tr>
+<tr>
+<td><code>MRS</code></td>
+<td>mode register set，配置 DRAM 内部模式</td>
+</tr>
+</tbody>
+</table>
+<h3 id="page-hit-miss">Page hit / miss</h3>
+<p>如果目标 bank 的目标 row 已经打开：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>page hit:
+  RD/WR column
+</code></pre></div>
+
+<p>如果目标 bank 打开的不是目标 row：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>page miss / bank conflict:
+  PRE old row
+  wait tRP
+  ACT new row
+  wait tRCD
+  RD/WR column
+</code></pre></div>
+
+<p>如果 bank 当前没有打开 row：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>closed page:
+  ACT row
+  wait tRCD
+  RD/WR column
+</code></pre></div>
+
+<h3 id="timing">Timing 约束</h3>
+<p>controller 必须满足 DDR4 timing，否则即使 AXI protocol 完全正确，DDR4 侧仍然是错的。</p>
+<table>
+<thead>
+<tr>
+<th>Timing</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tRCD</code></td>
+<td>ACT 到 RD/WR 的最小间隔</td>
+</tr>
+<tr>
+<td><code>tRP</code></td>
+<td>PRE 到下一次 ACT 的最小间隔</td>
+</tr>
+<tr>
+<td><code>tRAS</code></td>
+<td>ACT 后 row 必须保持打开的最小时间</td>
+</tr>
+<tr>
+<td><code>tFAW</code></td>
+<td>rolling window 内 ACT 数量限制</td>
+</tr>
+<tr>
+<td><code>tRFC</code></td>
+<td>refresh 占用时间</td>
+</tr>
+<tr>
+<td><code>tCCD</code></td>
+<td>column command 到 column command 的间隔</td>
+</tr>
+<tr>
+<td>read/write turn-around</td>
+<td>读写方向切换需要间隔，避免 DQ bus 冲突</td>
+</tr>
+</tbody>
+</table>
+<h2 id="apbaxi">为什么这不是“只验证 APB/AXI”</h2>
+<p>APB/AXI 只是入口协议。真正的目标是验证 DDR controller 的内部行为：</p>
+<table>
+<thead>
+<tr>
+<th>如果只验证 APB/AXI</th>
+<th>DDR controller 验证还要看</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APB write/read 是否握手成功</td>
+<td>寄存器配置是否真正让 controller 进入正确 DDR4 模式</td>
+</tr>
+<tr>
+<td>AXI AW/W/B/AR/R 是否合法</td>
+<td>AXI 请求是否被正确转成 HIF/DDR 命令</td>
+</tr>
+<tr>
+<td>AXI response 是否 OKAY</td>
+<td>数据是否写到正确 rank/bank/row/column</td>
+</tr>
+<tr>
+<td>AXI read 是否返回数据</td>
+<td>读回数据是否等于之前写入 pattern</td>
+</tr>
+<tr>
+<td>AXI burst 是否满足协议</td>
+<td>DDR4 timing、refresh、page hit/miss 调度是否正确</td>
+</tr>
+</tbody>
+</table>
+<p>所以一个 AXI transaction 全部 response OKAY，仍然可能因为地址映射、数据返回、DDR timing 或内部调度错误而 fail。</p>
+<h2 id="scoreboard-checker">Scoreboard 和 Checker 链路</h2>
+<h3 id="1-apb-monitor-register-predictor">1. APB monitor / register predictor</h3>
+<p>APB monitor 观察真实 APB transaction，并更新 RAL mirror 或 subscriber 状态。它能抓：</p>
+<ul>
+<li>test 以为写了寄存器，但真实 bus 没写到。</li>
+<li>readback 值和 expected 不一致。</li>
+<li>APB error response。</li>
+<li>init/training status 没有按预期变化。</li>
+</ul>
+<h3 id="2-axi-vip-checker">2. AXI VIP checker</h3>
+<p>AXI VIP checker 负责入口协议：</p>
+<ul>
+<li><code>VALID/READY</code> handshake 是否符合 AXI。</li>
+<li>burst length、burst size、address alignment 是否合法。</li>
+<li><code>WLAST/RLAST</code> 是否正确。</li>
+<li><code>BRESP/RRESP</code> 是否正常。</li>
+<li>同 ID ordering、outstanding 行为是否符合规则。</li>
+</ul>
+<h3 id="3-read-hash-scoreboard">3. Read-hash scoreboard</h3>
+<p>read-hash scoreboard 负责 end-to-end data integrity：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AXI write observed:
+  record expected memory bytes
+
+AXI read observed:
+  compare RDATA bytes against expected memory bytes
+</code></pre></div>
+
+<p>如果 write path、address mapping、data mask、read path 任意一层出错，最终都可能表现为 read data mismatch。</p>
+<h3 id="4-axi-hif-scoreboard">4. AXI-HIF scoreboard</h3>
+<p>AXI-HIF scoreboard 检查上层 AXI 请求是否正确转换成 controller 内部 HIF 请求：</p>
+<ul>
+<li>AXI address 是否变成正确 HIF address。</li>
+<li>read/write 方向是否正确。</li>
+<li>burst length / data beat 是否正确。</li>
+<li>port、priority、QoS 信息是否合理传递。</li>
+</ul>
+<h3 id="5-hif-dfi-scoreboard">5. HIF-DFI scoreboard</h3>
+<p>HIF-DFI scoreboard 更接近 DDR4 协议侧：</p>
+<ul>
+<li>HIF RD/WR 是否调度成正确 DFI command。</li>
+<li>bank/row/column/rank 是否符合预测。</li>
+<li>page hit/page miss 行为是否合理。</li>
+<li>refresh、precharge、activate 时机是否满足配置。</li>
+<li>read/write data beat 是否和 DFI/DDR 侧一致。</li>
+</ul>
+<h3 id="6-postprocess">6. Postprocess</h3>
+<p><code>runtest.pm</code> 在仿真结束后做最终归纳：</p>
+<ol>
+<li>调 <code>checklog.pl</code> 扫 <code>test.log</code> / <code>compile.log</code>。</li>
+<li>如果没有 error，再检查完成字符串：<code>COMPLETED - done with Env</code>。</li>
+<li>如果有 timeout、scoreboard mismatch、UVM fatal/error，则生成 <code>FAILED</code>。</li>
+<li>如果所有检查通过，写 <code>PASSED</code> 和 <code>test.json</code>。</li>
+</ol>
+<h2 id="_4">一次典型测试流程</h2>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>1. test_cfg randomize / select DDR4 config
+2. mss_initialize_subsystem
+3. APB VIP writes controller/PHY registers
+4. APB VIP polls status until init/training done
+5. AXI VIP starts write bursts on one or more ports
+6. controller maps AXI address to rank/bank/row/column
+7. controller schedules ACT/RD/WR/PRE/REF through DFI/PHY
+8. AXI VIP starts read bursts from same/related addresses
+9. read-hash compares expected vs actual RDATA
+10. AXI-HIF and HIF-DFI scoreboard check internal conversion
+11. postprocess scans log and emits PASSED/FAILED
+</code></pre></div>
+
+<h2 id="debug">Debug 思路</h2>
+<table>
+<thead>
+<tr>
+<th>失败现象</th>
+<th>优先看哪里</th>
+<th>可能原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APB read/write fail</td>
+<td>APB VIP log、RAL mirror、APB waveform</td>
+<td>register address wrong、PREADY/PSLVERR、config sequence 顺序错</td>
+</tr>
+<tr>
+<td>init done 一直不来</td>
+<td>status polling、PHY/DFI init log</td>
+<td>PHY training 未完成、timing/config 不合法、reset/clock 问题</td>
+</tr>
+<tr>
+<td>AXI protocol error</td>
+<td>AXI VIP checker、AW/W/B/AR/R waveform</td>
+<td>burst 参数非法、ID/order、<code>WLAST/RLAST</code>、ready/valid 规则问题</td>
+</tr>
+<tr>
+<td>AXI response OKAY 但数据错</td>
+<td>read-hash scoreboard、AXI monitor、memory model</td>
+<td>地址映射错、WSTRB/mask 错、read path 错、data beat 顺序错</td>
+</tr>
+<tr>
+<td>AXI-HIF mismatch</td>
+<td>AXI-HIF scoreboard、HIF monitor</td>
+<td>AXI 到 HIF 的地址/长度/方向/port 转换错</td>
+</tr>
+<tr>
+<td>HIF-DFI mismatch</td>
+<td>HIF-DFI scoreboard、DFI monitor</td>
+<td>DDR command 调度错、timing 违反、page/bank 行为错误</td>
+</tr>
+<tr>
+<td>postprocess failed</td>
+<td><code>test.log</code>、<code>compile.log</code>、<code>test.error</code></td>
+<td>UVM error/fatal、timeout、缺少 <code>COMPLETED - done with Env</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_5">面试回答要点</h2>
+<p>中文：</p>
+<p>这个项目我会从 APB 和 AXI 两条路径讲。APB VIP 是控制路径，用来配置 DDR controller 和 PHY 的寄存器，包括 DDR4 模式、timing、地址映射、端口和 DFI/PHY 初始化。配置完成后通过 APB read polling 状态，确认 init/training done。然后 AXI4 VIP 作为数据路径，在一个或多个 AXI port 上发 write/read burst，通常先写入 pattern 再读回。</p>
+<p>关键点是，这不是单纯验证 APB/AXI protocol。APB/AXI 只是 stimulus 入口，真正被验证的是 DDR controller 能否把 AXI memory transaction 正确映射到 DDR4 的 rank、bank group、bank、row、column，并正确调度 ACT、RD、WR、PRE、REF 等命令，同时满足 DDR4 timing 和 refresh 要求。结果检查也分层：APB/AXI VIP checker 保证入口协议合法，read-hash scoreboard 检查数据完整性，AXI-HIF scoreboard 检查上层请求到内部 HIF 的转换，HIF-DFI scoreboard 检查 DDR 命令和 timing，最后 postprocess 扫 log 并根据 completed 字符串给出 PASS/FAIL。</p>
+<p>English:</p>
+<p>In this DDR controller verification project, APB and AXI VIPs are used as the main stimulus entry points. The APB VIP programs the controller and PHY registers, such as DDR mode, timing parameters, address mapping, port configuration, refresh settings, and DFI/PHY initialization. After polling the status registers and confirming that initialization and training are complete, the AXI4 VIP generates memory traffic, typically write bursts followed by read bursts to the DDR memory address space.</p>
+<p>The verification target is not just APB or AXI protocol compliance. Those protocols are only the front-door interfaces. The real goal is to verify that the DDR controller correctly maps AXI addresses to rank, bank group, bank, row and column, schedules DDR4 commands such as ACT, READ, WRITE, PRECHARGE and REFRESH, meets DDR4 timing constraints, and preserves data integrity. The checking is multi-layered: APB and AXI VIP checkers validate bus transactions, read-hash scoreboards compare written and read data, AXI-to-HIF and HIF-to-DFI scoreboards check internal conversion and DDR command behavior, and the postprocess script scans logs and the completion message to generate the final pass/fail result.</p>
+<h2 id="_6">常见追问</h2>
+<table>
+<thead>
+<tr>
+<th>追问</th>
+<th>回答重点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>你自己写 DDR4 driver 吗？</td>
+<td>普通测试不写 DDR4 pin-level driver；使用 APB 配置和 AXI traffic，controller/PHY/VIP 处理 DDR4 侧。</td>
+</tr>
+<tr>
+<td>那和验证 APB/AXI 有什么区别？</td>
+<td>APB/AXI 是入口，目标是 controller 后面的地址映射、DDR 命令调度、timing、refresh 和数据完整性。</td>
+</tr>
+<tr>
+<td>为什么 AXI response OKAY 还可能 fail？</td>
+<td>OKAY 只说明 AXI 入口响应正常，不保证数据写到正确 DDR 地址或 DDR timing 正确。</td>
+</tr>
+<tr>
+<td>read-hash scoreboard 抓什么？</td>
+<td>抓 end-to-end data integrity，比较写入 pattern 和读回 RDATA。</td>
+</tr>
+<tr>
+<td>HIF-DFI scoreboard 抓什么？</td>
+<td>抓 controller 内部请求到 DDR/DFI 命令的转换和时序行为。</td>
+</tr>
+<tr>
+<td>APB polling 为什么重要？</td>
+<td>DDR/PHY 没初始化完成前，AXI memory traffic 没有稳定落点，可能产生无意义或非法行为。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bullets">可直接放简历的 bullets</h2>
+<ul>
+<li>Used APB VIP as the CSR programming path to configure DDR4 controller/PHY registers, including timing, address mapping, port settings, refresh and DFI/PHY initialization.</li>
+<li>Used AXI4 VIP master sequences to generate directed and random DDR memory traffic, including write-then-read data integrity scenarios across AXI ports.</li>
+<li>Analyzed the verification path from AXI memory transactions through AXI port, HIF, DDRC scheduler, DFI, PHY and DDR4 memory model.</li>
+<li>Explained multi-layer checking with APB/AXI protocol checkers, read-hash scoreboard, AXI-HIF scoreboard, HIF-DFI scoreboard, DDR/DFI checkers and regression postprocess.</li>
+</ul>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Protocols 知识库 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link active" href="protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="../projects-hr/index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="../projects-hr/axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">knowledge-base/protocols.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <p><a href="../index.html">返回目录</a></p>
+<h1 id="protocols">Protocols 知识库</h1>
+<p>这个文件集中放 AXI/APB 等协议复习内容。</p>
+<h2 id="_1">页内目录</h2>
+<ul>
+<li><a href="#protocol-overview">协议总览</a></li>
+<li><a href="#axi">AXI</a></li>
+<li><a href="#axi-valid-ready">AXI valid/ready handshake</a></li>
+<li><a href="#axi-outstanding">AXI Outstanding Transaction</a></li>
+<li><a href="#axi-interleaving">AXI Interleaving</a></li>
+<li><a href="#axil">AXI-Lite 与 CSR 编程</a></li>
+<li><a href="#apb">APB</a></li>
+<li><a href="#protocol-interview-answers">面试回答速查（中文 + English）</a></li>
+</ul>
+<hr>
+<p><a id="protocol-overview"></a></p>
+<h2 id="_2">协议总览</h2>
+<p>标签：<code>#protocol</code> <code>#asic</code> <code>#dv</code></p>
+<h2 id="_3">常见协议</h2>
+<ul>
+<li>AXI</li>
+<li>AHB</li>
+<li>APB</li>
+<li>PCIe</li>
+<li>I2C</li>
+<li>SPI</li>
+<li>UART</li>
+</ul>
+<h2 id="_4">记录重点</h2>
+<ul>
+<li>Channel/signal</li>
+<li>Transaction flow</li>
+<li>Handshake</li>
+<li>Ordering</li>
+<li>Backpressure</li>
+<li>Corner cases</li>
+<li>Verification scenarios</li>
+</ul>
+<hr>
+<p><a id="axi"></a></p>
+<h2 id="axi">AXI</h2>
+<p>标签：<code>#protocol</code> <code>#axi</code> <code>#dv</code> <code>#asic</code> <code>#interview</code></p>
+<h2 id="_5">核心概念</h2>
+<p>AXI (Advanced eXtensible Interface) 是 AMBA 协议族中面向高性能、高带宽场景的总线协议，支持乱序、outstanding 和 burst 传输。</p>
+<p><strong>五个独立 Channel</strong></p>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>方向</th>
+<th>主要信号</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AW (Write Address)</td>
+<td>Master → Slave</td>
+<td>AWADDR, AWLEN, AWSIZE, AWBURST, AWID</td>
+<td>发出写地址和 burst 参数</td>
+</tr>
+<tr>
+<td>W (Write Data)</td>
+<td>Master → Slave</td>
+<td>WDATA, WSTRB, WLAST</td>
+<td>发出写数据</td>
+</tr>
+<tr>
+<td>B (Write Response)</td>
+<td>Slave → Master</td>
+<td>BRESP, BID</td>
+<td>Slave 确认写完成并报告状态</td>
+</tr>
+<tr>
+<td>AR (Read Address)</td>
+<td>Master → Slave</td>
+<td>ARADDR, ARLEN, ARSIZE, ARBURST, ARID</td>
+<td>发出读地址和 burst 参数</td>
+</tr>
+<tr>
+<td>R (Read Data)</td>
+<td>Slave → Master</td>
+<td>RDATA, RRESP, RLAST, RID</td>
+<td>Slave 返回读数据</td>
+</tr>
+</tbody>
+</table>
+<p>五个 channel 互相独立，可以同时传输，是 AXI 高吞吐的基础。</p>
+<p><a id="axi-valid-ready"></a>
+<strong>Valid / Ready 握手规则</strong></p>
+<p>AXI 用 valid/ready 握手控制每个 channel 上的传输：</p>
+<ul>
+<li>发送方拉高 VALID，表示数据/地址有效。</li>
+<li>接收方拉高 READY，表示可以接收。</li>
+<li><strong>同一周期 VALID 和 READY 都为高时，传输完成（handshake）。</strong></li>
+<li>发送方不能等 READY 才拉高 VALID（会死锁）。</li>
+<li>接收方可以在 VALID 之前就拉高 READY（不违反协议）。</li>
+</ul>
+<p><strong>Read Transaction 流程</strong></p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Master                     Slave
+  AR channel: ARVALID + ARADDR/ARID/ARLEN  →
+                                           ← ARREADY
+  (handshake 完成，地址被接受)
+
+                                           ← R channel: RVALID + RDATA/RID/RLAST
+  RREADY  →
+  (逐 beat 返回数据，直到 RLAST=1 表示 burst 结束)
+</code></pre></div>
+
+<p><strong>Write Transaction 流程</strong></p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Master                     Slave
+  AW channel: AWVALID + AWADDR/AWID/AWLEN →
+                                          ← AWREADY
+  W channel: WVALID + WDATA + WLAST      →  (可与 AW 同时或之后发)
+                                          ← WREADY
+  (WLAST 拉高时最后一 beat 传完)
+
+                                          ← B channel: BVALID + BRESP/BID
+  BREADY →
+</code></pre></div>
+
+<p><strong>关键参数</strong></p>
+<ul>
+<li><strong>AXLEN</strong>：burst 长度 - 1（AXI4 最大 255，即 256 beats）。</li>
+<li><strong>AXSIZE</strong>：每 beat 传输的字节数（log2 编码）。</li>
+<li><strong>AXBURST</strong>：burst 类型。</li>
+<li><code>FIXED</code>：地址固定，用于 FIFO 类 peripheral。</li>
+<li><code>INCR</code>：地址递增，最常用。</li>
+<li><code>WRAP</code>：地址在边界内回绕，用于 cache line 对齐访问。</li>
+<li><strong>AXID</strong>：transaction ID，用于 outstanding 和 out-of-order 追踪。</li>
+</ul>
+<p><strong>AXI3 vs AXI4 主要区别</strong></p>
+<table>
+<thead>
+<tr>
+<th>差异点</th>
+<th>AXI3</th>
+<th>AXI4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Burst 最大长度</td>
+<td>16 beats</td>
+<td>256 beats</td>
+</tr>
+<tr>
+<td>Write data interleaving</td>
+<td>支持（W channel 可不同 ID 交错）</td>
+<td>不再支持（同时只有一条 write data 流）</td>
+</tr>
+<tr>
+<td>ID 宽度</td>
+<td>任意</td>
+<td>Master ID 通常更灵活</td>
+</tr>
+<tr>
+<td>Exclusive access</td>
+<td>支持</td>
+<td>支持</td>
+</tr>
+</tbody>
+</table>
+<p><strong>验证关注点</strong></p>
+<ul>
+<li>Valid/ready 握手：发送方不能等待 READY 才拉高 VALID（规范明确禁止）。</li>
+<li>Burst 计数：WLAST 的位置必须和 AWLEN 一致。</li>
+<li>Response 匹配：BRESP/RRESP 中的 ID 必须和对应 request 的 ID 一致。</li>
+<li>Outstanding transaction：master 可以在前一个未完成时继续发新地址；slave/interconnect 需要用 ID 追踪顺序。</li>
+<li>Backpressure：slave 通过 ARREADY/RREADY 等控制流量。</li>
+</ul>
+<h2 id="_6">面试回答</h2>
+<p>AXI has five independent channels: write address, write data, write response, read address, and read data. Each channel uses a valid/ready handshake — the transfer completes only when both valid and ready are high in the same cycle. An important rule is that the sender must not wait for ready before asserting valid. Read and write transactions are independent and can overlap. AXI supports outstanding transactions, meaning a master can issue multiple transactions before earlier ones complete, using transaction IDs to match responses. For verification, I would check handshake rules through assertions, verify burst count and WLAST position, track IDs in the scoreboard for out-of-order response checking, and stress test backpressure scenarios.</p>
+<h2 id="_7">常见追问</h2>
+<ul>
+<li>AXI 有哪五个 channel？</li>
+<li>AW（写地址）、W（写数据）、B（写响应）、AR（读地址）、R（读数据）。</li>
+<li>Valid/ready handshake 的规则是什么？</li>
+<li>VALID 和 READY 同周期都高时传输完成；发送方不能等 READY 才拉 VALID；接收方可以在 VALID 之前拉 READY。</li>
+<li>Read transaction 和 write transaction 的流程？</li>
+<li>Read：AR channel 发地址 → R channel 返回数据（burst，RLAST 标记结束）。Write：AW 发地址 + W 发数据（WLAST 标记结束）→ B 响应。</li>
+<li>Outstanding transaction 是什么？</li>
+<li>Master 在前一个 transaction 完成之前就发出新 transaction；用 ID 追踪每个 pending request，response 按 ID 匹配回去。</li>
+<li>AXI 和 APB 的区别？</li>
+<li>AXI：五通道、高带宽、支持 burst/outstanding/out-of-order，适合高性能 master（CPU、DMA）；APB：简单两 phase、低带宽、单 transfer，适合低速外设（GPIO、UART）。</li>
+</ul>
+<p><a id="axi-outstanding"></a></p>
+<h2 id="outstanding-transaction">Outstanding Transaction</h2>
+<p>Outstanding transaction 指 master 在已有请求尚未完成时继续发出新的读/写请求。这样可以提高总线利用率和吞吐，但需要用 ID、计数器、buffer 或 scoreboard 追踪每个未完成请求。</p>
+<p>面试回答：</p>
+<p>AXI supports outstanding transactions, meaning a master can issue multiple transactions before earlier ones complete. The interconnect and slave must track IDs and ordering rules so responses return to the correct transaction. From a verification perspective, I would create scenarios with multiple outstanding reads/writes, backpressure, different IDs, same IDs, and delayed responses, then use a scoreboard indexed by transaction ID to check data and ordering.</p>
+<p><a id="axi-interleaving"></a></p>
+<h2 id="interleaving">Interleaving</h2>
+<p>Interleaving 指不同 transaction 的 data/response 在时间上交错出现。面试中通常重点不是死背规则，而是说明你理解 ID、ordering、backpressure 和 scoreboard 检查方式。</p>
+<p>验证关注点：</p>
+<ul>
+<li>Same ID 的 ordering 是否保持。</li>
+<li>Different ID 是否允许乱序或交错，取决于通道和协议版本/配置。</li>
+<li>Outstanding depth 达到上限时是否正确 backpressure。</li>
+<li>Response 是否能和 request ID 正确匹配。</li>
+<li>Scoreboard 是否能处理 out-of-order return。</li>
+</ul>
+<hr>
+<p><a id="axil"></a></p>
+<h2 id="axi-lite-csr">AXI-Lite 与 CSR 编程</h2>
+<p>标签：<code>#protocol</code> <code>#axi-lite</code> <code>#csr</code> <code>#dv</code> <code>#asic</code> <code>#interview</code></p>
+<h2 id="axi-lite">AXI-Lite 是什么</h2>
+<p>AXI-Lite 是 AXI4 的轻量化子集，专门面向<strong>寄存器级访问</strong>（CSR 编程）。和 AXI4 相比，它去掉了 burst、ID、outstanding、WLAST 等复杂特性，每次只传输单个 data beat。</p>
+<p><strong>AXI-Lite vs AXI4 vs APB 对比</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>AXI-Lite</th>
+<th>AXI4</th>
+<th>APB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Burst</td>
+<td>无（单 beat）</td>
+<td>支持，最多 256 beats</td>
+<td>无</td>
+</tr>
+<tr>
+<td>Transaction ID</td>
+<td>无</td>
+<td>有，支持 out-of-order</td>
+<td>无</td>
+</tr>
+<tr>
+<td>Outstanding</td>
+<td>无（一次一个）</td>
+<td>支持多个 pending</td>
+<td>无</td>
+</tr>
+<tr>
+<td>WLAST</td>
+<td>无（默认最后一 beat）</td>
+<td>有</td>
+<td>无</td>
+</tr>
+<tr>
+<td>通道数</td>
+<td>5 个（同 AXI4）</td>
+<td>5 个</td>
+<td>无独立通道</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>CSR 寄存器访问、控制路径</td>
+<td>高带宽数据搬移</td>
+<td>低速外设</td>
+</tr>
+</tbody>
+</table>
+<h2 id="channel">五个信号组（Channel）</h2>
+<p>AXI-Lite 保留了 AXI4 的五个通道结构，但信号大幅精简：</p>
+<p><strong>Write Address Channel（AW）</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AWADDR</code></td>
+<td>Master → Slave</td>
+<td>写目标地址（通常 4 字节对齐）</td>
+</tr>
+<tr>
+<td><code>AWPROT</code></td>
+<td>Master → Slave</td>
+<td>Protection type（一般填 0 或 AXI_SECURE）</td>
+</tr>
+<tr>
+<td><code>AWVALID</code></td>
+<td>Master → Slave</td>
+<td>地址有效</td>
+</tr>
+<tr>
+<td><code>AWREADY</code></td>
+<td>Slave → Master</td>
+<td>Slave 可以接受地址</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Write Data Channel（W）</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WDATA</code></td>
+<td>Master → Slave</td>
+<td>写数据（宽度固定，32 或 64 bit）</td>
+</tr>
+<tr>
+<td><code>WSTRB</code></td>
+<td>Master → Slave</td>
+<td>Byte enable，每 bit 对应一个 byte；全 1 表示全部有效</td>
+</tr>
+<tr>
+<td><code>WVALID</code></td>
+<td>Master → Slave</td>
+<td>数据有效</td>
+</tr>
+<tr>
+<td><code>WREADY</code></td>
+<td>Slave → Master</td>
+<td>Slave 可以接受数据</td>
+</tr>
+</tbody>
+</table>
+<p>（AXI-Lite 无 WLAST，单 beat 即为最后一拍）</p>
+<p><strong>Write Response Channel（B）</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BRESP</code></td>
+<td>Slave → Master</td>
+<td>写响应码（OKAY=0, SLVERR=2, DECERR=3）</td>
+</tr>
+<tr>
+<td><code>BVALID</code></td>
+<td>Slave → Master</td>
+<td>响应有效</td>
+</tr>
+<tr>
+<td><code>BREADY</code></td>
+<td>Master → Slave</td>
+<td>Master 准备好接受响应</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Read Address Channel（AR）</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ARADDR</code></td>
+<td>Master → Slave</td>
+<td>读目标地址</td>
+</tr>
+<tr>
+<td><code>ARPROT</code></td>
+<td>Master → Slave</td>
+<td>Protection type</td>
+</tr>
+<tr>
+<td><code>ARVALID</code></td>
+<td>Master → Slave</td>
+<td>地址有效</td>
+</tr>
+<tr>
+<td><code>ARREADY</code></td>
+<td>Slave → Master</td>
+<td>Slave 可以接受地址</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Read Data Channel（R）</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RDATA</code></td>
+<td>Slave → Master</td>
+<td>读返回数据</td>
+</tr>
+<tr>
+<td><code>RRESP</code></td>
+<td>Slave → Master</td>
+<td>读响应码</td>
+</tr>
+<tr>
+<td><code>RVALID</code></td>
+<td>Slave → Master</td>
+<td>数据有效</td>
+</tr>
+<tr>
+<td><code>RREADY</code></td>
+<td>Master → Slave</td>
+<td>Master 准备好接受数据</td>
+</tr>
+</tbody>
+</table>
+<h2 id="write-transaction">Write Transaction 时序</h2>
+<p>AW 和 W 通道可以<strong>同时</strong>发出，不要求 AW 先于 W。两个 handshake 都完成后，slave 才能发 B response。</p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Cycle:    1       2       3       4       5
+AWVALID:  1   →   0(握手完) ...
+AWREADY:      1
+WVALID:   1   →   0(握手完) ...
+WREADY:         1
+BVALID:                   1
+BREADY:   1                       0
+</code></pre></div>
+
+<p>Driver 实现要点（来自真实代码）：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// AW 和 W 同时拉高</span>
+<span class="n">vif</span><span class="p">.</span><span class="n">awvalid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="n">vif</span><span class="p">.</span><span class="n">wvalid</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="n">vif</span><span class="p">.</span><span class="n">bready</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span><span class="w">  </span><span class="c1">// 提前拉高，随时准备接收 B</span>
+
+<span class="c1">// 分别等待 AW 和 W handshake（哪个先完成就哪个先拉低）</span>
+<span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">aw_done</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">w_done</span><span class="p">))</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">aw_done</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">awvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">awready</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">vif</span><span class="p">.</span><span class="n">awvalid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">aw_done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">w_done</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">wvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">wready</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">vif</span><span class="p">.</span><span class="n">wvalid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">w_done</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c1">// 再等 B response</span>
+<span class="k">do</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">);</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">vif</span><span class="p">.</span><span class="n">bvalid</span><span class="p">);</span>
+<span class="n">tr</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">bresp</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="read-transaction">Read Transaction 时序</h2>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Cycle:    1       2       3
+ARVALID:  1   →   0(握手完)
+ARREADY:      1
+RVALID:               1
+RREADY:   1               0
+</code></pre></div>
+
+<p>Driver 实现：先等 AR handshake，再等 R valid。注意 ARREADY 可能在 ARVALID 同周期到来（zero-wait slave）或几个周期后到来（busy slave）。</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">vif</span><span class="p">.</span><span class="n">arvalid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="n">vif</span><span class="p">.</span><span class="n">rready</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+
+<span class="c1">// 等 AR handshake</span>
+<span class="k">do</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">);</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">vif</span><span class="p">.</span><span class="n">arvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">arready</span><span class="p">));</span>
+<span class="n">vif</span><span class="p">.</span><span class="n">arvalid</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">;</span>
+
+<span class="c1">// 等 R 数据</span>
+<span class="k">do</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">);</span><span class="w"> </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">vif</span><span class="p">.</span><span class="n">rvalid</span><span class="p">);</span>
+<span class="n">tr</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">rdata</span><span class="p">;</span>
+<span class="n">tr</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">rresp</span><span class="p">;</span>
+</code></pre></div>
+
+<h2 id="monitor">Monitor 实现要点</h2>
+<p>AXI-Lite 的 AW 和 W 通道<strong>独立握手</strong>，monitor 必须分别 latch，在 B handshake 时合并发布完整 write transaction：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// AW handshake → latch 地址</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vif</span><span class="p">.</span><span class="n">awvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">awready</span><span class="p">)</span>
+<span class="w">  </span><span class="n">awaddr_q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">awaddr</span><span class="p">;</span>
+
+<span class="c1">// W handshake → latch 数据</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vif</span><span class="p">.</span><span class="n">wvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">wready</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="n">wdata_q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">wdata</span><span class="p">;</span>
+<span class="w">  </span><span class="n">wstrb_q</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">wstrb</span><span class="p">;</span>
+<span class="k">end</span>
+
+<span class="c1">// B handshake → 三路信息都到齐，发布 transaction</span>
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">vif</span><span class="p">.</span><span class="n">bvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">bready</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">dir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">DMA_WRITE</span><span class="p">;</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">awaddr_q</span><span class="p">;</span><span class="w">   </span><span class="c1">// 用 latched 值</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wdata_q</span><span class="p">;</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vif</span><span class="p">.</span><span class="n">bresp</span><span class="p">;</span>
+<span class="w">  </span><span class="n">ap</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">tr</span><span class="p">);</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>Read monitor 同理：在 AR handshake 时 latch ARADDR（因为 master 可能在 R valid 到来前就撤销了 ARADDR），在 R handshake 时发布。</p>
+<h2 id="csr-axi-lite-dma">CSR 编程（AXI-Lite 在 DMA 验证中的应用）</h2>
+<p>AXI-Lite 是 DMA controller 的 CSR 控制通道，通过它完成：</p>
+<ol>
+<li><strong>Descriptor 编程</strong>：写 SRC_ADDR、DST_ADDR、NUM_BYTES、CFG（enable/read_mode/write_mode）到各 descriptor 寄存器。</li>
+<li><strong>启动 DMA</strong>：写 CONTROL 寄存器的 GO bit（以及 max_burst 参数）。</li>
+<li><strong>读状态</strong>：读 STATUS 寄存器查看 done/error 标志；读 ERROR_STATS 查看错误类型。</li>
+<li><strong>Abort</strong>：写 CONTROL 寄存器的 ABORT bit。</li>
+</ol>
+<p>典型 CSR 编程序列（DMA single descriptor 传输）：</p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>axil_write(DMA_DESC_SRC_ADDR_OFFSET[0], 0x0000_1000)
+axil_write(DMA_DESC_DST_ADDR_OFFSET[0], 0x0000_4000)
+axil_write(DMA_DESC_NUM_BYTES_OFFSET[0], 256)
+axil_write(DMA_DESC_CFG_OFFSET[0],  {enable=1, rd_mode=INCR, wr_mode=INCR})
+axil_write(DMA_CONTROL_OFFSET, {max_burst=0xFF, abort=0, go=1})
+→ 等 IRQ done
+axil_read(DMA_STATUS_OFFSET) → 验证 done bit
+</code></pre></div>
+
+<h2 id="axi-lite-ral">AXI-Lite 在 RAL 中的角色</h2>
+<p>AXI-Lite master agent 是 UVM RAL 的 frontdoor 总线：</p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>test/virtual sequence
+      ↓  reg.write() / reg.read()
+dma_reg_adapter.reg2bus()  → 把 register op 转成 dma_axil_item
+      ↓
+axil_agent.driver          → 驱动 AXI-Lite 接口
+      ↓
+axil_agent.monitor.ap      → 监测真实 bus transaction
+      ↓
+uvm_reg_predictor          → 调用 adapter.bus2reg() 更新 RAL mirror
+</code></pre></div>
+
+<p><strong>Adapter 实现关键</strong>：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// reg → bus：register op 转成 AXI-Lite item</span>
+<span class="k">function</span><span class="w"> </span><span class="n">uvm_sequence_item</span><span class="w"> </span><span class="n">reg2bus</span><span class="p">(</span><span class="kt">const</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">uvm_reg_bus_op</span><span class="w"> </span><span class="n">rw</span><span class="p">);</span>
+<span class="w">  </span><span class="n">dma_axil_item</span><span class="w"> </span><span class="n">tr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">...;</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">dir</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">rw</span><span class="p">.</span><span class="n">kind</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">UVM_WRITE</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">DMA_WRITE</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">DMA_READ</span><span class="p">;</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rw</span><span class="p">.</span><span class="n">addr</span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">];</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rw</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+<span class="w">  </span><span class="n">tr</span><span class="p">.</span><span class="n">strb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rw</span><span class="p">.</span><span class="n">byte_en</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">tr</span><span class="p">;</span>
+<span class="k">endfunction</span>
+
+<span class="c1">// bus → reg：AXI-Lite item 反向转成 register op（供 predictor 用）</span>
+<span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">bus2reg</span><span class="p">(</span><span class="n">uvm_sequence_item</span><span class="w"> </span><span class="n">bus_item</span><span class="p">,</span><span class="w"> </span><span class="k">ref</span><span class="w"> </span><span class="n">uvm_reg_bus_op</span><span class="w"> </span><span class="n">rw</span><span class="p">);</span>
+<span class="w">  </span><span class="p">$</span><span class="n">cast</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span><span class="w"> </span><span class="n">bus_item</span><span class="p">);</span>
+<span class="w">  </span><span class="n">rw</span><span class="p">.</span><span class="n">kind</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tr</span><span class="p">.</span><span class="n">dir</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">DMA_WRITE</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">UVM_WRITE</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">UVM_READ</span><span class="p">;</span>
+<span class="w">  </span><span class="n">rw</span><span class="p">.</span><span class="n">addr</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">tr</span><span class="p">.</span><span class="n">addr</span><span class="p">;</span>
+<span class="w">  </span><span class="n">rw</span><span class="p">.</span><span class="n">data</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">tr</span><span class="p">.</span><span class="n">data</span><span class="p">;</span>
+<span class="w">  </span><span class="n">rw</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">tr</span><span class="p">.</span><span class="n">resp</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">AXI_OKAY</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">UVM_IS_OK</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">UVM_NOT_OK</span><span class="p">;</span>
+<span class="k">endfunction</span>
+</code></pre></div>
+
+<h2 id="_8">面试回答</h2>
+<p>AXI-Lite is a simplified subset of AXI4 that supports only single-beat transfers with no burst, no ID, and no outstanding. It uses the same five-channel structure with valid/ready handshake. For a write transaction, the AW and W channels can be issued simultaneously; the slave responds on the B channel after accepting both. For a read, the master sends an address on AR, and the slave returns data on R. In DMA verification, AXI-Lite is the CSR programming path: the test programs descriptor registers (source/destination address, byte count, mode, enable) and then triggers the DMA via the CONTROL register. In UVM, the AXI-Lite agent is the frontdoor bus for the RAL model, with an adapter converting register-level operations to AXI-Lite transactions, and a predictor updating the register mirror from monitor observations.</p>
+<h2 id="_9">常见追问</h2>
+<ul>
+<li>AXI-Lite 和 AXI4 最大的区别是什么？</li>
+<li>AXI-Lite 无 burst（单 beat）、无 ID、无 outstanding，不支持乱序；适合 CSR 访问，不适合高带宽数据搬移。</li>
+<li>AXI-Lite write transaction 中，AW 和 W 谁先谁后？</li>
+<li>协议不规定顺序，可以同时发，也可以 AW 先或 W 先；slave 必须等两个 handshake 都完成才能发 B response。</li>
+<li>Monitor 为什么要 latch AWADDR 和 ARADDR？</li>
+<li>AW handshake 和 B handshake 不在同一周期；AR handshake 和 R handshake 也不在同一周期。Master 在 handshake 完成后会撤销 AWADDR/ARADDR，monitor 必须在 handshake 时 latch，否则发布 transaction 时地址已经变了。</li>
+<li>WSTRB 是什么，为什么需要？</li>
+<li>Byte enable，每 bit 对应 WDATA 中的一个 byte（AXI_DATA_WIDTH/8 个 bit）。1 表示该 byte 有效，slave 写入；0 表示该 byte 无效，slave 忽略。用于 sub-word 访问，例如只写 32-bit 寄存器中的某个 byte。</li>
+<li>BRESP 有哪几种？</li>
+<li><code>OKAY (2'b00)</code>：成功；<code>EXOKAY (2'b01)</code>：exclusive access 成功（AXI-Lite 通常不用）；<code>SLVERR (2'b10)</code>：slave error；<code>DECERR (2'b11)</code>：decode error（地址不存在）。</li>
+</ul>
+<h2 id="_10">易错点</h2>
+<ul>
+<li>AW 和 W 通道独立，master 不能假设 slave 会等 AW 先到才处理 W（反过来也不行）。</li>
+<li>Monitor 忘记在 AW/AR handshake 时 latch 地址，导致 predictor 收到的 transaction 地址错误。</li>
+<li>WSTRB 全 0 通常是非法行为（AXI-Lite item constraint 应保证 <code>strb != 0</code>）。</li>
+<li>BREADY 忘记拉高：driver 不应该等 BVALID 才拉高 BREADY，否则每次写都多一个周期延迟，对 CSR 密集访问影响明显。</li>
+<li>把 AXI-Lite 当 APB 记：两者都是简单单 beat 传输，但 AXI-Lite 用 valid/ready 握手、五个通道，APB 用 PSEL/PENABLE 两 phase。</li>
+</ul>
+<hr>
+<p><a id="apb"></a></p>
+<h2 id="apb">APB</h2>
+<p>标签：<code>#protocol</code> <code>#apb</code> <code>#dv</code> <code>#asic</code> <code>#interview</code></p>
+<h2 id="_11">核心概念</h2>
+<p>APB (Advanced Peripheral Bus) 是 AMBA 协议族中面向低功耗、低带宽外设的简单总线，设计为最小逻辑面积和最低功耗，不支持 burst、outstanding 或流水线。</p>
+<p><strong>主要信号</strong></p>
+<table>
+<thead>
+<tr>
+<th>信号</th>
+<th>方向</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PCLK</code></td>
+<td>时钟</td>
+<td>APB 总线时钟</td>
+</tr>
+<tr>
+<td><code>PRESETn</code></td>
+<td>复位</td>
+<td>低有效复位</td>
+</tr>
+<tr>
+<td><code>PSEL</code></td>
+<td>Master → Slave</td>
+<td>选择目标 slave，高有效</td>
+</tr>
+<tr>
+<td><code>PENABLE</code></td>
+<td>Master → Slave</td>
+<td>使能信号，区分 SETUP 和 ACCESS phase</td>
+</tr>
+<tr>
+<td><code>PADDR</code></td>
+<td>Master → Slave</td>
+<td>访问地址</td>
+</tr>
+<tr>
+<td><code>PWRITE</code></td>
+<td>Master → Slave</td>
+<td>1=write，0=read</td>
+</tr>
+<tr>
+<td><code>PWDATA</code></td>
+<td>Master → Slave</td>
+<td>写数据</td>
+</tr>
+<tr>
+<td><code>PRDATA</code></td>
+<td>Slave → Master</td>
+<td>读数据</td>
+</tr>
+<tr>
+<td><code>PREADY</code></td>
+<td>Slave → Master</td>
+<td>Slave 就绪，低时 master 等待，高时 transfer 完成</td>
+</tr>
+<tr>
+<td><code>PSLVERR</code></td>
+<td>Slave → Master</td>
+<td>错误标志（APB3 新增）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Transfer 两 Phase</strong></p>
+<p>每笔 APB transfer 分为两个 phase：</p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>Cycle:     1         2        3(可选, PREADY=0 时扩展)
+           SETUP    ACCESS    WAIT
+PSEL:      1         1         1
+PENABLE:   0         1         1
+PREADY:    -         0 → 1     1（slave 就绪后拉高）
+</code></pre></div>
+
+<ul>
+<li><strong>SETUP phase（第 1 周期）</strong>：PSEL 拉高，PENABLE 保持低，地址/控制信号建立。</li>
+<li><strong>ACCESS phase（第 2 周期起）</strong>：PENABLE 拉高，若 PREADY=1 则 transfer 完成；若 PREADY=0 则 slave 插入等待周期，直到 PREADY=1。</li>
+<li>Transfer 完成后，PSEL 和 PENABLE 拉低（idle state），或立刻开始下一笔 transfer 的 SETUP phase。</li>
+</ul>
+<p><strong>时序图</strong></p>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>          ____      ________      ________
+PCLK   __|    |____|        |____|        |
+         ______________________________
+PSEL   _|                              |__
+         ________________
+PENABLE_|                |________________   (PREADY=1 的情况)
+         ____________________________
+PADDR  _|____ADDR_________|____________|__
+         ____________________________
+PWRITE _|____1(write)_____|____________|__
+
+                          ↑
+                   ACCESS phase，PREADY=1，transfer 完成
+</code></pre></div>
+
+<p><strong>APB 为什么适合低带宽外设</strong></p>
+<ul>
+<li>协议极简：无 burst、无 outstanding、无乱序，状态机只有 IDLE/SETUP/ACCESS 三个状态。</li>
+<li>面积功耗小：逻辑简单，不需要 buffer 或复杂 arbiter。</li>
+<li>足够满足 GPIO、UART、SPI、I2C、timer 等低速外设的带宽需求。</li>
+<li>通常挂在 APB bridge 后面，主系统用高性能总线（AXI/AHB），APB bridge 将访问转换成 APB 时序。</li>
+</ul>
+<p><strong>验证关注点</strong></p>
+<ul>
+<li>SETUP phase 持续且只有 1 个周期（除非 slave 插 wait）。</li>
+<li>PENABLE 在 PSEL 之后的第一个时钟沿拉高。</li>
+<li>PREADY=0 时数据和控制信号必须保持稳定。</li>
+<li>写：PWDATA 在 ACCESS phase 有效；读：PRDATA 在 PREADY=1 的 ACCESS phase 采样。</li>
+<li>PSLVERR：在 ACCESS phase 结束时（PREADY=1 同周期）有效，不能提前或延迟。</li>
+</ul>
+<h2 id="_12">面试回答</h2>
+<p>APB is a simple, low-power peripheral bus designed for low-bandwidth peripherals. Each transfer has two phases: a SETUP phase where PSEL is asserted and the address and control signals are set up, and an ACCESS phase where PENABLE is raised. If the slave is ready, PREADY goes high and the transfer completes; otherwise the slave holds PREADY low to insert wait states. APB does not support burst, outstanding, or out-of-order transfers. It is typically connected to the main high-performance bus through an APB bridge. Compared to AXI, APB is much simpler: fewer signals, simpler state machine, and appropriate for peripherals like UART, GPIO, and timers that do not need high throughput.</p>
+<h2 id="_13">常见追问</h2>
+<ul>
+<li>APB transfer 分为哪几个 phase？</li>
+<li>SETUP phase（PSEL=1，PENABLE=0，建立地址和控制）和 ACCESS phase（PENABLE=1，PREADY=1 时 transfer 完成，PREADY=0 时插入等待）。</li>
+<li><code>PSEL</code>、<code>PENABLE</code>、<code>PREADY</code> 分别代表什么？</li>
+<li><code>PSEL</code>：选中某个 slave；<code>PENABLE</code>：进入 ACCESS phase；<code>PREADY</code>：slave 就绪，高时本周期 transfer 完成。</li>
+<li>APB 为什么适合低带宽外设？</li>
+<li>协议简单（IDLE/SETUP/ACCESS 三态）、无 burst/outstanding、面积功耗小，足以满足 GPIO、UART 等低速外设需求，连在 APB bridge 后面与高速主线解耦。</li>
+</ul>
+<hr>
+<p><a id="protocol-interview-answers"></a></p>
+<h2 id="english">面试回答速查（中文 + English）</h2>
+<h3 id="axi-lite-csr_1">AXI-Lite 与 CSR 编程</h3>
+<p>中文：AXI-Lite 是 AXI4 的单 beat 子集，用于 CSR 寄存器访问，没有 burst、ID 和 outstanding。写操作分三个通道：AW（地址）、W（数据 + byte enable）、B（响应）；读操作分两个通道：AR（地址）、R（数据 + 响应）。AW 和 W 可以同时发出，slave 等两个 handshake 都完成再给 B 响应。Monitor 必须在 AW/AR handshake 时 latch 地址，因为 master 之后会撤销地址信号。在 DMA 验证中，AXI-Lite agent 是 RAL 的 frontdoor 总线，通过 reg_adapter 在 register-level 和 AXI-Lite transaction 之间做转换。</p>
+<p>English: AXI-Lite is a single-beat subset of AXI4 for register access, with no burst, no ID, and no outstanding. A write uses the AW, W, and B channels; a read uses AR and R. The AW and W channels can be issued simultaneously. A monitor must latch the address at the AR/AW handshake because the master will de-assert the address before the response arrives. In a UVM environment, the AXI-Lite agent serves as the RAL frontdoor bus, with an adapter converting register operations to bus transactions and a predictor updating the register mirror.</p>
+<h3 id="axi-outstanding">AXI outstanding</h3>
+<p>中文：AXI outstanding 指 master 可以在前一个 transaction 完成前继续发起多个 transaction，提高吞吐。系统需要用 ID、buffer、计数器或 scoreboard 追踪未完成请求，并保证 response 能正确匹配 request，同时遵守 ordering 规则。</p>
+<p>English: AXI outstanding transactions allow a master to issue multiple transactions before earlier ones complete. The system tracks IDs and ordering so each response matches the correct request.</p>
+<h3 id="axi-interleaving">AXI interleaving</h3>
+<p>中文：AXI interleaving 指不同 transaction 的 data/response 在时间上交错出现。面试时重点是说明 ID tracking、same ID ordering、different ID 乱序/交错、backpressure 和 scoreboard 检查，而不是只背协议名词。</p>
+<p>English: AXI interleaving means data or responses from different transactions may be interleaved in time. Verification should check ID tracking, ordering rules, backpressure, and out-of-order scoreboard behavior.</p>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

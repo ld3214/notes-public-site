@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>面试题库 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link active" href="question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="../projects-hr/index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="../projects-hr/axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">question-bank/question-bank.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="_1">面试题库</h1>
+<p>这里集中放 ASIC/DV 面试题。具体知识点可以链接回主题笔记。</p>
+<h2 id="_2">页内目录</h2>
+<ul>
+<li><a href="#qb-asic-frontend">ASIC Frontend</a></li>
+<li><a href="#qb-design-verification">Design Verification</a></li>
+<li><a href="#qb-systemverilog-uvm">SystemVerilog / UVM</a></li>
+<li><a href="#qb-protocols">Protocols</a></li>
+</ul>
+<hr>
+<p><a id="qb-asic-frontend"></a></p>
+<h2 id="asic-frontend">ASIC Frontend</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>简短答案</th>
+<th>详细笔记</th>
+<th>熟练度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Setup time 和 hold time 的区别是什么？</td>
+<td>Setup：时钟沿前数据必须稳定的最短时间（路径太长→违例）；Hold：时钟沿后数据必须继续稳定的最短时间（路径太短→违例）；Hold 违例不能靠降频解决。</td>
+<td><a href="../knowledge-base/asic-frontend.html#timing-sta">时序与 STA</a></td>
+<td></td>
+</tr>
+<tr>
+<td>两级 synchronizer 的作用是什么？</td>
+<td>给第一个触发器足够时间从 metastable 状态恢复，第二级采样稳定值；只适用于单 bit 慢变化信号，不能保证多 bit 完整性。</td>
+<td><a href="../knowledge-base/asic-frontend.html#cdc-rdc">CDC/RDC</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Memory compiler 里设置 HVT 是什么意思？</td>
+<td>HVT memory macro leakage 更低但速度更慢，适合非 timing-critical 或低功耗场景；选择要结合 timing/power/area report。</td>
+<td><a href="../knowledge-base/asic-frontend.html#memory-hvt">Memory compiler / HVT</a> / <a href="../actual-interviews/asic.html#unisoc">紫光展锐面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Scan chain 是什么，为什么需要？</td>
+<td>Scan chain 把 scan flop 串起来，在 test mode 下 shift in/out ATPG pattern，提高内部寄存器可控性和可观察性。</td>
+<td><a href="../knowledge-base/asic-frontend.html#scan-chain">Scan chain</a> / <a href="../actual-interviews/asic.html#unisoc">紫光展锐面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>怎么看综合报告？</td>
+<td>先看 WNS/TNS 和 critical path，再看 logic depth、fanout、area/power/cell usage 和约束是否合理。</td>
+<td><a href="../knowledge-base/asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>逻辑深度为什么影响频率？</td>
+<td>一个周期内组合逻辑级数越深，path delay 越大，越容易 setup violation；常用 pipeline、拆 mux、重构 datapath 优化。</td>
+<td><a href="../knowledge-base/asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>OoO 的核心机制是什么？</td>
+<td>OoO 允许 ready 指令乱序执行，但通过 ROB 按序提交；rename 消除假相关，RS/issue queue 等待 operand ready，LSQ 处理访存相关。</td>
+<td><a href="../knowledge-base/asic-frontend.html#ooo-basics">OoO 基础</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>OoO 为什么需要 ROB？</td>
+<td>ROB 让指令虽然可以乱序执行，但必须按 program order commit，从而保证 precise exception、branch recovery 和 architectural state 一致。</td>
+<td><a href="../knowledge-base/asic-frontend.html#ooo-basics">OoO 基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Cache 的 tag/index/offset 分别是什么？</td>
+<td>Index 选择 cache set，tag 和 set 内各 way 比较判断 hit/miss，offset 选择 cache line 内的 byte/word。</td>
+<td><a href="../knowledge-base/asic-frontend.html#cache-basics">Cache 基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Direct-mapped 和 set-associative cache 有什么区别？</td>
+<td>Direct-mapped 每个 memory block 只能放一个位置，硬件简单但 conflict miss 多；set-associative 可放到同一 set 的多个 way 中，是性能和复杂度折中。</td>
+<td><a href="../knowledge-base/asic-frontend.html#cache-basics">Cache 基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Write-through 和 write-back cache 有什么区别？</td>
+<td>Write-through 每次写 cache 同时写下一级，简单但带宽压力大；write-back 先只写 cache，dirty line eviction 时再写回，性能好但控制复杂。</td>
+<td><a href="../knowledge-base/asic-frontend.html#cache-basics">Cache 基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Cache coherence 和 memory consistency 的区别？</td>
+<td>Coherence 关注同一地址在多个 cache 副本间的一致性；consistency 关注不同地址 memory operation 的全局可见顺序。</td>
+<td><a href="../knowledge-base/asic-frontend.html#cache-basics">Cache 基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td>NPU 项目中 4x4 MAC array 怎么讲？</td>
+<td>4x4 MAC array 每周期并行完成 16 次 INT8 乘加，accumulator 路径集成 bias、ReLU 和 max-pooling compare，核心价值是提升 CNN convolution throughput。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
+<td></td>
+</tr>
+<tr>
+<td>NPU 项目中 unified buffer 和 weight SRAM 的作用？</td>
+<td>16 KB unified buffer 存 feature map 和 intermediate result，1 KB weight SRAM 存权重；仲裁外部写入、内部计算读取和结果写回，缓解带宽冲突。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a id="qb-design-verification"></a></p>
+<h2 id="design-verification">Design Verification</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>简短答案</th>
+<th>详细笔记</th>
+<th>熟练度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functional coverage 和 code coverage 的区别？</td>
+<td>Functional coverage 由工程师根据 spec 手写，测量功能场景是否命中；code coverage 由工具自动统计 RTL 执行情况（line/branch/toggle/FSM）；两者互补，均需关注。</td>
+<td><a href="../knowledge-base/design-verification.html#functional-coverage">Functional Coverage</a></td>
+<td></td>
+</tr>
+<tr>
+<td>如何 debug 一个 regression failure？</td>
+<td>固定 seed 复现 → 找 first failure（不是最后一个 error）→ 在 first failure 附近开 waveform → trace transaction（driver→monitor→scoreboard）→ 区分 TB/DUT 问题 → 最小化 testcase。</td>
+<td><a href="../knowledge-base/design-verification.html#debug-methods">Debug 方法</a></td>
+<td></td>
+</tr>
+<tr>
+<td>如何从零验证一个 FIFO？</td>
+<td>先读 spec 拆 testplan，再搭 driver/monitor/scoreboard，用 queue 做 reference FIFO，并覆盖 full/empty/simultaneous/reset/overflow/underflow。</td>
+<td><a href="dv-online-digest.html#dv-fifo-verification">FIFO 验证</a></td>
+<td></td>
+</tr>
+<tr>
+<td>什么是 coverage-driven verification？</td>
+<td>从 spec 建 verification plan，把 feature 转成 coverage model，通过 CRV/regression/coverage hole analysis 收敛验证。</td>
+<td><a href="dv-online-digest.html#dv-coverage-driven">Coverage-driven verification</a></td>
+<td></td>
+</tr>
+<tr>
+<td>100% code coverage 但 functional coverage 很低怎么办？</td>
+<td>检查 coverage model 是否对齐 spec、约束是否能触达目标场景、code coverage exclusion 是否合理，再分析并关闭 coverage holes。</td>
+<td><a href="dv-online-digest.html#dv-code-vs-functional-low">Code coverage vs functional coverage</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Scoreboard 怎么设计？</td>
+<td>In-order 用 FIFO/queue 顺序比较；out-of-order 用 transaction ID 和 associative array 匹配 expected/actual。</td>
+<td><a href="dv-online-digest.html#dv-scoreboard-design">Scoreboard 设计</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Directed test 和 constrained-random test 怎么取舍？</td>
+<td>Directed 适合 bring-up 和明确 corner case；CRV 适合探索大状态空间，并用 coverage 判断是否 hit 到目标。</td>
+<td><a href="../knowledge-base/design-verification.html#verification-plan">Verification Plan</a></td>
+<td></td>
+</tr>
+<tr>
+<td>如何 debug intermittent regression failure？</td>
+<td>固定 seed 复现，记录版本和命令，看 first failure，缩小 testcase，区分 TB race、DUT bug、constraint/initialization 问题。</td>
+<td><a href="../knowledge-base/design-verification.html#debug-methods">Debug 方法</a></td>
+<td></td>
+</tr>
+<tr>
+<td>UVM regression fatal 修完后，coverage 还是低，怎么分析？</td>
+<td>先按模块/覆盖类型拆 report；generated code、tie-off bus、第三方库和 toggle hole 应 waive 或单独报告，真正属于 DUT feature 的 hole 才回到 testplan 补 test。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#axi-dma-regression-debug-coverage">AXI DMA 项目 debug 记录</a></td>
+<td></td>
+</tr>
+<tr>
+<td>UVM 里如何用 DPI C model 做 golden reference？</td>
+<td>UVM testbench 通过 DPI 调用 C model，根据同一指令和输入生成 expected result；scoreboard 比较 RTL monitor 收到的 actual 和 C model expected，可做 instruction-level 与 result-level check。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
+<td></td>
+</tr>
+<tr>
+<td>NPU 项目里 coverage 和 regression 闭环怎么讲？</td>
+<td>将指令类型、卷积窗口、padding、pooling、buffer access、corner case 等纳入 coverage，回归中持续跑 C model compare，分析 coverage hole 并补 directed/random case，最终代码覆盖率收敛到 90%+。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DDR4 controller 项目里 APB + AXI VIP 是怎么用来验证的？</td>
+<td>APB VIP 负责配置 controller/PHY 寄存器并 polling init/training done；AXI4 VIP 负责产生 DDR memory write/read burst；真正检查的是地址映射、DDR4 command/timing、数据完整性和多层 scoreboard。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">DDR4 Controller APB + AXI VIP 详细技术实现</a></td>
+<td></td>
+</tr>
+<tr>
+<td>怎么将信号驱动到 DUT？VIP 还是自己写 driver/BFM？</td>
+<td>先分清接口方向：AXI-Lite 控制路径由自写 master agent/RAL frontdoor 驱动 CSR；AXI4 memory 侧 DUT 是 master，TB 是自写 slave BFM，被动响应 DUT 请求并随机插 ready/response delay。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a> / <a href="../actual-interviews/asic.html#innosilicon-dv-intern">芯动科技验证一面</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DMA abort 注入怎么实现？</td>
+<td>正常 abort 应通过 frontdoor 写 <code>CONTROL.abort</code>，检查 no-new-request、pending cleanup、IRQ/status/error stats；<code>force/release</code> 内部信号只适合白盒 fault injection，不替代 CSR abort path。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a> / <a href="../actual-interviews/asic.html#innosilicon-dv-intern">芯动科技验证一面</a></td>
+<td></td>
+</tr>
+<tr>
+<td>CPU 验证项目被问到反汇编/commit log 怎么答？</td>
+<td>先诚实说明已有 directed program、VMEM preload、log/waveform 检查；再补充工业化改进方向：commit monitor、反汇编 log、reference model/RVFI-style checking 和 coverage。</td>
+<td><a href="../projects-hr/projects-and-behavioral.html#star-ibex-rv32im-uvm">Ibex 验证项目</a> / <a href="../actual-interviews/asic.html#innosilicon-dv-intern">芯动科技验证一面</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a id="qb-systemverilog-uvm"></a></p>
+<h2 id="systemverilog-uvm">SystemVerilog / UVM</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>简短答案</th>
+<th>详细笔记</th>
+<th>熟练度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Blocking 和 non-blocking assignment 的区别？</td>
+<td>Blocking (<code>=</code>)：当行立即求值并更新，适合 <code>always_comb</code> 组合逻辑；Non-blocking (<code>&lt;=</code>)：RHS 在时钟沿采样，LHS 在 time step 末尾更新，避免竞争，适合 <code>always_ff</code> 时序逻辑；混用会导致仿真/综合行为不一致。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-blocking-nonblocking">Blocking vs Non-blocking Assignment</a></td>
+<td></td>
+</tr>
+<tr>
+<td>手撕 find first one 怎么写？</td>
+<td>本质是 priority encoder，从指定方向扫描，遇到第一个 1 输出 index 和 valid；无 1 时 valid=0。</td>
+<td><a href="../knowledge-base/asic-frontend.html#find-first-one">find first one</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>手撕同步 FIFO 要注意什么？</td>
+<td>同 clock 下用 mem、wr_ptr、rd_ptr、count；明确 full/empty、同周期读写、reset、读延迟。</td>
+<td><a href="../knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>怎么检测 one-hot？</td>
+<td>可用 <code>(x != 0) &amp;&amp; ((x &amp; (x-1)) == 0)</code>，或 SV 内建 <code>$onehot(x)</code>；<code>$onehot0</code> 允许全 0。</td>
+<td><a href="../knowledge-base/asic-frontend.html#one-hot">one-hot 检测</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>动态数组、关联数组、队列的区别？</td>
+<td>动态数组是运行时定长连续数组；关联数组是 key-value 稀疏映射；队列是支持 push/pop 的有序动态集合。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-arrays-queues">动态数组、关联数组、队列</a></td>
+<td></td>
+</tr>
+<tr>
+<td>SV 随机化的基本机制是什么？</td>
+<td>用 <code>rand/randc</code> 声明随机字段，用 constraint 限制合法空间，调用 <code>randomize()</code> 由 solver 求解。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-randomization">SV 随机化</a></td>
+<td></td>
+</tr>
+<tr>
+<td>task + FSM 找 first1 的位置怎么写？</td>
+<td>用 enum 定义 <code>IDLE/SEARCH/DONE/SEARCHFAIL</code>，状态和 index 跨 task 调用保存；每次调用 task 检查一位，找到则 DONE，扫完无 1 则 SEARCHFAIL。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-task-fsm-find-first-one">task + FSM：find first 1</a> / <a href="../actual-interviews/asic.html#innosilicon">芯动科技笔试</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fork/join_none</code> 并行统计二维数组每行 1 的个数要注意什么？</td>
+<td>每行开一个并发进程统计，<code>join_none</code> 后如果要读结果需要 <code>wait fork</code>；fork 内必须用 <code>automatic int row = i</code> 保存 loop index。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-fork-join-none-row-count">fork/join_none 行并行统计</a> / <a href="../actual-interviews/asic.html#innosilicon">芯动科技笔试</a></td>
+<td></td>
+</tr>
+<tr>
+<td>用 task 写 valid-ready driver/monitor TB 怎么写？</td>
+<td>Driver 拉高 valid 并保持 data 到 ready 为 1；ready 由 receiver 随机 backpressure；monitor 只在 <code>valid &amp;&amp; ready</code> 同周期采样 transaction；tb 依次发送 <code>tx_q[5]</code>。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-valid-ready-task-tb">valid-ready task TB</a> / <a href="../actual-interviews/asic.html#innosilicon">芯动科技笔试</a></td>
+<td></td>
+</tr>
+<tr>
+<td>SV 的显式转换和隐式转换有什么区别？</td>
+<td>隐式转换由编译器在赋值/表达式/参数传递中自动做，可能隐藏截断或 signedness 问题；显式转换由工程师写出目标类型，如 <code>byte'(i)</code>、<code>$signed(x)</code>、<code>$cast()</code>。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-class-casting">Cast：显式 / 隐式、向上 / 向下转换</a></td>
+<td></td>
+</tr>
+<tr>
+<td>SV class 的 upcast 和 downcast 有什么区别？</td>
+<td>Upcast 是派生类 handle 赋给基类 handle，隐式合法但只能访问基类成员；downcast 是基类 handle 转回派生类 handle，要用 <code>$cast()</code> 检查运行时对象类型。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sv-class-casting">Cast：显式 / 隐式、向上 / 向下转换</a></td>
+<td></td>
+</tr>
+<tr>
+<td>UVM factory 的作用是什么？</td>
+<td>通过 factory 注册和 <code>type_id::create()</code> 创建对象，使 test 可以用 type/instance override 替换实现而不改 env。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-factory">UVM Factory 机制</a></td>
+<td></td>
+</tr>
+<tr>
+<td>UVM TLM 通信是什么？</td>
+<td>用 port/export/imp/FIFO 在组件之间传 transaction，解耦 producer 和 consumer；常见模式是 monitor analysis port 广播，scoreboard/coverage 接收。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-tlm">UVM TLM 通信</a></td>
+<td></td>
+</tr>
+<tr>
+<td>UVM phase 机制是什么？</td>
+<td>UVM 用固定 phase 管理 testbench 生命周期，包括 build/connect/run/check/report 等，并用 objection 控制 run phase 结束。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-phases">UVM Phase 机制</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>m_sequencer</code> 和 <code>p_sequencer</code> 的区别？</td>
+<td><code>m_sequencer</code> 是内置通用 handle；<code>p_sequencer</code> 是声明出的强类型 handle，可访问自定义 sequencer 但耦合更高。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-sequencer-handles"><code>m_sequencer</code> 和 <code>p_sequencer</code></a></td>
+<td></td>
+</tr>
+<tr>
+<td>寄存器模型 / UVM RAL 有什么用？</td>
+<td>把 DUT register map 抽象到 testbench，统一管理 address/field/reset/access/mirror，支持 frontdoor/backdoor、prediction、mirror/check 和 register coverage。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+<td></td>
+</tr>
+<tr>
+<td>RAL frontdoor 和 backdoor 的区别？</td>
+<td>Frontdoor 通过真实 APB/AXI-Lite bus 访问寄存器，能验证 bus path 但较慢；backdoor 直接走 HDL path，快但不能替代 bus path 验证。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+<td></td>
+</tr>
+<tr>
+<td>RAL mirror 和 predict 是什么？</td>
+<td>Mirror 是 RAL 模型里认为的寄存器值；predict 是更新 mirror 的动作，可由 sequence 手动调用，也可由 monitor + predictor 根据真实 bus transaction 更新。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+<td></td>
+</tr>
+<tr>
+<td>RAL 为什么需要 adapter 和 map？</td>
+<td>Map 记录 register 到地址的映射；adapter 在 <code>uvm_reg_bus_op</code> 和 APB/AXI-Lite sequence item 之间转换，让 RAL frontdoor 能走真实 bus sequencer。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Virtual sequence 和 virtual sequencer 的作用？</td>
+<td>Virtual sequence 协调多个 agent 上的普通 sequence；virtual sequencer 保存 sub-sequencer/RAL/config handle，适合多接口系统级场景。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence / Virtual Sequencer</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>start()</code>、<code>body()</code>、<code>start_item()</code>、<code>finish_item()</code> 的关系？</td>
+<td><code>start()</code> 启动 sequence，UVM 自动执行 <code>body()</code>；普通 sequence 在 <code>body()</code> 里用 <code>start_item()</code> 等 grant，randomize 后 <code>finish_item()</code> 发送 item 给 driver。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Sequence API</a></td>
+<td></td>
+</tr>
+<tr>
+<td>这个 AXI DMA UVM 项目的 sequence 是怎么挂到 sequencer 上的？</td>
+<td>Test 在 <code>run_phase</code> create 具体 vseq，再 <code>seq.start(env.vseqr)</code>；vseq 通过 <code>p_sequencer</code> 访问 virtual sequencer 保存的 RAL、memory model、IRQ 和 sub-sequencer handle；CSR item 由 RAL frontdoor + adapter 转到 AXI-Lite sequencer/driver。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-axi-dma-vseq-flow">AXI DMA sequence/vsequence 调用链</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI slave BFM driver 和 active master driver 有什么区别？</td>
+<td>Slave BFM 不主动发 stimulus，而是响应 DUT master 请求；各 AXI channel 独立 task 并行运行；用 <code>try_next_item()</code> 非阻塞接受 test 注入的 error response，无注入时 fallback 到默认 OKAY。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-advanced-patterns">UVM 高级技巧</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>fork/join_any</code> 和 <code>fork/join</code> 的区别，以及 <code>disable fork</code> 的作用？</td>
+<td><code>join</code>：等所有分支结束；<code>join_any</code>：任意一个分支结束就 continue，常配 <code>disable fork</code> kill 其余分支；<code>join_none</code>：不等，立即继续。IRQ 超时等待用 <code>fork/join_any + disable fork</code>。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-advanced-patterns">UVM 高级技巧</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>uvm_config_db</code> 常见坑有哪些？</td>
+<td><code>set/get</code> 顺序、scope path、type mismatch、过度使用 <code>*</code>、忘记检查 <code>get()</code> 返回值都很常见。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-config-db"><code>uvm_config_db</code> 用法</a> / <a href="dv-online-digest.html#dv-config-db-pitfalls">面经坑点</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Analysis port 在 UVM 中有什么作用？</td>
+<td>Monitor 通过 analysis port 非阻塞 broadcast transaction，scoreboard/coverage subscriber 订阅，从而解耦 producer 和 consumer。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-analysis-port">Analysis Port</a></td>
+<td></td>
+</tr>
+<tr>
+<td><code>|-&gt;</code> 和 <code>|=&gt;</code> 的区别？</td>
+<td><code>|-&gt;</code> 检查同周期 consequent；<code>|=&gt;</code> 检查下一周期 consequent。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#sva">SVA</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><a id="qb-protocols"></a></p>
+<h2 id="protocols">Protocols</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>简短答案</th>
+<th>详细笔记</th>
+<th>熟练度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI-Lite 和 AXI4 的主要区别是什么？</td>
+<td>AXI-Lite 无 burst（单 beat）、无 ID、无 outstanding；五通道结构和 valid/ready 握手与 AXI4 相同；适合 CSR 寄存器访问，不适合高带宽数据搬移。</td>
+<td><a href="../knowledge-base/protocols.html#axil">AXI-Lite 与 CSR 编程</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI-Lite write transaction 中，AW 和 W 通道谁先谁后？</td>
+<td>协议不规定顺序，可以同时发；slave 等两个 handshake 都完成才发 B response；monitor 需要分别 latch AW 地址和 W 数据，在 B handshake 时合并发布 transaction。</td>
+<td><a href="../knowledge-base/protocols.html#axil">AXI-Lite 与 CSR 编程</a></td>
+<td></td>
+</tr>
+<tr>
+<td>Monitor 为什么要 latch AWADDR 而不是直接用 B 时刻的 AWADDR？</td>
+<td>AW handshake 和 B handshake 不在同一周期；master 在 AW handshake 完成后会撤销 AWADDR，B 到来时地址已经无效；必须在 AW 握手时 latch，read 的 ARADDR 同理。</td>
+<td><a href="../knowledge-base/protocols.html#axil">AXI-Lite 与 CSR 编程</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI valid/ready handshake 规则是什么？</td>
+<td>VALID 和 READY 同周期都高时传输完成；发送方不能等 READY 才拉高 VALID（否则可能死锁）；接收方可以在 VALID 之前就拉高 READY。</td>
+<td><a href="../knowledge-base/protocols.html#axi-valid-ready">AXI valid/ready handshake</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI outstanding transaction 是什么？</td>
+<td>Master 在前一个 transaction 完成前继续发起多个 transaction，slave/interconnect 用 ID/ordering 规则追踪未完成请求。</td>
+<td><a href="../knowledge-base/protocols.html#axi-outstanding">AXI outstanding</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI interleaving 是什么？</td>
+<td>多个 transaction 的 data/response 可能按 ID 和协议规则交错返回，验证时要检查 ordering、ID tracking 和 backpressure。</td>
+<td><a href="../knowledge-base/protocols.html#axi-interleaving">AXI interleaving</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DMA 是多路一起搬运还是单独搬运？</td>
+<td>先澄清“多路”含义：descriptor slot 可以存多笔配置，物理数据通道未必并行；长 transfer 会被 DMA 内部拆成多个 AXI burst/outstanding 请求，testbench 配置场景和 backpressure，但 outstanding 是 DUT master 行为。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a> / <a href="../actual-interviews/asic.html#innosilicon-dv-intern">芯动科技验证一面</a></td>
+<td></td>
+</tr>
+<tr>
+<td>未对齐 transfer 里 WSTRB 怎么理解？</td>
+<td>AXI beat 仍按 data width 传输，但 WSTRB 每 bit 对应一个 byte lane，只有置 1 的 byte 有效；scoreboard/memory model 最好按 byte 粒度检查未对齐首尾 beat。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-innosilicon-followups">DMA 追问复盘</a> / <a href="../knowledge-base/protocols.html#axil">AXI-Lite 与 CSR 编程</a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>
