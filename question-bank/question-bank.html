@@ -251,6 +251,18 @@
 <td></td>
 </tr>
 <tr>
+<td>AXI DMA 项目的 scoreboard 具体怎么检查数据？</td>
+<td>DMA start 时 scoreboard 根据 AXI-Lite monitor shadow 的 descriptor，从 shared memory model snapshot source bytes；DMA complete 时读取 destination bytes 逐 byte 比较；error/abort 场景会丢弃 pending copy，避免误报。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-scoreboard-checks">AXI DMA scoreboard 检查</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI DMA 项目里的 memory model 是怎么接到 DUT 和 scoreboard 的？</td>
+<td><code>dma_memory_model</code> 是共享 byte-addressable sparse memory；vseq 用它 preload source，AXI memory slave BFM 在真实 AXI handshake 中读/写它，scoreboard 再从同一实例做 expected/got byte compare。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-memory-model">AXI DMA memory model</a></td>
+<td></td>
+</tr>
+<tr>
 <td>UVM 里如何用 DPI C model 做 golden reference？</td>
 <td>UVM testbench 通过 DPI 调用 C model，根据同一指令和输入生成 expected result；scoreboard 比较 RTL monitor 收到的 actual 和 C model expected，可做 instruction-level 与 result-level check。</td>
 <td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
@@ -412,6 +424,12 @@
 <td>RAL 为什么需要 adapter 和 map？</td>
 <td>Map 记录 register 到地址的映射；adapter 在 <code>uvm_reg_bus_op</code> 和 APB/AXI-Lite sequence item 之间转换，让 RAL frontdoor 能走真实 bus sequencer。</td>
 <td><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI DMA 项目的 RAL frontdoor 是怎么接到 AXI-Lite agent 的？</td>
+<td><code>dma_ral_block.default_map.set_sequencer(axil_agent.sqr, reg_adapter)</code>；vseq 调 <code>rg.write/read()</code>，adapter 把 <code>uvm_reg_bus_op</code> 转成 <code>dma_axil_item</code>，AXI-Lite monitor 再通过 predictor 更新 RAL mirror。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-ral-model">AXI DMA RAL 具体实现</a></td>
 <td></td>
 </tr>
 <tr>

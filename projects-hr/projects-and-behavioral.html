@@ -351,7 +351,7 @@
 <h3 id="60">面试版 60 秒回答（英文）</h3>
 <p>I built a complete UVM verification environment for an AXI DMA controller. The testbench includes an AXI-Lite master agent for CSR programming through a RAL model, an AXI memory slave BFM that responds to DMA read/write requests using a shared memory model, and a scoreboard that checks data integrity and tracks AXI outstanding depth. I used a virtual sequencer to centralize access to the sub-sequencers, memory model, RAL model, and IRQ interface, which kept the virtual sequences clean and concise. For error injection, I used <code>try_next_item()</code> so the driver could non-blockingly accept error responses from a test sequence without needing a permanent background sequence. For timeout protection in IRQ waiting tasks, I used <code>fork/join_any</code> plus <code>disable fork</code>. The environment covered more than ten test scenarios including burst sweep, backpressure, unaligned transfers, 4KB boundary splits, outstanding stress, and error/abort paths.</p>
 <blockquote>
-<p><strong>详细技术实现笔记</strong>: <a href="axi-dma-uvm-details.html">axi-dma-uvm-details.md</a> — 包含完整性UVM组件代码、测试用例实现细节、覆盖率模型设计、仿真脚本、调试技巧和面试追问准备。</p>
+<p><strong>详细技术实现笔记</strong>: <a href="axi-dma-uvm-details.html">axi-dma-uvm-details.md</a> — 包含 <a href="axi-dma-uvm-details.html#axi-dma-ral-mem-scoreboard">RAL / memory model / scoreboard 深入实现</a>、UVM组件代码、测试用例实现细节、覆盖率模型设计、仿真脚本、调试技巧和面试追问准备。</p>
 </blockquote>
 <p><a id="axi-dma-regression-debug-coverage"></a></p>
 <h3 id="regression-debug-coverage-closure">Regression debug 与 coverage closure 记录</h3>
