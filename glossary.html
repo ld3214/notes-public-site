@@ -115,6 +115,36 @@
 <td><a href="knowledge-base/asic-frontend.html#cdc-rdc">CDC/RDC</a> / <a href="projects-hr/projects-and-behavioral.html#star-async-fifo">Async FIFO UVM 验证</a></td>
 </tr>
 <tr>
+<td>BFM</td>
+<td>Bus Functional Model</td>
+<td>把 transaction 转成总线 pin-level 行为，或作为 slave/master 响应协议请求的模型</td>
+<td><a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础高频框架</a></td>
+</tr>
+<tr>
+<td>ABV</td>
+<td>Assertion-Based Verification</td>
+<td>用 assertion/property 持续检查协议、时序和设计不变量的验证方法</td>
+<td><a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础高频框架</a> / <a href="knowledge-base/systemverilog-uvm.html#sva">SVA</a></td>
+</tr>
+<tr>
+<td>GLS</td>
+<td>Gate-Level Simulation</td>
+<td>综合后网表仿真，用于检查 reset/X、timing annotation、DFT/clock gating/低功耗插入后的问题</td>
+<td><a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础高频框架</a></td>
+</tr>
+<tr>
+<td>UPF</td>
+<td>Unified Power Format</td>
+<td>描述 power domain、isolation、retention、level shifter 和 power state 的低功耗意图文件</td>
+<td><a href="knowledge-base/asic-frontend.html#power-clocking-upf">低功耗、Clocking 与 UPF</a></td>
+</tr>
+<tr>
+<td>DVFS</td>
+<td>Dynamic Voltage and Frequency Scaling</td>
+<td>根据负载动态调整电压和频率的低功耗技术</td>
+<td><a href="knowledge-base/asic-frontend.html#power-clocking-upf">低功耗、Clocking 与 UPF</a></td>
+</tr>
+<tr>
 <td>Coverage Waiver</td>
 <td>覆盖率豁免</td>
 <td>对结构不可达、第三方库、generated code 或非目标逻辑的 coverage hole 做有理由的排除</td>
@@ -162,6 +192,12 @@
 <td>Register Abstraction Layer</td>
 <td>UVM 中用于抽象 DUT register map、统一寄存器访问和维护 mirror/check 的机制</td>
 <td><a href="knowledge-base/systemverilog-uvm.html#uvm-ral">Register Model / UVM RAL</a></td>
+</tr>
+<tr>
+<td>Read-hash Scoreboard</td>
+<td>AXI read-hash scoreboard</td>
+<td>用 byte address 做 key 的稀疏 expected memory image，比较 AXI write 后再 read 回来的数据一致性</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-read-hash-implementation">AXI read-hash 实现</a></td>
 </tr>
 <tr>
 <td>Virtual Sequence</td>
@@ -261,6 +297,30 @@
 <td><a href="knowledge-base/protocols.html#apb">APB 协议</a></td>
 </tr>
 <tr>
+<td>AXI Burst</td>
+<td>AXI burst transfer</td>
+<td>一次 address handshake 后连续传多个 beat；AXI4 <code>LEN</code>/<code>ALEN</code> 字段通常表示 beats-1</td>
+<td><a href="projects-hr/axi-dma-uvm-details.html#axi-dma-project-parameters">AXI DMA 参数</a></td>
+</tr>
+<tr>
+<td>AXI Outstanding</td>
+<td>Outstanding transaction</td>
+<td>master 在前一笔 transaction 完成前继续发起新 transaction，依靠 ID/ordering 规则追踪未完成请求</td>
+<td><a href="knowledge-base/protocols.html#axi-outstanding">AXI outstanding</a></td>
+</tr>
+<tr>
+<td>AXI QoS</td>
+<td>AXI Quality of Service</td>
+<td>AXI <code>ARQOS/AWQOS</code> 或扩展 user bits 表示的访问优先级，DDR controller 可映射到 LPR/VPR/HPR/NPW/VPW 调度队列</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">DDR4 高级测试场景分析</a></td>
+</tr>
+<tr>
+<td>AXI Exclusive Access</td>
+<td>AXI exclusive read/write</td>
+<td>master 先 exclusive read 建立 monitor，再用匹配的 exclusive write 尝试原子更新；中间被其他访问破坏时应返回失败响应</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">DDR4 高级测试场景分析</a></td>
+</tr>
+<tr>
 <td>UART</td>
 <td>Universal Asynchronous Receiver/Transmitter</td>
 <td>异步串行通信接口，start bit + data + parity + stop bit 格式</td>
@@ -271,6 +331,36 @@
 <td>AXI Verification IP</td>
 <td>可复用的 AXI 协议验证组件，提供 master/slave agent 和 protocol checker</td>
 <td><a href="projects-hr/projects-and-behavioral.html#star-tvip-axi">TVIP-AXI Crossbar 验证</a></td>
+</tr>
+<tr>
+<td>DFI</td>
+<td>DDR PHY Interface</td>
+<td>DDR controller 和 DDR PHY 之间的标准接口；DFI VIP 监控这一层，DDR4 Memory VIP 通常看 PHY 后的 JEDEC pin-level 信号</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+</tr>
+<tr>
+<td>JEDEC</td>
+<td>Joint Electron Device Engineering Council</td>
+<td>定义 DDR4 等存储器标准；在 DDR 验证里常指 DDR4 pin-level 协议和 timing 规则</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+</tr>
+<tr>
+<td>DDR4 Memory VIP</td>
+<td>DDR4 Verification IP</td>
+<td>DDR4 存储器模型/VIP，检查 JEDEC pin-level command、bank/rank state、DQ/DQS 和 timing violation</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+</tr>
+<tr>
+<td>NODIMM</td>
+<td>No-DIMM DDR device mode</td>
+<td>DDR 验证中不建 UDIMM/RDIMM DIMM wrapper，而是直接用 discrete DDR device VIP/agent 连接 controller/PHY 侧信号的模式</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">DDR4 NODIMM 测试配置</a></td>
+</tr>
+<tr>
+<td>DDR ECC Poison</td>
+<td>DDR ECC error injection</td>
+<td>通过 poison sideband 或 ECC poison 寄存器制造 correctable/uncorrectable ECC 行为，用于验证 error response、interrupt、status 和恢复路径</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">DDR4 高级测试场景分析</a></td>
 </tr>
 <tr>
 <td>Crossbar</td>
@@ -338,6 +428,12 @@
 <td>Branch Target Buffer</td>
 <td>branch predictor 中记录 branch PC 与 target PC 的表</td>
 <td><a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V 处理器项目</a></td>
+</tr>
+<tr>
+<td>TLB</td>
+<td>Translation Lookaside Buffer</td>
+<td>缓存虚拟地址到物理地址翻译结果的小型高速表</td>
+<td><a href="knowledge-base/asic-frontend.html#book-dv-logic-architecture">数字逻辑与体系结构高频框架</a></td>
 </tr>
 <tr>
 <td>Cache</td>

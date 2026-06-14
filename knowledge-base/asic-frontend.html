@@ -92,6 +92,8 @@
 <li><a href="#computer-architecture">Computer Architecture 面试重点</a></li>
 <li><a href="#ooo-basics">OoO 基础</a></li>
 <li><a href="#cache-basics">Cache 基础</a></li>
+<li><a href="#book-dv-logic-architecture">书籍整理：数字逻辑与体系结构高频框架</a></li>
+<li><a href="#power-clocking-upf">低功耗、Clocking 与 UPF</a></li>
 <li><a href="#find-first-one">手撕 find first one</a></li>
 <li><a href="#sync-fifo">手撕同步 FIFO</a></li>
 <li><a href="#one-hot">手撕 one-hot 检测</a></li>
@@ -1074,9 +1076,229 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <li>认为 write-back 每次 store 都写 memory；实际上通常 eviction dirty line 时才写回。</li>
 <li>把 coherence 和 consistency 混为一谈。</li>
 </ul>
+<p><a id="book-dv-logic-architecture"></a></p>
+<h2 id="_46">书籍整理：数字逻辑与体系结构高频框架</h2>
+<p>标签：<code>#book</code> <code>#digital-logic</code> <code>#architecture</code> <code>#interview</code></p>
+<p>这一节来自《Cracking Digital VLSI Verification Interview》的技术章节整理，重点是把零散问法归类成可复习的知识地图，而不是逐题背答案。</p>
+<h3 id="digital-logic">Digital Logic 复习地图</h3>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>要会讲什么</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数制与编码</td>
+<td>binary/hex/BCD、1's/2's complement、Gray code、parity、ASCII</td>
+<td>Gray code 每次只变 1 bit，常用于 CDC 指针；parity 用奇偶校验检测单 bit error；2's complement 是有符号整数主流表示。</td>
+</tr>
+<tr>
+<td>基本门与 MUX</td>
+<td>NAND/NOR universal gate、XOR、MUX 实现逻辑、X/Z 传播</td>
+<td>NAND/NOR 可以组合出 NOT/AND/OR；2:1 MUX 本质是 <code>sel ? a : b</code>，很多组合逻辑可转成选择结构。</td>
+</tr>
+<tr>
+<td>组合逻辑</td>
+<td>mux/demux、encoder/decoder、priority encoder、adder、ring oscillator</td>
+<td>Priority encoder 要说明优先级和无请求情况；ripple adder 延迟随 bit 数线性增长，CLA 用生成/传递信号缩短 carry path。</td>
+</tr>
+<tr>
+<td>时序逻辑</td>
+<td>latch vs flip-flop、setup/hold、clock skew、race、counter、reset</td>
+<td>Latch level-sensitive，FF edge-triggered；setup 路径太长，hold 路径太短；异步复位建议 async assert、sync deassert。</td>
+</tr>
+<tr>
+<td>FSM</td>
+<td>Moore/Mealy、状态数与 FF 数、state encoding</td>
+<td>Moore 输出只依赖状态，毛刺更好控；Mealy 输出依赖状态和输入，可能状态更少但输入毛刺要谨慎。</td>
+</tr>
+<tr>
+<td>ASIC/SOC flow</td>
+<td>spec、architecture、RTL、lint、CDC、synthesis、DFT、STA、P&amp;R、GLS、signoff</td>
+<td>回答流程题要从需求到 signoff 串起来，并说明每一步发现什么类型的问题。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="computer-architecture">Computer Architecture 复习地图</h3>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>要会讲什么</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ISA/架构风格</td>
+<td>RISC vs CISC、Von Neumann vs Harvard、endianness</td>
+<td>RISC 指令简单、长度规整、利于 pipeline；CISC 指令复杂、编码可变；endianness 只影响多字节数据在 memory 中的 byte 顺序。</td>
+</tr>
+<tr>
+<td>Memory hierarchy</td>
+<td>SRAM/DRAM、register、cache、main memory、virtual memory</td>
+<td>SRAM 快但面积大，常用于 cache；DRAM 密度高但要 refresh，常作主存。</td>
+</tr>
+<tr>
+<td>Pipeline</td>
+<td>structural/data/control hazard、forwarding、stall、flush</td>
+<td>Structural 是资源冲突，data 是依赖未满足，control 是分支/跳转导致取错路径。</td>
+</tr>
+<tr>
+<td>Addressing mode</td>
+<td>immediate、register、base+offset、indirect</td>
+<td>讲清 operand 从哪里来，以及地址计算是否需要 ALU/寄存器读。</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td>locality、hit/miss、mapping、replacement、write policy、coherence</td>
+<td>Temporal locality 是近期用过还会用，spatial locality 是邻近地址也可能被用。</td>
+</tr>
+<tr>
+<td>Virtual memory</td>
+<td>virtual/physical address、page table、TLB、page fault</td>
+<td>TLB 缓存 VA 到 PA 翻译；page fault 由 OS 处理，可能从 storage 调页或报告非法访问。</td>
+</tr>
+<tr>
+<td>Interrupt/exception</td>
+<td>interrupt、exception、vectored interrupt</td>
+<td>Interrupt 多由外部事件触发，exception 多由当前指令触发；vectored interrupt 直接跳到对应 handler 地址。</td>
+</tr>
+<tr>
+<td>高性能 CPU</td>
+<td>superscalar、in-order vs OoO、branch prediction、memory mapped I/O</td>
+<td>Superscalar 每周期可发射多条指令；OoO 提高利用率但要保证按序提交和精确异常。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_47">面试回答</h3>
+<p>中文：这类基础题不要孤立背概念，最好按“编码/组合逻辑/时序逻辑/FSM/ASIC flow”和“ISA/pipeline/cache/virtual memory/interrupt/OoO”两张地图回答。比如问 Gray code，就联系到异步 FIFO 指针；问 setup/hold，就联系 STA 修复；问 cache，就从 locality、tag/index/offset、mapping、write policy、coherence 逐层展开。这样回答会显得你不是只记结论，而是能把基础知识放回真实 RTL 和验证场景。</p>
+<p>English: For digital logic and computer architecture interview questions, I would organize the answer by topic instead of memorizing isolated facts. Digital logic covers encoding, combinational logic, sequential logic, FSMs, and the ASIC flow. Architecture covers ISA style, pipelining, memory hierarchy, cache, virtual memory, interrupts, and out-of-order execution. The key is to connect each concept to a real design or verification scenario, such as gray code for async FIFO pointers, setup/hold for STA, and cache locality for performance.</p>
+<h3 id="_48">常见追问</h3>
+<ul>
+<li>Gray code 为什么常用于异步 FIFO？</li>
+<li>相邻值只变 1 bit，跨域同步指针时不会因为多 bit 同时变化而采到非法中间值。</li>
+<li>Ripple carry adder 和 carry look-ahead adder 区别？</li>
+<li>Ripple 简单但 carry 逐 bit 传播，延迟随位宽增长；CLA 提前计算 generate/propagate，面积更大但速度更快。</li>
+<li>Pipeline hazard 怎么分类和处理？</li>
+<li>Structural 用资源复制/仲裁，data 用 forwarding/stall，control 用 branch prediction/flush。</li>
+<li>RISC 和 CISC 最大区别？</li>
+<li>RISC 倾向简单规整指令和 load/store 架构，便于 pipeline；CISC 指令更复杂，可能一条指令完成多个微操作。</li>
+</ul>
+<h3 id="_49">易错点</h3>
+<ul>
+<li>把 Gray code 当成纠错码；它主要减少相邻状态转换的多 bit 采样风险，不负责纠错。</li>
+<li>只背 Moore/Mealy 定义，不说明毛刺、状态数和输入时序风险。</li>
+<li>说 cache hit/miss 但不会拆 tag/index/offset。</li>
+<li>讲 interrupt/exception 时混淆外部异步事件和指令自身导致的同步异常。</li>
+</ul>
+<hr>
+<p><a id="power-clocking-upf"></a></p>
+<h2 id="clocking-upf">低功耗、Clocking 与 UPF</h2>
+<p>标签：<code>#low-power</code> <code>#clocking</code> <code>#upf</code> <code>#interview</code></p>
+<h3 id="_50">一句话定义</h3>
+<p>低功耗设计是在功能正确之外，通过 clock gating、power gating、multi-voltage、DVFS 和 UPF 描述来控制动态功耗与静态漏电，同时确保跨电源域、跨时钟域和复位行为仍然安全。</p>
+<h3 id="_51">功耗组成</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>近似来源</th>
+<th>主要影响因素</th>
+<th>常见手段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dynamic power</td>
+<td>节点翻转充放电</td>
+<td><code>C * V^2 * f * activity</code></td>
+<td>clock gating、降低切换率、DVFS、operand isolation</td>
+</tr>
+<tr>
+<td>Short-circuit power</td>
+<td>PMOS/NMOS 短暂同时导通</td>
+<td>输入 transition、cell sizing</td>
+<td>优化 slew、合理 cell 选择</td>
+</tr>
+<tr>
+<td>Static/leakage power</td>
+<td>器件关断时漏电</td>
+<td>工艺、温度、Vt、面积</td>
+<td>power gating、HVT cell、memory sleep/shutdown</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_52">常见低功耗技术</h3>
+<table>
+<thead>
+<tr>
+<th>技术</th>
+<th>核心思想</th>
+<th>DV/RTL 关注点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Clock gating</td>
+<td>模块空闲时关 clock，减少无意义翻转</td>
+<td>使用 ICG cell，不用普通组合逻辑直接 gate clock；enable 要稳定，避免 glitch。</td>
+</tr>
+<tr>
+<td>Power gating</td>
+<td>空闲时切断电源域，降低 leakage</td>
+<td>isolation、retention、power-up/down sequence、reset/init 状态都要验证。</td>
+</tr>
+<tr>
+<td>Multi-voltage domain</td>
+<td>不同模块用不同电压</td>
+<td>需要 level shifter；低压域到高压域、高压域到低压域规则不同。</td>
+</tr>
+<tr>
+<td>DVFS</td>
+<td>动态调整电压和频率</td>
+<td>切换期间要保证 clock/reset/PLL lock/firmware handshake 安全。</td>
+</tr>
+<tr>
+<td>UPF</td>
+<td>用外部文件描述 power intent</td>
+<td>UPF 中定义 power domain、isolation、retention、level shifter 和电源状态表。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="clocking">Clocking 面试关注</h3>
+<ul>
+<li>Gated clock 应由综合/后端插入 ICG cell，RTL 里通常写 clock enable 风格。</li>
+<li>Generated clock、divided clock、clock mux 都要在 STA 里约束清楚。</li>
+<li>跨 clock domain 的信号仍按 CDC 处理，不能因为两个 clock 有来源关系就默认安全。</li>
+<li>Clock skew、jitter、uncertainty 都会影响 setup/hold margin。</li>
+</ul>
+<h3 id="_53">面试回答</h3>
+<p>中文：CMOS 功耗主要分动态功耗和静态漏电。动态功耗和 <code>C * V^2 * f * activity</code> 相关，所以常用 clock gating、降低切换率和 DVFS；静态漏电和工艺、温度、阈值电压相关，所以常用 power gating、HVT cell 或 memory sleep。低功耗验证不能只看功能，还要检查 isolation、retention、level shifter、power sequence、reset sequence 和 UPF power state table 是否正确。</p>
+<p>English: CMOS power mainly consists of dynamic power and leakage power. Dynamic power depends on capacitance, voltage, frequency, and switching activity, so techniques such as clock gating, activity reduction, and DVFS are effective. Leakage power depends on process, temperature, and threshold voltage, so power gating, HVT cells, and memory sleep modes are commonly used. In verification, low-power intent must be checked through isolation, retention, level shifters, power sequencing, reset behavior, and UPF power states.</p>
+<h3 id="_54">常见追问</h3>
+<ul>
+<li>Clock gating 为什么不能用普通组合逻辑直接 AND clock？</li>
+<li>普通组合逻辑可能产生毛刺，导致额外 clock edge；工程中用 ICG cell 或综合识别的 clock enable。</li>
+<li>UPF 主要描述什么？</li>
+<li>Power domain、power switch、isolation、retention、level shifter、power state table 等 power intent。</li>
+<li>DVFS 切换时要验证什么？</li>
+<li>电压/频率切换 handshake、PLL lock、clock stable、reset/idle 状态、跨域通信暂停与恢复。</li>
+</ul>
+<h3 id="_55">易错点</h3>
+<ul>
+<li>只说 <code>P = C V^2 f</code>，忘记 activity factor 和 leakage。</li>
+<li>把 clock gating 当成关电源；它只减少 clock 翻转，不消除 leakage。</li>
+<li>Power domain 关闭后忘记隔离输出，导致 X 传播到仍上电的 domain。</li>
+<li>Retention flop 恢复后未验证保存状态是否和 power-down 前一致。</li>
+</ul>
+<hr>
 <p><a id="find-first-one"></a></p>
 <h2 id="5-find-first-one">5. 手撕题：find first one</h2>
-<h3 id="_46">思路</h3>
+<h3 id="_56">思路</h3>
 <p>这是 priority encoder。通常从 LSB 到 MSB 或从 MSB 到 LSB 扫描，遇到第一个 1 输出 index，并给 valid 标志。</p>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">find_first_one</span><span class="w"> </span><span class="p">#(</span>
 <span class="w">  </span><span class="k">parameter</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
@@ -1102,7 +1324,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <p>注意：如果 W 不是 2 的幂，<code>IW</code> 仍可表示最大 index；面试时要说明无 1 时 valid=0，index 无意义或置 0。</p>
 <p><a id="sync-fifo"></a></p>
 <h2 id="6-fifo">6. 手撕题：同步 FIFO</h2>
-<h3 id="_47">关键点</h3>
+<h3 id="_57">关键点</h3>
 <ul>
 <li>同一个 clock 下读写。</li>
 <li>用 memory array 存数据。</li>
@@ -1183,7 +1405,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <h3 id="scan-chain">Scan chain</h3>
 <p>中文：Scan chain 是一种 DFT 技术，把普通触发器替换成 scan flop，并在 test mode 下串成链。测试时通过 scan_enable 进入 shift mode，把 ATPG pattern 从 scan_in 移入，再 capture DUT response，最后从 scan_out 移出。它的核心价值是提高内部寄存器的可控性和可观察性，用于检测 stuck-at、transition fault 等制造缺陷。</p>
 <p>English: A scan chain converts sequential elements into controllable and observable scan flops in test mode. Test patterns are shifted in through scan_in under scan_enable, captured responses are shifted, then shifted out through scan_out. This helps ATPG detect manufacturing faults.</p>
-<h3 id="_48">综合报告和逻辑深度</h3>
+<h3 id="_58">综合报告和逻辑深度</h3>
 <p>中文：看综合报告我会先看 WNS/TNS 和 violating path，再看 critical path 的起点终点、logic depth、fanout、cell delay、net delay 和约束是否合理。逻辑深度越深，一个周期内组合延迟越大，频率越难提高。常见优化包括加 pipeline、拆复杂 mux、提前计算、降低 fanout、重构 datapath 或 retiming。</p>
 <p>English: When reading a synthesis report, I first check WNS/TNS and the critical paths, then inspect whether the issue comes from long logic depth, fanout, cell delay, net delay, memory access, or constraints. If the path has too many combinational levels, I would consider pipelining, restructuring the datapath, reducing mux depth, or retiming.</p>
 <h3 id="ooo">OoO</h3>
@@ -1192,6 +1414,12 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <h3 id="cache_2">Cache</h3>
 <p>中文：Cache 是 CPU 和 memory 之间的小容量高速存储，利用 temporal locality 和 spatial locality 降低平均访存延迟。地址通常拆成 tag、index、offset：index 选 set，tag 判断命中，offset 选 line 内数据。Direct-mapped 简单但 conflict miss 多，set-associative 是常见折中。Write-through 简单但带宽压力大；write-back 性能更好但需要 dirty bit 和 eviction 写回。多核系统还要考虑 coherence，例如 MESI 通过 invalidation/writeback 保证同一 cache line 的副本一致。</p>
 <p>English: A cache is a small fast memory between the CPU and main memory. It exploits temporal and spatial locality to reduce average memory access time. The address is split into tag, index, and offset. Set associativity reduces conflict misses compared with direct mapping. Write-through is simpler but uses more bandwidth, while write-back requires dirty tracking and eviction handling. In multicore systems, coherence protocols such as MESI keep copies of the same cache line consistent.</p>
+<h3 id="_59">数字逻辑与体系结构高频框架</h3>
+<p>中文：数字逻辑基础可以按编码、组合逻辑、时序逻辑、FSM 和 ASIC flow 来讲；体系结构可以按 ISA、pipeline、cache、virtual memory、interrupt 和 OoO 来讲。面试里最好把概念和场景连起来，例如 Gray code 对应 async FIFO pointer，setup/hold 对应 STA 修复，pipeline hazard 对应 forwarding/stall/flush，cache locality 对应 hit/miss 和 AMAT。</p>
+<p>English: Digital logic basics can be organized into encoding, combinational logic, sequential logic, FSMs, and the ASIC flow. Architecture topics can be organized into ISA, pipeline, cache, virtual memory, interrupts, and out-of-order execution. Strong interview answers connect each concept to a concrete design or verification use case.</p>
+<h3 id="upf">低功耗与 UPF</h3>
+<p>中文：动态功耗和电容、电压平方、频率、翻转率相关，常用 clock gating、DVFS、降低 activity；静态漏电和工艺、温度、阈值电压相关，常用 power gating、HVT 和 memory sleep。UPF 描述 power domain、isolation、retention、level shifter 和 power state table，低功耗验证要覆盖 power sequence、reset sequence 和跨电源域信号。</p>
+<p>English: Dynamic power depends on capacitance, voltage squared, frequency, and activity, while leakage depends on process, temperature, and threshold voltage. UPF captures power domains, isolation, retention, level shifters, and power states. Low-power verification must check sequencing and cross-domain behavior.</p>
 <h3 id="rtlfind-first-one-fifo-one-hot">手撕 RTL：find first one / FIFO / one-hot</h3>
 <p>中文：find first one 本质是 priority encoder，要说明扫描方向、valid 和无 1 情况；同步 FIFO 要说明 mem、读写指针、full/empty、count 或额外 bit、同周期读写规则；one-hot 可以用 <code>(x != 0) &amp;&amp; ((x &amp; (x - 1)) == 0)</code>，或者 SystemVerilog 的 <code>$onehot()</code>。</p>
 <p>English: Find-first-one is a priority encoder with a valid flag. A synchronous FIFO needs memory, read/write pointers, full/empty logic, and clear same-cycle read/write behavior. One-hot can be checked with <code>(x != 0) &amp;&amp; ((x &amp; (x - 1)) == 0)</code> or <code>$onehot()</code>.</p>

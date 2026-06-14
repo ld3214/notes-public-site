@@ -79,8 +79,52 @@
       <h1 id="axi-dma-uvm-">AXI DMA UVM 验证项目 - 详细技术实现</h1>
 <h2 id="_1">项目概述</h2>
 <p>这是一个完整的AXI DMA控制器UVM验证环境，基于开源<code>aignacio/axi_dma</code> RTL设计。项目验证了AXI-Lite CSR编程、AXI4主设备数据搬移、descriptor-based传输、中断处理、错误注入和abort功能。</p>
-<h2 id="_2">页内目录</h2>
+<p><a id="axi-dma-project-parameters"></a></p>
+<h2 id="_2">项目关键参数</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>当前工程参数</th>
+<th>面试讲法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI 地址 / 数据 / ID</td>
+<td><code>AXI_ADDR_WIDTH=32</code>，<code>AXI_DATA_WIDTH=32</code>，<code>AXI_TXN_ID_WIDTH=8</code></td>
+<td>32-bit AXI4 memory datapath，8-bit transaction ID</td>
+</tr>
+<tr>
+<td>AXI burst length</td>
+<td><code>AXI_ALEN_WIDTH=8</code>，CSR <code>DMA_CONTROL.max_burst[9:2]</code> 默认 <code>8'hff</code></td>
+<td><code>max_burst</code> 配的是 AXI <code>ALEN</code>；<code>8'hff</code> 等价最大 256 beats，<code>8'h00</code> 是 single-beat</td>
+</tr>
+<tr>
+<td>支持 burst 类型</td>
+<td>sequence/item 约束覆盖 <code>AXI_INCR</code>、<code>AXI_FIXED</code></td>
+<td>验证侧覆盖 incrementing 和 fixed burst；wrap burst 不是当前项目主线</td>
+</tr>
+<tr>
+<td>Outstanding window</td>
+<td><code>DMA_RD_TXN_BUFF=8</code>，<code>DMA_WR_TXN_BUFF=8</code></td>
+<td>DMA master 最多允许 8 个 read 和 8 个 write outstanding；scoreboard 覆盖 depth 1、2-3、4-7、8</td>
+</tr>
+<tr>
+<td>Descriptor / FIFO</td>
+<td><code>DMA_NUM_DESC=2</code>，<code>DMA_FIFO_DEPTH=16</code>，<code>DMA_BYTES_WIDTH=32</code></td>
+<td>两个 descriptor slot，stream FIFO 16 deep，byte count 字段 32 bit</td>
+</tr>
+<tr>
+<td>边界与异常</td>
+<td><code>DMA_EN_UNALIGNED=1</code>，<code>DMA_MAX_BURST_EN=1</code>，timeout <code>16383</code></td>
+<td>覆盖 unaligned transfer、4KB boundary split、backpressure、SLVERR/DECERR、abort</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">页内目录</h2>
 <ul>
+<li><a href="#axi-dma-project-parameters">项目关键参数</a></li>
 <li><a href="#验证环境架构">验证环境架构</a></li>
 <li><a href="#axi-dma-ral-mem-scoreboard">RAL / Memory Model / Scoreboard 深入实现</a></li>
 <li><a href="#axi-dma-ral-model">寄存器模型 RAL 具体实现</a></li>
@@ -91,8 +135,8 @@
 <li><a href="#regression-debug-与-coverage-closure-实战">Regression Debug 与 Coverage Closure 实战</a></li>
 <li><a href="#axi-dma-innosilicon-followups">芯动科技验证面试追问复盘</a></li>
 </ul>
-<h2 id="_3">验证环境架构</h2>
-<h3 id="_4">目录结构</h3>
+<h2 id="_4">验证环境架构</h2>
+<h3 id="_5">目录结构</h3>
 <div class="codehilite" data-lang="Code"><pre><span></span><code>axi_dma_uvm_verification/
 ├── rtl/                    # DUT RTL代码
 │   ├── dma_core/          # 核心DMA控制器
@@ -153,7 +197,7 @@
 <p><a id="axi-dma-ral-mem-scoreboard"></a></p>
 <h2 id="ral-memory-model-scoreboard">RAL / Memory Model / Scoreboard 深入实现</h2>
 <p>这一节是面试时最应该讲细的部分：这个项目不是只“有一个 scoreboard”，而是把 CSR 控制路径、AXI memory 数据路径和 error/outstanding 压力路径都接到了可自检的模型上。</p>
-<h3 id="_5">总体连接图</h3>
+<h3 id="_6">总体连接图</h3>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>dma_base_test
   ├─ cfg.mem = dma_memory_model::create(&quot;mem&quot;)
   └─ cfg.ral = dma_ral_block::create(&quot;ral&quot;); cfg.ral.build()
@@ -612,7 +656,7 @@ mem_agent.mon.ap  → sb.mem_ap
 <blockquote>
 <p>我的 scoreboard 有三条检查链路。第一条是 CSR shadow/readback：AXI-Lite monitor 把真实 CSR transaction 发给 scoreboard，scoreboard 用 WSTRB-aware mirror 检查 readback，并对 STATUS/ERROR_STATS 做语义检查。第二条是 DMA copy check：DMA start 时按 descriptor 从 shared memory model snapshot expected bytes，DMA complete 时逐 byte 比较 destination memory；这个 memory model 的内容来自 DUT 真实 AXI read/write handshake。第三条是 error/outstanding：memory monitor 上报每个 completed burst，scoreboard 记录非 OKAY response、决定是否丢弃 pending copy，并统计 read/write outstanding depth 和 coverage。</p>
 </blockquote>
-<h2 id="_6">关键技术实现</h2>
+<h2 id="_7">关键技术实现</h2>
 <h3 id="1-slave-bfm">1. Slave BFM设计</h3>
 <p>AXI memory slave agent的driver实现为slave BFM，关键特性：</p>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">task</span><span class="w"> </span><span class="n">dma_axi_mem_driver</span><span class="o">::</span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
@@ -686,7 +730,7 @@ mem_agent.mon.ap  → sb.mem_ap
 <span class="k">endtask</span>
 </code></pre></div>
 
-<h2 id="_7">测试用例实现</h2>
+<h2 id="_8">测试用例实现</h2>
 <h3 id="1-csr">1. CSR读写测试</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">csr_rw_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
 <span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
@@ -783,8 +827,8 @@ mem_agent.mon.ap  → sb.mem_ap
 <span class="kd">endclass</span>
 </code></pre></div>
 
-<h2 id="_8">覆盖率模型</h2>
-<h3 id="_9">功能覆盖率点</h3>
+<h2 id="_9">覆盖率模型</h2>
+<h3 id="_10">功能覆盖率点</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">covergroup</span><span class="w"> </span><span class="n">dma_cg</span><span class="p">;</span>
 <span class="w">    </span><span class="c1">// 描述符选择</span>
 <span class="w">    </span><span class="nl">desc_sel:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">desc_index</span><span class="w"> </span><span class="p">{</span>
@@ -827,7 +871,7 @@ mem_agent.mon.ap  → sb.mem_ap
 <span class="k">endgroup</span>
 </code></pre></div>
 
-<h3 id="_10">断言检查</h3>
+<h3 id="_11">断言检查</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// AXI协议断言</span>
 <span class="k">property</span><span class="w"> </span><span class="n">axi_valid_ready_handshake</span><span class="p">;</span>
 <span class="w">    </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">disable</span><span class="w"> </span><span class="k">iff</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span>
@@ -845,7 +889,7 @@ mem_agent.mon.ap  → sb.mem_ap
 <span class="nl">assert_irq_done:</span><span class="w"> </span><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(</span><span class="n">irq_asserted_on_done</span><span class="p">);</span>
 </code></pre></div>
 
-<h2 id="_11">仿真流程</h2>
+<h2 id="_12">仿真流程</h2>
 <h3 id="1-dut">1. 编译DUT</h3>
 <div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 使用Questa</span>
 vlog<span class="w"> </span>-work<span class="w"> </span>work<span class="w"> </span>+define+AXI_ADDR_WIDTH<span class="o">=</span><span class="m">32</span><span class="w"> </span>+define+AXI_DATA_WIDTH<span class="o">=</span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
@@ -1049,7 +1093,7 @@ vcover<span class="w"> </span>report<span class="w"> </span>-html<span class="w"
 </tbody>
 </table>
 <p>面试里可以强调：coverage closure 不是盲目追 100%，而是把 hole 分成 real missing test、constraint issue、DUT bug、known issue 和 structural waiver。真正的目标是“每个 spec feature 都被验证并且每个未覆盖项都有解释”。</p>
-<h2 id="_12">调试技巧</h2>
+<h2 id="_13">调试技巧</h2>
 <h3 id="1_1">1. 波形调试</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 在测试中设置波形dump</span>
 <span class="k">initial</span><span class="w"> </span><span class="k">begin</span>
@@ -1080,22 +1124,22 @@ vcover<span class="w"> </span>report<span class="w"> </span>-html<span class="w"
 <span class="n">ral</span><span class="p">.</span><span class="n">update</span><span class="p">(</span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">UVM_BACKDOOR</span><span class="p">);</span>
 </code></pre></div>
 
-<h2 id="_13">项目经验总结</h2>
-<h3 id="_14">技术收获</h3>
+<h2 id="_14">项目经验总结</h2>
+<h3 id="_15">技术收获</h3>
 <ol>
 <li><strong>完整UVM环境搭建</strong>: 从零搭建包含agent、env、RAL、scoreboard的完整验证环境</li>
 <li><strong>AXI协议深入理解</strong>: 掌握AXI-Lite和AXI4协议细节，包括burst类型、outstanding、response处理</li>
 <li><strong>高级UVM特性应用</strong>: 使用virtual sequencer、explicit predictor、analysis port等高级特性</li>
 <li><strong>覆盖率驱动验证</strong>: 设计功能覆盖率模型，实现覆盖率闭环</li>
 </ol>
-<h3 id="_15">调试经验</h3>
+<h3 id="_16">调试经验</h3>
 <ol>
 <li><strong>AXI握手时序</strong>: 确保valid/ready握手符合协议要求</li>
 <li><strong>指针同步问题</strong>: 格雷码指针在跨时钟域同步时的时序要求</li>
 <li><strong>中断竞争条件</strong>: 中断产生和清除的时序关系</li>
 <li><strong>内存数据完整性</strong>: 确保源和目标内存数据完全一致</li>
 </ol>
-<h3 id="_16">最佳实践</h3>
+<h3 id="_17">最佳实践</h3>
 <ol>
 <li><strong>模块化设计</strong>: 各UVM组件职责清晰，便于复用</li>
 <li><strong>配置灵活性</strong>: 通过config_db提供灵活的配置选项</li>
@@ -1103,7 +1147,7 @@ vcover<span class="w"> </span>report<span class="w"> </span>-html<span class="w"
 <li><strong>自动化回归</strong>: 建立自动化回归测试流程，提高验证效率</li>
 </ol>
 <p><a id="axi-dma-innosilicon-followups"></a></p>
-<h2 id="_17">芯动科技验证面试追问复盘</h2>
+<h2 id="_18">芯动科技验证面试追问复盘</h2>
 <p>这一节用于回答 2026-06-03 芯动科技验证实习一面中围绕 AXI DMA UVM 项目的追问。</p>
 <h3 id="1-dutvip">1. 怎么将信号驱动到 DUT？VIP 还是自己写的？</h3>
 <p>中文版回答：</p>
@@ -1156,22 +1200,22 @@ vcover<span class="w"> </span>report<span class="w"> </span>-html<span class="w"
 <h3 id="6-vip">6. 如果面试官追问“为什么不用 VIP？”</h3>
 <p>中文版回答：</p>
 <p>这个项目的目标之一是展示我能理解 AXI valid-ready、burst、response 和 backpressure 的底层机制，所以我选择自己写一个轻量 AXI-Lite master agent 和 AXI memory slave BFM。这样我能控制 ready delay、response delay、error response 和 memory model 行为，也方便 debug。实际工业项目里，如果团队已有成熟 AXI VIP，我会优先复用 VIP 做协议合法性检查和覆盖，再把自己的 scoreboard、RAL、testplan 和场景约束接到 VIP 的 transaction/analysis port 上。</p>
-<h2 id="_18">面试要点</h2>
-<h3 id="_19">技术深度问题</h3>
+<h2 id="_19">面试要点</h2>
+<h3 id="_20">技术深度问题</h3>
 <ol>
 <li><strong>AXI协议细节</strong>: outstanding transaction管理、burst类型区别、response类型</li>
 <li><strong>UVM架构设计</strong>: virtual sequencer作用、RAL predictor实现、analysis port使用</li>
 <li><strong>验证完备性</strong>: 如何确保覆盖所有corner case、错误注入策略</li>
 <li><strong>性能优化</strong>: 如何提高仿真速度、减少内存占用</li>
 </ol>
-<h3 id="_20">项目经验问题</h3>
+<h3 id="_21">项目经验问题</h3>
 <ol>
 <li><strong>遇到的最大挑战</strong>: 可能是outstanding深度验证、错误注入机制设计等</li>
 <li><strong>团队协作</strong>: 如何与设计工程师协作、问题定位流程</li>
 <li><strong>质量保证</strong>: 如何确保验证质量、覆盖率目标达成</li>
 <li><strong>持续改进</strong>: 如果重做项目，会做哪些改进</li>
 </ol>
-<h3 id="_21">扩展思考</h3>
+<h3 id="_22">扩展思考</h3>
 <ol>
 <li><strong>协议断言</strong>: 如何添加SVA断言提高验证效率</li>
 <li><strong>形式验证</strong>: 哪些部分适合使用形式验证</li>

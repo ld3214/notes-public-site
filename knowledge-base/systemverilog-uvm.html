@@ -87,8 +87,10 @@
 <li><a href="#sv-coding-patterns">SystemVerilog 笔试 Coding Patterns</a></li>
 <li><a href="#sv-arrays-queues">动态数组、关联数组、队列</a></li>
 <li><a href="#sv-randomization">SV 随机化 / Constrained Random</a></li>
+<li><a href="#book-sv-verilog-checklist">书籍整理：SV/Verilog 高频语法清单</a></li>
 <li><a href="#sva">SVA</a></li>
 <li><a href="#uvm-overview">UVM 总览</a></li>
+<li><a href="#book-uvm-interview-checklist">书籍整理：UVM 高频问法清单</a></li>
 <li><a href="#uvm-config-db"><code>uvm_config_db</code> 用法</a></li>
 <li><a href="#uvm-tlm">UVM TLM 通信</a></li>
 <li><a href="#uvm-analysis-port">Analysis Port</a></li>
@@ -863,10 +865,211 @@
 <li>约束写得太死，只能产生少量场景，functional coverage 上不去。</li>
 </ul>
 <hr>
+<p><a id="book-sv-verilog-checklist"></a></p>
+<h2 id="svverilog">书籍整理：SV/Verilog 高频语法清单</h2>
+<p>标签：<code>#book</code> <code>#systemverilog</code> <code>#verilog</code> <code>#interview</code></p>
+<p>这一节把《Cracking Digital VLSI Verification Interview》中 HDL 章节的典型问法压缩成复习清单。已有详细笔记的主题仍优先回链到对应章节。</p>
+<h3 id="rtlverilog">RTL/Verilog 语义</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+<th>相关笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Blocking vs non-blocking</td>
+<td>组合逻辑用 blocking，时序逻辑用 non-blocking；在同一个时序 always 里用 blocking 容易造成仿真行为和寄存器意图不一致。</td>
+<td><a href="#sv-blocking-nonblocking">Blocking vs Non-blocking</a></td>
+</tr>
+<tr>
+<td>同步/异步 reset</td>
+<td>同步 reset 只在 clock edge 生效；异步 reset 进入 sensitivity list，可立即 assert，释放最好同步。</td>
+<td><a href="asic-frontend.html#cdc-rdc">CDC/RDC</a></td>
+</tr>
+<tr>
+<td><code>==</code> vs <code>===</code></td>
+<td><code>==</code> 遇到 X/Z 可能得到 X；<code>===</code> 把 X/Z 当作可比较值，常用于 testbench 精确比较未知态。</td>
+<td>本节</td>
+</tr>
+<tr>
+<td>task vs function</td>
+<td>function 不消耗仿真时间并返回值；task 可以消耗时间、可有多个 output/inout，适合 driver/monitor 时序行为。</td>
+<td><a href="#sv-coding-patterns">Coding Patterns</a></td>
+</tr>
+<tr>
+<td>latch inference</td>
+<td>组合 always 中分支未覆盖或未给默认值会推断 latch。</td>
+<td><a href="asic-frontend.html#synthesis-lint">综合与 Lint</a></td>
+</tr>
+<tr>
+<td><code>case/casez/casex</code></td>
+<td><code>case</code> 精确匹配，<code>casez</code> 把 Z/? 当 don't-care，<code>casex</code> 连 X 也当 don't-care，RTL 中慎用 <code>casex</code>。</td>
+<td>本节</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sv">SV 数据类型与数组</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reg</code> / <code>wire</code> / <code>logic</code></td>
+<td><code>wire</code> 表互连，<code>reg</code> 是旧式过程赋值变量，<code>logic</code> 是 SV 推荐单驱动变量类型。</td>
+</tr>
+<tr>
+<td><code>bit</code> vs <code>logic</code></td>
+<td><code>bit</code> 是 2-state，只能 0/1；<code>logic</code> 是 4-state，可表达 X/Z，更适合 RTL/TB 信号。</td>
+</tr>
+<tr>
+<td><code>logic [7:0]</code> vs <code>byte</code></td>
+<td>都可表示 8 bit，但 <code>byte</code> 是 2-state signed integral type；<code>logic [7:0]</code> 是 4-state packed vector。</td>
+</tr>
+<tr>
+<td>packed vs unpacked</td>
+<td>packed 维度是连续 bit 向量，可整体做算术/切片；unpacked 是元素集合，适合 array/memory。</td>
+</tr>
+<tr>
+<td>dynamic array</td>
+<td>运行时分配长度，适合长度运行时才知道但当前大小相对固定的集合。</td>
+</tr>
+<tr>
+<td>associative array</td>
+<td>稀疏 key-value，适合大地址空间 memory model 或 scoreboard 按 ID/address 查找。</td>
+</tr>
+<tr>
+<td>queue</td>
+<td>有序动态容器，支持 push/pop，适合 FIFO/pending list。</td>
+</tr>
+<tr>
+<td>struct vs union</td>
+<td>struct 每个 field 独立占空间；union 多个 field 共享同一段存储。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="oop">OOP 与接口</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>class 成员默认可见性</td>
+<td>SystemVerilog class 成员默认 <code>public</code>，可显式声明 <code>local</code> 或 <code>protected</code>。</td>
+</tr>
+<tr>
+<td>forward declaration</td>
+<td>先声明 class 名，解决两个 class 相互引用或定义顺序问题。</td>
+</tr>
+<tr>
+<td>virtual / pure virtual</td>
+<td>virtual 支持动态派发；pure virtual 只声明接口，派生类必须实现。</td>
+</tr>
+<tr>
+<td>abstract class</td>
+<td>包含 pure virtual method 或声明为 virtual class，不能直接实例化，用作接口/基类。</td>
+</tr>
+<tr>
+<td>interface</td>
+<td>封装一组信号和 task/function，连接 DUT 与 TB；modport 限定方向和可见性。</td>
+</tr>
+<tr>
+<td>clocking block</td>
+<td>给 TB 驱动/采样定义时钟和 skew，减少 race，常放在 interface 里。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_22">随机化与并发</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+<th>相关笔记</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pre_randomize()</code> / <code>post_randomize()</code></td>
+<td>randomize 前后 hook；前者准备配置，后者派生字段或检查结果，但不要随意破坏已求解字段。</td>
+<td><a href="#sv-randomization">SV 随机化</a></td>
+</tr>
+<tr>
+<td>hard vs soft constraint</td>
+<td>hard 必须满足；soft 可被 inline/harder constraint 覆盖，适合默认约束。</td>
+<td><a href="#sv-randomization">SV 随机化</a></td>
+</tr>
+<tr>
+<td><code>constraint_mode()</code> / <code>rand_mode()</code></td>
+<td>前者开关 constraint block，后者开关某个 rand 字段。</td>
+<td><a href="#sv-randomization">SV 随机化</a></td>
+</tr>
+<tr>
+<td><code>std::randomize()</code></td>
+<td>对局部变量或非 class 字段随机化，适合临时生成值。</td>
+<td><a href="#sv-randomization">SV 随机化</a></td>
+</tr>
+<tr>
+<td><code>fork/join</code></td>
+<td>等所有分支结束；<code>join_any</code> 等任一分支结束；<code>join_none</code> 立即继续。</td>
+<td><a href="#uvm-advanced-patterns">UVM 高级技巧</a></td>
+</tr>
+<tr>
+<td><code>wait fork</code> / <code>disable fork</code></td>
+<td>等待当前作用域子进程结束；终止当前 fork 作用域下仍在运行的分支。</td>
+<td><a href="#uvm-advanced-patterns">UVM 高级技巧</a></td>
+</tr>
+<tr>
+<td>semaphore</td>
+<td>计数锁，用于控制共享资源访问数量。</td>
+<td>本节</td>
+</tr>
+<tr>
+<td>mailbox</td>
+<td>线程间消息队列；bounded mailbox 可限制容量，unbounded 不限制。</td>
+<td>本节</td>
+</tr>
+<tr>
+<td>event</td>
+<td>线程同步触发器，用 <code>-&gt; ev</code> 触发，用 <code>@ev</code> 或 <code>wait(ev.triggered)</code> 等待。</td>
+<td>本节</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_23">面试回答</h3>
+<p>中文：HDL 语法题要抓住“仿真语义”和“硬件意图”的差别。比如 blocking/non-blocking 不只是符号不同，而是调度区域和寄存器建模不同；<code>==</code>/<code>===</code> 不只是相等比较，而是 X/Z 处理不同；packed/unpacked、2-state/4-state、task/function、clocking block 都会影响 testbench 是否有 race、RTL 是否可综合、debug 是否可信。</p>
+<p>English: For SystemVerilog and Verilog syntax questions, I focus on the difference between simulation semantics and hardware intent. Blocking versus non-blocking affects scheduling and register modeling. <code>==</code> and <code>===</code> differ in X/Z handling. Packed versus unpacked arrays, 2-state versus 4-state types, tasks versus functions, and clocking blocks all affect synthesizability, race avoidance, and debug quality.</p>
+<h3 id="_24">常见追问</h3>
+<ul>
+<li>为什么 testbench 有时用 <code>===</code>？</li>
+<li>因为 TB 可能要检测 X/Z 是否真实出现，<code>===</code> 会逐 bit 比较 X/Z，而 <code>==</code> 可能返回 X。</li>
+<li>为什么 RTL 中慎用 <code>casex</code>？</li>
+<li><code>casex</code> 把 X 也当 don't-care，可能掩盖未知态传播，导致仿真过于乐观。</li>
+<li>为什么 fork loop 里常要 <code>automatic int idx = i</code>？</li>
+<li>每个并发分支需要保存当时的 loop index，否则所有分支可能看到同一个最终变量值。</li>
+</ul>
+<h3 id="_25">易错点</h3>
+<ul>
+<li>用 2-state <code>bit</code> 保存可能为 X 的 DUT 信号，debug 时把未知态吞掉。</li>
+<li><code>logic</code> 多驱动时以为工具会自动仲裁，实际会报错或产生不明确行为。</li>
+<li>在 function 里写耗时语句。</li>
+<li><code>post_randomize()</code> 改字段导致 constraint 求解结果和实际 stimulus 不一致。</li>
+</ul>
+<hr>
 <p><a id="sva"></a></p>
 <h2 id="sva">SVA</h2>
 <p>标签：<code>#sva</code> <code>#systemverilog</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_22">核心概念</h3>
+<h3 id="_26">核心概念</h3>
 <p><strong>Immediate Assertion vs Concurrent Assertion</strong></p>
 <table>
 <thead>
@@ -1000,9 +1203,9 @@
 <span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">$</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Read from empty FIFO&quot;</span><span class="p">);</span>
 </code></pre></div>
 
-<h3 id="_23">面试回答</h3>
+<h3 id="_27">面试回答</h3>
 <p>SVA has two types of assertions. Immediate assertions are evaluated like procedural statements at the time of execution, suitable for one-shot value checks. Concurrent assertions are evaluated at clock edges and can check temporal properties across multiple cycles, which is how you check protocol rules. The implication operator <code>|-&gt;</code> checks the consequent starting in the same cycle as the antecedent; <code>|=&gt;</code> checks one cycle later. Common functions like <code>$rose</code>, <code>$fell</code>, and <code>$stable</code> let you check signal transitions relative to the previous clock edge. In a verification environment, I use assertions to check handshake rules, FSM state validity, timing relationships, and boundary conditions, because assertions run continuously in the background and catch violations immediately.</p>
-<h3 id="_24">常见追问</h3>
+<h3 id="_28">常见追问</h3>
 <ul>
 <li>Immediate assertion 和 concurrent assertion 的区别？</li>
 <li>Immediate 是过程语句，执行到当行立即求值；concurrent 绑定时钟沿，检查跨周期时序属性。</li>
@@ -1017,7 +1220,7 @@
 <p><a id="uvm-overview"></a></p>
 <h2 id="uvm_1">UVM 总览</h2>
 <p>标签：<code>#uvm</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_25">学习地图</h3>
+<h3 id="_29">学习地图</h3>
 <ul>
 <li><a href="#uvm-component-hierarchy">UVM component hierarchy</a></li>
 <li><a href="#uvm-sequence-driver-flow">Sequence item / sequence / sequencer / driver</a></li>
@@ -1139,9 +1342,9 @@
 </code></pre></div>
 
 <p>常见坑：type 不匹配、path 写错、get 早于 set、忘记检查 get 返回值。</p>
-<h3 id="_26">面试回答</h3>
+<h3 id="_30">面试回答</h3>
 <p>A UVM testbench is organized in a hierarchy: the test creates the environment, which contains agents, a scoreboard, and coverage collectors. Each agent encapsulates a sequencer, a driver, and a monitor for one interface. The sequencer arbitrates sequence access to the driver; the driver converts sequence items into pin-level stimulus; the monitor captures pin-level activity and broadcasts transactions through analysis ports to the scoreboard and coverage collector. The scoreboard compares expected results from a reference model against actual DUT outputs. The factory, phase mechanism, config DB, and analysis port are the four key UVM mechanisms that make the environment reusable and configurable.</p>
-<h3 id="_27">常见追问</h3>
+<h3 id="_31">常见追问</h3>
 <ul>
 <li>UVM testbench 的结构怎么讲？</li>
 <li>Test → Env → Agent (sequencer/driver/monitor) + Scoreboard + Coverage。每一层职责清晰，通过 analysis port 和 config_db 解耦。</li>
@@ -1159,10 +1362,169 @@
 <li>见 <a href="#uvm-sequencer-handles"><code>m_sequencer</code> 和 <code>p_sequencer</code></a>。</li>
 </ul>
 <hr>
+<p><a id="book-uvm-interview-checklist"></a></p>
+<h2 id="uvm_2">书籍整理：UVM 高频问法清单</h2>
+<p>标签：<code>#book</code> <code>#uvm</code> <code>#interview</code></p>
+<h3 id="_32">方法学总览</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UVM 优点</td>
+<td>标准化、可复用、可配置、支持 CRV、coverage、TLM、factory、phasing 和 register model。</td>
+</tr>
+<tr>
+<td>UVM 缺点</td>
+<td>学习曲线陡、代码量大、debug 层次深，小模块可能显得重；需要团队规范才能发挥复用价值。</td>
+</tr>
+<tr>
+<td>TLM</td>
+<td>以 transaction object 连接组件，减少 pin-level 耦合。</td>
+</tr>
+<tr>
+<td>Analysis port vs TLM FIFO</td>
+<td>Analysis port 是非阻塞广播；TLM FIFO 是点对点带缓存，支持 blocking/nonblocking get/put/peek。</td>
+</tr>
+<tr>
+<td>Transaction vs sequence item</td>
+<td>Transaction 是抽象操作概念；<code>uvm_sequence_item</code> 是 UVM 中可被 sequence/driver 传递的 transaction 基类。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="agentsequencedriver">Agent/Sequence/Driver</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent 组成</td>
+<td>Active agent 包含 sequencer、driver、monitor；passive agent 通常只有 monitor。</td>
+</tr>
+<tr>
+<td>Active vs passive</td>
+<td>Active 会驱动 DUT 接口，passive 只监听接口，常用于 checker/coverage 或复用现有 stimulus。</td>
+</tr>
+<tr>
+<td>Sequencer/driver handshake</td>
+<td>Sequence 用 <code>start_item/finish_item</code> 发 item；driver 用 <code>get_next_item/item_done</code> 或 <code>get/put</code> API 取 item 和返回响应。</td>
+</tr>
+<tr>
+<td><code>get_next_item()</code> vs <code>try_next_item()</code></td>
+<td>前者阻塞等待 item；后者非阻塞尝试获取，适合 slave BFM 或 error injection。</td>
+</tr>
+<tr>
+<td><code>get()</code> vs <code>peek()</code></td>
+<td><code>get()</code> 取出并移除，<code>peek()</code> 查看但不移除。</td>
+</tr>
+<tr>
+<td>Sequence arbitration</td>
+<td>多个 sequence 同时运行时，sequencer 根据 FIFO、priority、random、strict FIFO 等策略仲裁。</td>
+</tr>
+<tr>
+<td><code>lock()</code> vs <code>grab()</code></td>
+<td>都让 sequence 独占 sequencer；<code>grab()</code> 优先级更强，通常应谨慎使用，避免饿死其他 sequence。</td>
+</tr>
+<tr>
+<td>Response routing</td>
+<td>driver 返回 response 时要带 sequence/item ID，确保回到正确 sequence。</td>
+</tr>
+<tr>
+<td>Virtual sequence</td>
+<td>协调多个 lower-level sequence，常用于多接口、寄存器配置 + 数据流 + IRQ 等系统场景。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="factoryphaseconfigral">Factory/Phase/Config/RAL</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>速答口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>new()</code> vs <code>create()</code></td>
+<td><code>new()</code> 直接构造，绕过 factory；<code>type_id::create()</code> 经过 factory，支持 override。</td>
+</tr>
+<tr>
+<td>Type override vs instance override</td>
+<td>Type override 替换某一类型所有创建；instance override 只替换某个层次路径下的实例。</td>
+</tr>
+<tr>
+<td>Object vs component override</td>
+<td>Component 有层次路径，可做 instance override；普通 object/sequence 不在 component hierarchy 中，通常只能 type override 或通过上下文创建。</td>
+</tr>
+<tr>
+<td>Objection</td>
+<td>控制 run phase 是否结束；不 raise 可能提前结束，忘记 drop 可能挂住。</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>可用 UVM timeout、watchdog sequence 或 <code>fork/join_any + disable fork</code> 防止仿真无限等待。</td>
+</tr>
+<tr>
+<td>Phase 顺序</td>
+<td>build 自顶向下创建，connect 自底/按层连接，run 耗时执行，check/report 收尾。</td>
+</tr>
+<tr>
+<td><code>phase_ready_to_end()</code></td>
+<td>phase 将结束前的 hook，可用于等待 pending transaction drain，但不能滥用拖延仿真。</td>
+</tr>
+<tr>
+<td><code>uvm_config_db</code></td>
+<td>跨层传 virtual interface 和 config object；重点是 type、path、set/get 顺序和返回值检查。</td>
+</tr>
+<tr>
+<td>UVM RAL</td>
+<td>抽象 register map，统一读写、mirror、predict、frontdoor/backdoor 和 register coverage。</td>
+</tr>
+<tr>
+<td>Callback</td>
+<td>在不改原组件代码的情况下插入扩展行为，适合 error injection 或功能钩子，但过度使用会让控制流变隐蔽。</td>
+</tr>
+<tr>
+<td><code>uvm_root</code></td>
+<td>UVM component tree 的单例根节点，<code>run_test()</code> 从这里创建并启动 test。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_33">面试回答</h3>
+<p>中文：UVM 的核心价值是把验证环境标准化并提高复用性。Agent 封装一个接口，sequence 产生 transaction，driver 转成 pin-level 时序，monitor 采集 DUT 行为，scoreboard/reference model 做 self-checking，coverage 判断场景是否命中。Factory 负责可替换创建，phase 负责生命周期，config_db 负责配置传递，TLM/analysis port 负责组件解耦，RAL 负责寄存器抽象。</p>
+<p>English: The value of UVM is standardization and reuse. An agent encapsulates one interface; sequences generate transactions; drivers convert them into pin-level behavior; monitors observe DUT activity; scoreboards and reference models perform self-checking; coverage tracks scenario closure. The factory enables replaceable construction, phases define lifecycle, config DB passes configuration, TLM decouples components, and RAL abstracts registers.</p>
+<h3 id="_34">常见追问</h3>
+<ul>
+<li>为什么小 block 不一定需要完整 UVM？</li>
+<li>UVM 复用价值在复杂接口、多人协作、长期维护和 regression 上更明显；简单组合/小模块可用轻量 TB。</li>
+<li>为什么 monitor 用 analysis port？</li>
+<li>Monitor 不需要知道谁接收 transaction，analysis port 广播给 scoreboard、coverage、logger，提高复用性。</li>
+<li>Factory override 为什么有时不生效？</li>
+<li>常见原因是用了 <code>new()</code>，类没注册，override 设置太晚，type/path 不匹配，或 create context 不对。</li>
+<li>Simulation 怎么结束？</li>
+<li>run phase objection 归零后进入 extract/check/report/final；还要确保 pending transaction drain 和 timeout 机制正确。</li>
+</ul>
+<h3 id="_35">易错点</h3>
+<ul>
+<li>Driver 取到 item 后忘记 <code>item_done()</code>，sequence 卡住。</li>
+<li>Objection raise/drop 不成对，导致过早结束或永远不结束。</li>
+<li><code>uvm_config_db</code> 用 <code>*</code> 过度匹配，让多个 agent 拿到错误 virtual interface。</li>
+<li>Scoreboard 只接 actual，没有明确 expected source。</li>
+<li>Callback 过度使用，debug 时找不到行为从哪里插入。</li>
+</ul>
+<hr>
 <p><a id="uvm-tlm"></a></p>
 <h2 id="uvm-tlm">UVM TLM 通信</h2>
 <p>标签：<code>#uvm</code> <code>#tlm</code> <code>#analysis-port</code> <code>#scoreboard</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_28">一句话定义</h3>
+<h3 id="_36">一句话定义</h3>
 <p>TLM（Transaction-Level Modeling）通信是在 UVM 组件之间传递 transaction object 的机制。它让组件之间通过 port/export/imp/FIFO 通信，而不是直接调用彼此的内部函数，从而降低耦合、提高复用性。</p>
 <h3 id="tlm">为什么需要 TLM</h3>
 <p>在 UVM testbench 里，driver、monitor、scoreboard、coverage collector 应该各司其职：</p>
@@ -1359,10 +1721,10 @@
 </tr>
 </tbody>
 </table>
-<h3 id="_29">面试回答</h3>
+<h3 id="_37">面试回答</h3>
 <p>中文：UVM TLM 是组件之间传 transaction 的通信机制，核心是用 port/export/imp/FIFO 解耦组件。最常见的是 monitor 用 <code>uvm_analysis_port.write(txn)</code> 广播 transaction，scoreboard 或 coverage collector 用 <code>uvm_analysis_imp.write()</code> 接收；如果 scoreboard 需要缓存和阻塞式读取，可以接 <code>uvm_tlm_analysis_fifo</code>，monitor 非阻塞写入，scoreboard 用 <code>get()</code> 取。TLM 的价值是让 monitor 不依赖 scoreboard 的具体实现，提高 testbench 复用性。</p>
 <p>English: UVM TLM is the transaction-level communication mechanism between components. It uses ports, exports, imps, and FIFOs to decouple producers and consumers. A common pattern is a monitor broadcasting transactions through an <code>uvm_analysis_port</code>, while a scoreboard or coverage collector receives them through an analysis imp. If buffering is needed, a <code>uvm_tlm_analysis_fifo</code> can be inserted so the monitor writes non-blockingly and the scoreboard gets transactions at its own pace.</p>
-<h3 id="_30">常见追问</h3>
+<h3 id="_38">常见追问</h3>
 <ul>
 <li>Analysis port 和普通 function call 有什么区别？</li>
 <li>Analysis port 通过 TLM 接口广播 transaction，producer 不知道 consumer 具体是谁，组件耦合更低。</li>
@@ -1375,7 +1737,7 @@
 <li>为什么要用 <code>uvm_tlm_analysis_fifo</code>？</li>
 <li>用于缓冲 transaction，让 producer 非阻塞发送，consumer 可以 blocking <code>get()</code>。</li>
 </ul>
-<h3 id="_31">易错点</h3>
+<h3 id="_39">易错点</h3>
 <ul>
 <li>在 <code>write()</code> 里写耗时操作或 <code>#delay</code>，这是不允许的，因为 <code>write()</code> 是 function。</li>
 <li>Monitor 直接调用 scoreboard 内部函数，导致组件强耦合。</li>
@@ -1387,7 +1749,7 @@
 <p><a id="uvm-factory"></a></p>
 <h2 id="uvm-factory">UVM Factory 机制</h2>
 <p>标签：<code>#uvm</code> <code>#factory</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_32">一句话定义</h3>
+<h3 id="_40">一句话定义</h3>
 <p>UVM factory 是一个对象创建和替换机制：代码中通过 factory 创建 component/object，test 可以在不修改原始 testbench 代码的情况下，把某个类型替换成另一个派生类型。</p>
 <h3 id="factory">为什么需要 Factory</h3>
 <p>在 DV 中，经常需要复用同一个 environment，但不同 test 想替换某些行为：</p>
@@ -1397,7 +1759,7 @@
 <li>把某个 monitor/scoreboard 换成增强版本。</li>
 </ul>
 <p>如果到处直接调用 <code>new()</code>，类型在代码里写死，就很难替换。Factory 的价值是把“创建什么类型”的决定延后到 test 配置阶段。</p>
-<h3 id="_33">基本使用</h3>
+<h3 id="_41">基本使用</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">my_driver</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_driver</span><span class="w"> </span><span class="p">#(</span><span class="n">my_item</span><span class="p">);</span>
 <span class="w">  </span><span class="no">`uvm_component_utils</span><span class="p">(</span><span class="n">my_driver</span><span class="p">)</span>
 
@@ -1457,9 +1819,9 @@
 </tbody>
 </table>
 <p>Override 必须发生在目标对象被 <code>create()</code> 之前，通常放在 test 的 <code>build_phase</code> 里，并且在 <code>super.build_phase()</code> 或 env 创建之前安排好。</p>
-<h3 id="_34">面试回答</h3>
+<h3 id="_42">面试回答</h3>
 <p>UVM factory allows components and objects to be created through a registered type system instead of hard-coded constructors. The main benefit is override: a test can replace a base driver, monitor, sequence item, or other component with a derived implementation without changing the reusable environment. To make it work, classes must be registered with the factory macros and created using <code>type_id::create()</code> rather than <code>new()</code>.</p>
-<h3 id="_35">常见追问</h3>
+<h3 id="_43">常见追问</h3>
 <ul>
 <li>Factory 和 polymorphism 的关系是什么？</li>
 <li>Factory 提供创建时的类型替换，polymorphism 保证替换后的派生类仍能通过基类 handle 使用。</li>
@@ -1470,7 +1832,7 @@
 <li>Component 和 object 的 factory create 有什么区别？</li>
 <li>Component 有 UVM hierarchy，需要 <code>name</code> 和 <code>parent</code>；object 没有 hierarchy，通常只传 <code>name</code>。</li>
 </ul>
-<h3 id="_36">易错点</h3>
+<h3 id="_44">易错点</h3>
 <ul>
 <li>忘记写 factory registration macro。</li>
 <li>类名注册了，但创建时仍然使用 <code>new()</code>。</li>
@@ -1482,7 +1844,7 @@
 <p><a id="uvm-phases"></a></p>
 <h2 id="uvm-phase">UVM Phase 机制</h2>
 <p>标签：<code>#uvm</code> <code>#phase</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_37">一句话定义</h3>
+<h3 id="_45">一句话定义</h3>
 <p>UVM phase 机制把 testbench 的生命周期拆成固定阶段，让所有 component 按统一顺序完成创建、连接、仿真运行、结果检查和报告。</p>
 <h3 id="phase">常见 Phase 顺序</h3>
 <table>
@@ -1577,9 +1939,9 @@
 <span class="k">endtask</span>
 </code></pre></div>
 
-<h3 id="_38">面试回答</h3>
+<h3 id="_46">面试回答</h3>
 <p>UVM phases provide a standard lifecycle for the verification environment. In <code>build_phase</code>, components are created and configured. In <code>connect_phase</code>, TLM connections are made. In <code>run_phase</code>, time-consuming behavior such as sequences, drivers, monitors, and scoreboards runs. After simulation, extract, check, and report phases are used to collect and validate results. The objection mechanism controls when the run phase is allowed to finish.</p>
-<h3 id="_39">常见追问</h3>
+<h3 id="_47">常见追问</h3>
 <ul>
 <li>为什么 <code>build_phase</code> 里创建 component，而不是 constructor 里？</li>
 <li>因为 build phase 可以利用 factory override 和 config DB，而且符合 UVM 的统一搭建流程。</li>
@@ -1590,7 +1952,7 @@
 <li>如果忘记 drop objection 会怎样？</li>
 <li>仿真可能一直不结束，直到 timeout。</li>
 </ul>
-<h3 id="_40">易错点</h3>
+<h3 id="_48">易错点</h3>
 <ul>
 <li>在 function phase 里写会消耗时间的代码，例如 <code>#10</code>。</li>
 <li>在对象已经创建之后才设置 factory override。</li>
@@ -1602,7 +1964,7 @@
 <p><a id="uvm-virtual-sequence"></a></p>
 <h2 id="virtual-sequence-virtual-sequencer-sequence-api">Virtual Sequence / Virtual Sequencer / Sequence API</h2>
 <p>标签：<code>#uvm</code> <code>#sequence</code> <code>#virtual-sequence</code> <code>#sequencer</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_41">一句话定义</h3>
+<h3 id="_49">一句话定义</h3>
 <p>Virtual sequence 用来协调多个 agent 上的 sequence，virtual sequencer 通常不直接连 driver，而是保存多个 sub-sequencer handle 和共享配置，让一个系统级 sequence 能统一控制多接口 stimulus。</p>
 <h3 id="sequence-vs-virtual-sequence">普通 Sequence vs Virtual Sequence</h3>
 <table>
@@ -1773,10 +2135,10 @@ driver.item_done()
 </code></pre></div>
 
 <p>它大致等价于 create、start_item、randomize、finish_item 的组合。但面试和项目里更推荐显式写法，因为更清楚、容易 debug，也方便插入 inline constraint、打印和错误处理。</p>
-<h3 id="_42">面试回答</h3>
+<h3 id="_50">面试回答</h3>
 <p>中文：Virtual sequence 用来描述系统级场景，它不直接驱动某个接口，而是协调多个 agent 上的普通 sequence。Virtual sequencer 通常放在 env 里，保存 APB/AXI 等 sub-sequencer handle、RAL model 和共享 config。普通 sequence 的 <code>start()</code> 用来启动 sequence，<code>body()</code> 是 sequence 主体；如果要发送 transaction item，就在普通 sequence 的 <code>body()</code> 里用 <code>start_item()</code> 等待 sequencer grant，randomize item，再用 <code>finish_item()</code> 发送给 driver。Driver 端通过 <code>get_next_item()</code> 拿 item，驱动完后调用 <code>item_done()</code>。所以 virtual sequence 解决“多接口协调”，<code>start_item/finish_item</code> 解决“单接口 item 发送”。</p>
 <p>English: A virtual sequence describes a system-level scenario by coordinating multiple lower-level sequences on different agent sequencers. A virtual sequencer usually holds handles to sub-sequencers, the RAL model, and shared configuration. <code>start()</code> launches a sequence, and <code>body()</code> is where the sequence behavior is written. For a normal transaction sequence, <code>start_item()</code> waits for sequencer grant, the item is randomized, and <code>finish_item()</code> sends it to the driver. The driver receives it with <code>get_next_item()</code> and completes it with <code>item_done()</code>.</p>
-<h3 id="_43">常见追问</h3>
+<h3 id="_51">常见追问</h3>
 <ul>
 <li>Virtual sequence 一定要 virtual sequencer 吗？</li>
 <li>不一定。有些环境会直接把 sub-sequencer handle/config 传给 virtual sequence。但大型 env 里 virtual sequencer 能集中管理 handles，结构更清晰。</li>
@@ -1789,7 +2151,7 @@ driver.item_done()
 <li>Virtual sequence 里能不能直接 <code>start_item()</code>？</li>
 <li>通常不这么做。Virtual sequence 一般不绑定具体 item/driver，而是启动 sub-sequence；普通 interface sequence 才直接产生 item。</li>
 </ul>
-<h3 id="_44">易错点</h3>
+<h3 id="_52">易错点</h3>
 <ul>
 <li>把 virtual sequencer 当成会驱动 pin 的 sequencer。</li>
 <li>在 virtual sequence 里硬编码 env 层级路径，导致复用性差。</li>
@@ -1801,7 +2163,7 @@ driver.item_done()
 <p><a id="uvm-sequencer-handles"></a></p>
 <h2 id="m_sequencer-p_sequencer"><code>m_sequencer</code> 和 <code>p_sequencer</code> 的区别</h2>
 <p>标签：<code>#uvm</code> <code>#sequencer</code> <code>#sequence</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_45">一句话定义</h3>
+<h3 id="_53">一句话定义</h3>
 <p><code>m_sequencer</code> 是 UVM sequence 内置的通用 sequencer handle；<code>p_sequencer</code> 是用户通过宏声明出来的强类型 sequencer handle，用来访问自定义 sequencer 的成员。</p>
 <h3 id="m_sequencer"><code>m_sequencer</code></h3>
 <p><code>m_sequencer</code> 来自 <code>uvm_sequence_base</code>，当 sequence 被 <code>start(sequencer)</code> 启动时，UVM 会自动设置它。</p>
@@ -1826,7 +2188,7 @@ driver.item_done()
 </code></pre></div>
 
 <p>这个宏的本质是把 <code>m_sequencer</code> cast 成你指定的 sequencer 类型。如果 sequence 启动在错误类型的 sequencer 上，cast 会失败，通常会报 UVM fatal。</p>
-<h3 id="_46">对比表</h3>
+<h3 id="_54">对比表</h3>
 <table>
 <thead>
 <tr>
@@ -1875,9 +2237,9 @@ driver.item_done()
 <li>可以通过 <code>uvm_config_db</code>、sequence field、constructor/config object 传入信息的场景。</li>
 </ul>
 <p>过度使用 <code>p_sequencer</code> 会让 sequence 和某个 sequencer 类型强绑定，降低复用性。</p>
-<h3 id="_47">面试回答</h3>
+<h3 id="_55">面试回答</h3>
 <p><code>m_sequencer</code> is the built-in generic sequencer handle inside a UVM sequence. It is set automatically when the sequence is started. <code>p_sequencer</code> is a typed handle declared by <code>uvm_declare_p_sequencer</code>, and it is basically a cast from <code>m_sequencer</code> to a user-defined sequencer type. The benefit is that the sequence can access custom sequencer fields, but the downside is tighter coupling and possible cast failure if the sequence runs on the wrong sequencer.</p>
-<h3 id="_48">常见追问</h3>
+<h3 id="_56">常见追问</h3>
 <ul>
 <li>为什么很多代码里不推荐随便用 <code>p_sequencer</code>？</li>
 <li>因为它让 sequence 依赖具体 sequencer 类型，复用性变差。</li>
@@ -1888,7 +2250,7 @@ driver.item_done()
 <li>不用 <code>p_sequencer</code> 怎么传配置？</li>
 <li>可以把 config object 作为 sequence 字段传入，或用 <code>uvm_config_db</code>/resource/config handle 管理。</li>
 </ul>
-<h3 id="_49">易错点</h3>
+<h3 id="_57">易错点</h3>
 <ul>
 <li>以为 <code>p_sequencer</code> 是 UVM 自动存在的变量。</li>
 <li>忘记写 <code>`uvm_declare_p_sequencer(my_sequencer)</code>。</li>
@@ -1899,9 +2261,9 @@ driver.item_done()
 <p><a id="uvm-axi-dma-vseq-flow"></a></p>
 <h2 id="axi-dma-sequence-vsequence-virtual-sequencer">AXI DMA 项目：sequence / vsequence / virtual sequencer 调用链</h2>
 <p>标签：<code>#uvm</code> <code>#sequence</code> <code>#virtual-sequence</code> <code>#sequencer</code> <code>#ral</code> <code>#axi-dma</code> <code>#project</code></p>
-<h3 id="_50">一句话定义</h3>
+<h3 id="_58">一句话定义</h3>
 <p>这个 AXI DMA 项目用 test 创建并启动 virtual sequence，virtual sequence 挂在 env 里的 <code>dma_virtual_sequencer</code> 上；virtual sequencer 保存 AXI-Lite sequencer、AXI memory sequencer、memory model、RAL model 和 IRQ interface 的 handle，vseq 通过 <code>p_sequencer</code> 统一访问这些资源。</p>
-<h3 id="_51">项目里的调用链</h3>
+<h3 id="_59">项目里的调用链</h3>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>dma_*_test.run_phase()
   ├─ phase.raise_objection()
   ├─ seq = xxx_vseq::type_id::create(&quot;seq&quot;)
@@ -2016,10 +2378,10 @@ driver.item_done()
 <li><code>vseqr</code> 在 <code>connect_phase</code> 保存这些 handle，自己不 new sub-sequencer。</li>
 <li>vseq 被 <code>start(env.vseqr)</code> 后，通过 <code>p_sequencer.xxx</code> 使用这些 handle。</li>
 </ul>
-<h3 id="_52">面试回答</h3>
+<h3 id="_60">面试回答</h3>
 <p>中文：这个项目的 test 在 <code>run_phase</code> 里 create 具体 virtual sequence，然后 <code>seq.start(env.vseqr)</code> 把它启动到 env 的 virtual sequencer 上。<code>dma_base_vseq</code> 用 <code>`uvm_declare_p_sequencer(dma_virtual_sequencer)</code>，所以 start 之后 vseq 可以通过 <code>p_sequencer</code> 访问 virtual sequencer 中保存的 <code>axil_sqr</code>、<code>mem_sqr</code>、<code>mem</code>、<code>ral</code> 和 <code>irq_vif</code>。CSR 访问不是手写 AXI-Lite sequence，而是 vseq 调 RAL 的 <code>write/read</code>；env 里 <code>default_map.set_sequencer(axil_agent.sqr, reg_adapter)</code> 把 RAL frontdoor 绑定到 AXI-Lite sequencer，adapter 再把 register operation 转成 <code>dma_axil_item</code> 给 driver。AXI memory agent 是 slave BFM，正常数据通过 shared memory model 预置和检查，memory sequencer 主要用于可选的 response/error injection。</p>
 <p>English: In this AXI DMA environment, each test creates a virtual sequence in <code>run_phase</code> and starts it on <code>env.vseqr</code>. The base virtual sequence declares a typed <code>p_sequencer</code> for <code>dma_virtual_sequencer</code>, so after <code>start()</code> it can access the virtual sequencer's sub-sequencer handles, memory model, RAL model, and IRQ interface. CSR accesses are issued through RAL frontdoor operations; the RAL map is connected to the AXI-Lite sequencer with a register adapter, which converts register operations into AXI-Lite sequence items. The AXI memory agent works as a slave BFM, so normal data traffic comes from the DUT as AXI master, while the memory sequencer is mainly useful for optional response or error injection.</p>
-<h3 id="_53">易错点</h3>
+<h3 id="_61">易错点</h3>
 <ul>
 <li>以为 vseq 里的 <code>csr_write()</code> 直接调用 AXI-Lite driver；实际路径是 RAL default map → adapter → AXI-Lite sequencer → driver。</li>
 <li>以为 virtual sequencer 会创建 sub-sequencer；实际 sub-sequencer 由 agent 创建，virtual sequencer 只保存 handle。</li>
@@ -2141,9 +2503,9 @@ driver.item_done()
 <p><a id="uvm-ral"></a></p>
 <h2 id="register-model-uvm-ral">Register Model / UVM RAL</h2>
 <p>标签：<code>#uvm</code> <code>#ral</code> <code>#register-model</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_54">一句话定义</h3>
+<h3 id="_62">一句话定义</h3>
 <p>寄存器模型（UVM Register Abstraction Layer, RAL）是在 testbench 里建立一份 DUT register map 的抽象模型，让验证环境可以用统一 API 访问寄存器，而不是在每个 test 里手写 address、data、mask 和 bus transaction。</p>
-<h3 id="_55">它解决什么问题</h3>
+<h3 id="_63">它解决什么问题</h3>
 <p>如果没有 register model，test 访问寄存器通常要直接写：</p>
 <ul>
 <li>具体 address。</li>
@@ -2202,7 +2564,7 @@ driver.item_done()
 </code></pre></div>
 
 <p>所以 RAL 的重点不是只保存地址，而是同时保存 address、field bit position、access policy、reset value 和 mirror state。</p>
-<h3 id="_56">主要用途</h3>
+<h3 id="_64">主要用途</h3>
 <table>
 <thead>
 <tr>
@@ -2401,10 +2763,10 @@ update register model mirror
 </code></pre></div>
 
 <p>这样 mirror 来自真实 bus monitor transaction，而不是只相信 sequence 发起的意图，更适合检查实际总线行为。</p>
-<h3 id="_57">面试回答</h3>
+<h3 id="_65">面试回答</h3>
 <p>中文：寄存器模型的作用是把 DUT 的 register map 在 UVM testbench 中抽象出来，统一管理 address、field、reset value、access type 和 mirror value。这样 test 可以用 <code>reg.write()</code>、<code>reg.read()</code> 这类 register-level API，而不用每次手写底层 bus transaction。它还支持 frontdoor/backdoor access、mirror/check、prediction 和 register coverage。对复杂 SoC 或大量寄存器的模块来说，RAL 能提高复用性、减少 hard-code address，并且让寄存器测试、scoreboard 和 firmware-like sequence 更容易维护。</p>
 <p>English: A UVM register model abstracts the DUT register map inside the testbench. It stores register addresses, fields, access policies, reset values, and mirrored values, and provides APIs such as <code>write()</code>, <code>read()</code>, <code>mirror()</code>, and <code>predict()</code>. The benefit is that tests can operate at register level instead of manually creating bus transactions. It also supports frontdoor/backdoor access, prediction, checking, and register coverage, which makes register verification more reusable and maintainable.</p>
-<h3 id="_58">常见追问</h3>
+<h3 id="_66">常见追问</h3>
 <ul>
 <li>Register model 和普通 scoreboard 有什么关系？</li>
 <li>RAL 主要维护 register-level expected/mirror state；scoreboard 可以使用 RAL 中的值作为 reference 的一部分，但 RAL 不等于完整功能 scoreboard。</li>
@@ -2423,7 +2785,7 @@ update register model mirror
 <li>什么是 register side effect？</li>
 <li>比如 read-clear、write-one-to-clear、write-only、read-only、sticky bit，这些都要在 model access policy 和 prediction 中正确处理。</li>
 </ul>
-<h3 id="_59">易错点</h3>
+<h3 id="_67">易错点</h3>
 <ul>
 <li>以为 register model 只是“寄存器地址表”，忽略 mirror/predict/check。</li>
 <li>以为有 RAL 就不用 sequence；实际 sequence 仍负责组织测试流程。</li>
@@ -2436,10 +2798,10 @@ update register model mirror
 <hr>
 <p><a id="sv-uvm-interview-answers"></a></p>
 <h2 id="english">面试回答速查（中文 + English）</h2>
-<h3 id="_60">动态数组、关联数组、队列</h3>
+<h3 id="_68">动态数组、关联数组、队列</h3>
 <p>中文：动态数组是运行时分配大小的连续数组，适合长度运行时才知道但当前长度相对固定的数据；关联数组是 key-value 稀疏映射，适合 scoreboard 里按 ID/address 查 transaction；队列是有序动态容器，支持 push/pop，适合 FIFO 或 pending transaction list。</p>
 <p>English: A dynamic array is a runtime-sized contiguous array. An associative array is a sparse key-value container, useful for scoreboards indexed by ID or address. A queue is an ordered dynamic container with push/pop operations, useful as a FIFO or pending transaction buffer.</p>
-<h3 id="sv">SV 随机化</h3>
+<h3 id="sv_1">SV 随机化</h3>
 <p>中文：SV 随机化用 <code>rand/randc</code> 声明随机字段，用 constraint 描述合法空间，调用 <code>randomize()</code> 让 solver 求解。它的价值是自动探索大量合法场景，再配合 functional coverage 判断有没有覆盖到目标 corner case。Debug randomization fail 时要检查返回值、约束冲突、inline constraint、<code>constraint_mode</code> 和配置字段。</p>
 <p>English: SystemVerilog randomization uses <code>rand/randc</code> variables and constraints to generate legal stimulus. The solver finds values satisfying all active constraints. It is usually combined with functional coverage to explore legal scenarios and close coverage holes.</p>
 <h3 id="cast-upcast-downcast">Cast / upcast / downcast</h3>

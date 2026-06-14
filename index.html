@@ -96,6 +96,10 @@
 <td><a href="question-bank/question-bank.html#qb-systemverilog-uvm">面试题库</a></td>
 </tr>
 <tr>
+<td>刷笔试题</td>
+<td><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">2026 数字 IC 公司卷整理</a></td>
+</tr>
+<tr>
 <td>系统补知识</td>
 <td><a href="knowledge-base/index.html">知识库导航</a></td>
 </tr>
@@ -117,8 +121,9 @@
 <ol>
 <li><strong>真实问题优先</strong>：先看 <a href="actual-interviews/questions.html#actual-p0">P0 复盘项</a>，把被问过的问题讲顺。</li>
 <li><strong>项目表达</strong>：准备 <a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM</a>、<a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU</a>、<a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V</a> 三个主项目。</li>
-<li><strong>UVM/DV 高频</strong>：重点看 <a href="knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-ral">RAL</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a>、<a href="knowledge-base/design-verification.html#functional-coverage">Coverage</a>。</li>
+<li><strong>UVM/DV 高频</strong>：重点看 <a href="knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-ral">RAL</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a>、<a href="knowledge-base/design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a>、<a href="knowledge-base/design-verification.html#functional-coverage">Coverage</a>。</li>
 <li><strong>协议和 RTL 手撕</strong>：看 <a href="knowledge-base/protocols.html#axi-outstanding">AXI outstanding/interleaving</a>、<a href="knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a>、<a href="knowledge-base/asic-frontend.html#find-first-one">find first one</a>、<a href="knowledge-base/asic-frontend.html#one-hot">one-hot</a>。</li>
+<li><strong>书籍整理速刷</strong>：看 <a href="knowledge-base/asic-frontend.html#book-dv-logic-architecture">数字逻辑与体系结构</a>、<a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础</a>、<a href="knowledge-base/systemverilog-uvm.html#book-sv-verilog-checklist">SV/Verilog 语法清单</a>、<a href="knowledge-base/systemverilog-uvm.html#book-uvm-interview-checklist">UVM 高频问法</a>。</li>
 </ol>
 <h2 id="_3">主目录</h2>
 <table>
@@ -173,9 +178,11 @@
 <li><a href="knowledge-base/design-verification.html#dv-overview">Design Verification</a></li>
 <li><a href="knowledge-base/systemverilog-uvm.html#sv-overview">SystemVerilog / UVM</a></li>
 <li><a href="knowledge-base/protocols.html#protocol-overview">Protocols</a></li>
+<li><a href="knowledge-base/index.html#高频复习入口">Cracking Digital VLSI Verification Interview 书籍整理入口</a></li>
 </ul>
 <h2 id="_5">题库</h2>
 <ul>
+<li><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">笔试题：2026 数字 IC 公司卷整理</a></li>
 <li><a href="question-bank/question-bank.html#qb-asic-frontend">ASIC Frontend</a></li>
 <li><a href="question-bank/question-bank.html#qb-design-verification">Design Verification</a></li>
 <li><a href="question-bank/question-bank.html#qb-systemverilog-uvm">SystemVerilog / UVM</a></li>
@@ -187,7 +194,7 @@
 <li><a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM 验证项目</a> / <a href="projects-hr/axi-dma-uvm-details.html">详细技术实现</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a> / <a href="projects-hr/int8-npu-tapeout-details.html">详细技术实现</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V 处理器项目</a> / <a href="projects-hr/ooo-riscv-details.html">详细技术实现</a></li>
-<li><a href="projects-hr/projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">详细技术实现</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">详细技术实现</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级场景</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">checker 分工</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-ibex-rv32im-uvm">Ibex RV32IM UVM / 官方 DV Bring-up 项目</a> / <a href="projects-hr/ibex-rv32im-uvm-details.html">详细技术实现</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-apb-uart">APB-UART UVM 验证环境</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-async-fifo">Async FIFO UVM 验证</a></li>

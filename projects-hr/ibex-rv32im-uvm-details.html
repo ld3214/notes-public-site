@@ -87,6 +87,49 @@
 <li>后续把 UVM scaffold 接到 DUT 的 memory interface 和 commit/RVFI monitor，实现 instruction-level checking。</li>
 <li>官方 <code>core_ibex</code> UVM/riscv-dv/Spike flow 作为参考和扩展方向，而不是项目叙述主线。</li>
 </ul>
+<p><a id="ibex-project-parameters"></a></p>
+<h2 id="_2">项目关键参数</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>当前工程参数</th>
+<th>面试讲法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DUT wrapper</td>
+<td><code>ibex_simple_system</code></td>
+<td>不是重新设计 CPU，而是在 simple system 上做 RTL bring-up 和 DV scaffold</td>
+</tr>
+<tr>
+<td>ISA config</td>
+<td><code>RV32MFast</code>、<code>RV32BNone</code>、<code>RV32Zca</code></td>
+<td>RV32IMC-style baseline：M 扩展打开，bitmanip 关闭，compressed Zca 打开</td>
+</tr>
+<tr>
+<td>Register file</td>
+<td><code>RegFileFF</code></td>
+<td>FF regfile，适合本地仿真和移植</td>
+</tr>
+<tr>
+<td>Memory / bus</td>
+<td>simple system 32-bit local memory/data path</td>
+<td>当前不夸大成完整 SoC/AXI interconnect 验证</td>
+</tr>
+<tr>
+<td>默认关闭项</td>
+<td>I-cache、branch predictor、writeback stage、PMP、debug trigger 等本地 baseline 未打开</td>
+<td>面试时说明这些是官方 Ibex/后续扩展方向</td>
+</tr>
+<tr>
+<td>Regression guard</td>
+<td><code>ProgramFile</code> 选择 <code>.vmem</code>，<code>TimeoutCycles=2000</code></td>
+<td>directed program 作为真实指令流激励，防止 hang 住</td>
+</tr>
+</tbody>
+</table>
 <h2 id="dut-rtl">DUT / RTL 结构</h2>
 <p>本地 RTL baseline 使用 Ibex 的 <code>examples/simple_system</code> wrapper。这个 wrapper 把 Ibex core 放在一个最小系统里，便于直接加载程序并运行。</p>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>simple_system testbench
@@ -191,7 +234,7 @@ rtl_tb/ibex_simple_system_files.f
 <li>每个 test 只通过 <code>ProgramFile</code> 替换激励。</li>
 <li>timeout 统一放在 base testbench，防止程序跑飞或没有写 halt register 时仿真挂死。</li>
 </ul>
-<h2 id="_2">激励如何发送</h2>
+<h2 id="_3">激励如何发送</h2>
 <p>当前可运行 baseline 的激励不是 pin-level driver 直接打信号，而是 <strong>software-driven stimulus</strong>：</p>
 <ol>
 <li>手写小型 RISC-V 程序。</li>
@@ -243,7 +286,7 @@ jal   x0, 0           // fallback loop if halt write fails
 </tbody>
 </table>
 <p>这种激励方式更接近 CPU 验证常见模式：不是直接 force 内部信号，而是通过 instruction stream 让 core 自然执行，结果从 architectural state / memory side effect / halt 行为观察。</p>
-<h2 id="_3">结果如何验证</h2>
+<h2 id="_4">结果如何验证</h2>
 <p>当前 RTL baseline 的结果检查分三层：</p>
 <h3 id="1-end-of-test">1. End-of-test 检查</h3>
 <p>程序成功时会写 <code>simulator_ctrl</code> 的 halt register。Ibex simple_system 收到 halt 请求后结束仿真。若程序没有正确执行到 halt，testbench timeout：</p>
@@ -574,7 +617,7 @@ jal   x0, 0           // fallback loop if halt write fails
 <li>scoreboard/checker 比较 commit trace。</li>
 </ul>
 <p>适合扩展到官方 <code>core_ibex</code> flow，但工具链依赖更重。</p>
-<h2 id="_4">当前已实现与待完善</h2>
+<h2 id="_5">当前已实现与待完善</h2>
 <table>
 <thead>
 <tr>
@@ -616,13 +659,13 @@ jal   x0, 0           // fallback loop if halt write fails
 </tr>
 </tbody>
 </table>
-<h2 id="_5">面试讲法</h2>
+<h2 id="_6">面试讲法</h2>
 <p>中文：</p>
 <p>这个项目我把 Ibex 放在一个最小 simple_system 里验证。RTL 结构上，DUT 包含 Ibex core、RAM、timer 和 simulator control。激励不是直接 force 内部信号，而是用 <code>.vmem</code> 预加载 RISC-V directed program，让 core 通过真实取指执行来刺激 ALU、branch、load/store 和 memory path。结果检查分两层：程序内部做 self-check，成功后写 simulator control halt register；如果没有写 halt，testbench timeout 报错。UVM 方面，我搭了一个轻量 scaffold，包括 base test、env、instruction item、sequence、scoreboard 和 functional coverage。sequence 通过标准 <code>start_item/randomize/finish_item</code> 生成 instruction item，后续会转成 program image 或由 virtual sequence 控制 memory preload。scoreboard 规划从 RVFI/commit monitor 接收 commit item，与 reference model 比较 PC、寄存器写回、memory side effect 和 exception。coverage 现在先按 opcode 分类，后续从实际 commit stream 采样 instruction type、operand corner、branch taken、load/store alignment 和 flush/stall。</p>
 <p>English:</p>
 <p>In this project, I verified the lowRISC Ibex core in a minimal simple_system setup. The RTL baseline instantiates the Ibex core together with RAM, a timer, and a simulator-control block. Instead of forcing internal signals, I use software-driven stimulus: directed RISC-V programs are preloaded as VMEM images, and the core naturally fetches and executes them. The directed programs check ALU, branch, and load/store behavior internally and write the simulator halt register on success; otherwise the testbench timeout reports a failure.</p>
 <p>On the UVM side, I built a lightweight scaffold with a base test, environment, instruction sequence item, smoke sequence, scoreboard, and functional coverage collector. The sequence uses the standard <code>start_item</code>, <code>randomize</code>, and <code>finish_item</code> flow to generate instruction items. The next step is to convert these items into program images or drive them through a virtual sequence that controls memory preload and reset. The scoreboard is intended to consume commit/RVFI monitor items and compare PC, register writeback, memory side effects, and exceptions against a reference model or ISS. Coverage is collected from executed instruction items, starting with opcode bins and later extending to operand corners, branch behavior, load/store alignment, stalls, and flushes.</p>
-<h2 id="_6">可追问点</h2>
+<h2 id="_7">可追问点</h2>
 <ul>
 <li>为什么 CPU 验证更适合 instruction-stream stimulus，而不是 pin-level force。</li>
 <li><code>.vmem</code> directed program 如何作为激励进入 DUT。</li>

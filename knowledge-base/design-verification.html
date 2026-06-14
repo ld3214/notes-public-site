@@ -85,6 +85,9 @@
 <li><a href="#verification-plan">Verification Plan</a></li>
 <li><a href="#functional-coverage">Functional Coverage</a></li>
 <li><a href="#debug-methods">Debug 方法</a></li>
+<li><a href="#book-dv-fundamentals">书籍整理：验证基础高频框架</a></li>
+<li><a href="#vip-checker-scoreboard">VIP checker vs Scoreboard</a></li>
+<li><a href="#formal-verification">Formal Verification</a></li>
 <li><a href="#dv-interview-answers">面试回答速查（中文 + English）</a></li>
 </ul>
 <hr>
@@ -263,6 +266,43 @@
 <span class="p">}</span>
 </code></pre></div>
 
+<p><strong>Code coverage 常见类型</strong></p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>看什么</th>
+<th>常见误区</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Line / statement coverage</td>
+<td>每行 RTL 是否执行过</td>
+<td>执行过不代表结果正确。</td>
+</tr>
+<tr>
+<td>Branch coverage</td>
+<td><code>if/else</code>、<code>case</code> 分支是否都走到</td>
+<td><code>default</code> 或 error branch 可能是设计上不可达，需要说明 waiver。</td>
+</tr>
+<tr>
+<td>Condition / expression coverage</td>
+<td>复合布尔表达式中的每个条件组合</td>
+<td>覆盖率低可能暴露 stimulus 不足，也可能暴露表达式冗余。</td>
+</tr>
+<tr>
+<td>Toggle coverage</td>
+<td>信号 bit 是否发生 0/1 翻转</td>
+<td>tie-off、reserved bit、unused bus 需要合理豁免。</td>
+</tr>
+<tr>
+<td>FSM coverage</td>
+<td>状态、状态转移是否覆盖</td>
+<td>非法状态转移不应强行覆盖，应由 assertion/checker 捕捉。</td>
+</tr>
+</tbody>
+</table>
 <p><strong>Coverage Closure 流程</strong></p>
 <ol>
 <li>跑初始 regression，收集 coverage report（各 coverpoint 命中率和 holes）。</li>
@@ -362,6 +402,279 @@ sim_run +ntb_random_seed=&lt;seed&gt; -snapshot=&lt;design_version&gt;
 <li>对每个 hole 判断：场景是否不可达（ignore）、constraint 太严（放宽）、coverage model 写错（修 model）、还是真实缺测试（补 directed test）。</li>
 </ul>
 <hr>
+<p><a id="book-dv-fundamentals"></a></p>
+<h2 id="_17">书籍整理：验证基础高频框架</h2>
+<p>标签：<code>#book</code> <code>#dv</code> <code>#testbench</code> <code>#interview</code></p>
+<h3 id="_18">一句话定义</h3>
+<p>验证基础题主要考察你能否从 spec 出发，选择合适 stimulus、checker、coverage、reference model 和 debug 方法，把“跑了仿真”变成“有证据证明功能正确”。</p>
+<h3 id="_19">核心概念表</h3>
+<table>
+<thead>
+<tr>
+<th>主题</th>
+<th>要会讲什么</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Directed testing</td>
+<td>手写特定输入验证明确场景</td>
+<td>Bring-up、corner case、bug reproduction 很适合 directed test，但覆盖大状态空间效率低。</td>
+</tr>
+<tr>
+<td>Constrained random verification</td>
+<td>在合法约束内随机生成 stimulus</td>
+<td>适合探索大输入空间，必须配合 functional coverage 和 self-checking environment。</td>
+</tr>
+<tr>
+<td>Self-checking test</td>
+<td>testbench 自动判断 pass/fail</td>
+<td>不能只看 waveform；driver 送 stimulus，monitor 采 transaction，scoreboard/reference model 自动比较。</td>
+</tr>
+<tr>
+<td>Coverage-driven verification</td>
+<td>用 coverage hole 反向驱动测试补充</td>
+<td>Coverage 不是目标本身，必须和 checker/assertion 一起看。</td>
+</tr>
+<tr>
+<td>Assertion-based verification</td>
+<td>用 property 持续检查协议或时序规则</td>
+<td>Assertion 适合捕捉局部协议、时序和不变量，能把 bug 定位到发生点附近。</td>
+</tr>
+<tr>
+<td>Transaction</td>
+<td>一次抽象操作</td>
+<td>例如一次 bus read/write、一笔 packet、一次 DMA descriptor；transaction-level debug 比 pin-level 更高效。</td>
+</tr>
+<tr>
+<td>BFM</td>
+<td>Bus Functional Model</td>
+<td>把 transaction 转成 pin-level 协议，或在 slave 侧响应 DUT master 请求。</td>
+</tr>
+<tr>
+<td>Reference model</td>
+<td>Golden model / expected model</td>
+<td>当输出不容易手算时，用模型生成 expected result，scoreboard 比较 actual。</td>
+</tr>
+<tr>
+<td>Completeness</td>
+<td>验证完成标准</td>
+<td>Functional coverage 达标、code coverage 有合理 waiver、assertion clean、regression pass、关键 directed tests pass。</td>
+</tr>
+<tr>
+<td>GLS</td>
+<td>Gate-Level Simulation</td>
+<td>综合后网表仿真，用于检查 reset、X propagation、timing annotation、scan/DFT 或低功耗插入后的问题。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_20">从零验证一个模块的答题骨架</h3>
+<ol>
+<li>读 spec，列 feature、合法输入、非法输入、reset、异常和性能要求。</li>
+<li>写 verification plan，把 feature 映射到 tests、coverage、checker/assertion。</li>
+<li>搭 testbench：driver/BFM、monitor、scoreboard、coverage collector、reference model。</li>
+<li>先跑 directed bring-up，再跑 constrained random/regression。</li>
+<li>分析 failures 和 coverage holes，补约束、seed、directed test 或修 coverage model。</li>
+<li>用 closure criteria 判断是否足够：coverage、assertion、regression、waiver、review 都要闭环。</li>
+</ol>
+<h3 id="_21">面试回答</h3>
+<p>中文：Directed test 和 constrained random 不是二选一。Directed test 适合 bring-up、明确 corner case 和 bug 复现；constrained random 适合探索大状态空间。真正有效的验证环境应该 self-checking，由 monitor 采集 DUT 行为，scoreboard/reference model 自动比较 expected 和 actual，再用 functional coverage 判断 spec 场景是否被覆盖。验证完成通常看 functional coverage closure、code coverage 合理 waiver、assertion clean、regression pass 以及关键场景 review 通过。</p>
+<p>English: Directed tests and constrained random tests are complementary. Directed tests are good for bring-up, clear corner cases, and bug reproduction, while constrained random testing explores a large legal state space. A strong verification environment should be self-checking: monitors observe DUT behavior, scoreboards or reference models compare expected and actual results, and functional coverage tracks whether specification scenarios have been exercised. Verification completeness is based on coverage closure, clean assertions, passing regressions, meaningful code coverage waivers, and review of key scenarios.</p>
+<h3 id="_22">常见追问</h3>
+<ul>
+<li>Reference model 什么时候需要？</li>
+<li>当 expected behavior 复杂、输出空间大或需要 cycle/transaction-level 对比时，例如 CPU、codec、DMA、NPU。</li>
+<li>BFM 和 driver 有什么关系？</li>
+<li>Driver 通常是 UVM 组件，BFM 是把 transaction 转成真实接口时序的协议行为模型；项目里二者可能合并，也可能 driver 调用 interface BFM task。</li>
+<li>为什么 100% coverage 仍不等于验证完成？</li>
+<li>Coverage model 可能漏写场景，checker 可能不完整，waiver 可能不合理，所以还要看 spec review、assertion、scoreboard 和 bug trend。</li>
+<li>GLS 为什么还要跑？</li>
+<li>RTL 仿真看功能，GLS 可以发现综合、reset/X、timing annotation、scan/clock gating/低功耗插入后的问题。</li>
+</ul>
+<h3 id="_23">易错点</h3>
+<ul>
+<li>把 verification plan 写成 testcase list，缺少 feature、checker 和 coverage 的映射。</li>
+<li>只看 waveform 人工判断，没有 self-checking pass/fail。</li>
+<li>追求 coverage 数字，忽略 coverage hole 是否真的对应 spec risk。</li>
+<li>Reference model 和 DUT 使用同一份错误假设，导致两边一起错。</li>
+</ul>
+<hr>
+<p><a id="vip-checker-scoreboard"></a></p>
+<h2 id="vip-checker-vs-scoreboard">VIP checker vs Scoreboard</h2>
+<p>标签：<code>#dv</code> <code>#uvm</code> <code>#scoreboard</code> <code>#vip</code> <code>#interview</code></p>
+<h3 id="_24">一句话定义</h3>
+<p>VIP checker 通常检查接口协议和时序是否满足 spec；scoreboard/reference model 检查 DUT 的功能转换、数据一致性和端到端结果是否正确。</p>
+<h3 id="_25">核心区别</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>VIP checker</th>
+<th>Scoreboard / reference model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>关注层级</td>
+<td>协议接口层</td>
+<td>功能行为层 / end-to-end</td>
+</tr>
+<tr>
+<td>输入来源</td>
+<td>pin-level interface 或 VIP monitor</td>
+<td>一个或多个 monitor 的 transaction</td>
+</tr>
+<tr>
+<td>典型检查</td>
+<td>handshake、timing、burst、ID、response、协议状态机</td>
+<td>expected vs actual、地址映射、数据一致性、跨接口转换</td>
+</tr>
+<tr>
+<td>谁提供</td>
+<td>第三方 VIP 或公司内部 VIP 常自带</td>
+<td>通常由项目 env 自建或定制</td>
+</tr>
+<tr>
+<td>典型误区</td>
+<td>认为 VIP pass 就代表 DUT 功能正确</td>
+<td>只比较数据，不处理乱序、错误响应和特殊配置</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ddr4-controller">DDR4 controller 项目例子</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>检查什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI VIP</td>
+<td>AXI valid/ready、五通道、burst、ID、outstanding、response/order 等协议合法性</td>
+</tr>
+<tr>
+<td>APB VIP</td>
+<td>APB 配置访问的两 phase、<code>PREADY/PSLVERR</code>、APB4 strobe/protection 等</td>
+</tr>
+<tr>
+<td>DFI VIP</td>
+<td>Controller 到 PHY 的 DFI command/data、init/update、latency、sideband 等</td>
+</tr>
+<tr>
+<td>DDR4 Memory VIP</td>
+<td>PHY 输出后的 DDR4 JEDEC pin-level command、rank/bank 状态、DQ/DQS、<code>tRCD/tRP/tRAS/tRFC/tFAW</code> 等 timing</td>
+</tr>
+<tr>
+<td>AXI read-hash scoreboard</td>
+<td>AXI write/read 的 end-to-end 数据一致性</td>
+</tr>
+<tr>
+<td>AXI-HIF / HIF-DFI scoreboard</td>
+<td>AXI 到 HIF、HIF 到 DFI 的地址、命令、数据和内部转换正确性</td>
+</tr>
+</tbody>
+</table>
+<h3 id="read-hash-scoreboard">Read-hash scoreboard 例子</h3>
+<p><code>read-hash</code> 里的 hash 不是加密哈希，而是用 associative array 做 sparse memory image：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kt">bit</span><span class="w"> </span><span class="p">[</span><span class="mi">7</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">expected_mem</span><span class="p">[</span><span class="n">channel</span><span class="p">][</span><span class="n">byte_addr</span><span class="p">];</span>
+</code></pre></div>
+
+<p>写 transaction 到来时，scoreboard 按 AXI burst、<code>AWSIZE/AWLEN/AWBURST</code> 和 <code>WSTRB</code> 展开到 byte 地址，把成功写入的数据存进 <code>expected_mem</code>。读 transaction 到来时，再按同样规则展开地址，把 <code>RDATA</code> 的每个 byte 与 <code>expected_mem[channel][byte_addr]</code> 比较。对未写过地址、<code>SLVERR</code>、ECC aliasing、poison/parity error、WRAP burst 和 unaligned access，要有明确 skip 或特殊处理策略。</p>
+<h3 id="_26">面试回答</h3>
+<p>中文：</p>
+<p>VIP checker 和 scoreboard 的边界要分清。VIP checker 主要保证接口协议合法，比如 AXI 的 valid/ready、burst、ID、response，或者 DDR4 memory VIP 对 JEDEC command/timing 的检查。但这些 checker 不一定知道系统级 expected data。像 DDR4 controller 项目里，AXI read-hash scoreboard 是 env 自建的功能检查：它复用 AXI VIP monitor 采到的 transaction，写路径按 byte address 和 <code>WSTRB</code> 更新 expected memory image，读路径再逐 byte 比较 <code>RDATA</code> 和 expected data，用来检查端到端数据一致性。</p>
+<p>English:</p>
+<p>VIP checkers and scoreboards cover different layers. VIP checkers validate protocol-level behavior, such as AXI handshakes, burst rules, IDs, responses, or DDR4 JEDEC command and timing rules. A scoreboard checks the functional intent of the DUT. In the DDR4 controller project, the AXI read-hash scoreboard is not part of the AXI VIP. It consumes transactions observed by the AXI VIP monitor, stores successful write data in a byte-addressed sparse memory image, and compares later read data against that expected image byte by byte.</p>
+<h3 id="_27">常见追问</h3>
+<ul>
+<li>Mem VIP 会自动检查 DDR4 时序吗？</li>
+<li>会。DDR4 Memory VIP 在 JEDEC pin-level 检查 command、bank/rank state、DQ/DQS 和 timing violation；但它不替代 AXI 读写数据一致性 scoreboard。</li>
+<li>AXI read-hash 是 AXI VIP 自带的吗？</li>
+<li>不是。AXI VIP 自带的是 AXI 协议 checker；read-hash 是项目 UVM env 中的功能 scoreboard，只是复用 AXI VIP monitor 输出的 transaction。</li>
+<li>DDR4 VIP 直接接 DFI 吗？</li>
+<li>不直接接。DFI 是 controller 到 PHY 的接口；DDR4 Memory VIP 看到的是 PHY/wrapper 转换后的 DDR4 JEDEC pin-level 信号。</li>
+<li>为什么要处理 order/conflict？</li>
+<li>多 port、outstanding、read/write response 乱序时，scoreboard 必须按 controller 应处理的顺序更新 expected memory，否则会把合法乱序误报成数据 mismatch。</li>
+</ul>
+<h3 id="_28">常见错误</h3>
+<ul>
+<li>把 VIP checker pass 误认为端到端功能一定正确。</li>
+<li>把 read-hash 理解成 CRC/hash 校验算法，而不是 byte-addressed associative array memory image。</li>
+<li>写 scoreboard 时忽略 <code>WSTRB</code>、unaligned burst、WRAP burst、错误响应和未初始化地址。</li>
+<li>DDR/DFI/PHY 层次混淆：DFI VIP 看 controller-PHY 接口，DDR4 Memory VIP 看 PHY 后面的 JEDEC pin-level 行为。</li>
+</ul>
+<hr>
+<p><a id="formal-verification"></a></p>
+<h2 id="formal-verification">Formal Verification</h2>
+<p>标签：<code>#formal</code> <code>#dv</code> <code>#assertion</code> <code>#interview</code></p>
+<h3 id="_29">一句话定义</h3>
+<p>Formal verification 用数学方法在状态空间中证明 property 是否成立，不依赖随机 stimulus；它属于静态验证思路，常用于控制逻辑、协议规则、等价性和难以随机打到的 corner case。</p>
+<h3 id="formal-vs-dynamic-simulation">Formal vs Dynamic Simulation</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Formal Verification</th>
+<th>Dynamic Simulation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入方式</td>
+<td>property/constraint/assumption</td>
+<td>directed 或 constrained-random stimulus</td>
+</tr>
+<tr>
+<td>覆盖范围</td>
+<td>在可证明深度/状态空间内穷举</td>
+<td>只覆盖实际跑到的 test/seed</td>
+</tr>
+<tr>
+<td>优点</td>
+<td>能证明无某类 bug，适合 corner case</td>
+<td>可扩展到大系统，能跑真实场景和软件流</td>
+</tr>
+<tr>
+<td>限制</td>
+<td>状态空间爆炸，约束写错会 vacuous pass</td>
+<td>无法穷举，漏测取决于 stimulus 和 coverage</td>
+</tr>
+<tr>
+<td>常见用途</td>
+<td>property checking、equivalence checking、deadlock/liveness、protocol checks</td>
+<td>block/IP/SOC regression、performance、software-driven scenarios</td>
+</tr>
+</tbody>
+</table>
+<h3 id="formal">常见 formal 方法</h3>
+<ul>
+<li><strong>Model checking</strong>：对 RTL + property 做状态空间搜索，证明 assertion 是否恒成立。</li>
+<li><strong>Equivalence checking</strong>：证明两个设计在功能上等价，例如 RTL vs gate netlist，或优化前后 RTL。</li>
+<li><strong>Formal apps</strong>：CDC/RDC、lint-like protocol checks、deadlock、X-prop、connectivity 等工具化应用。</li>
+</ul>
+<h3 id="_30">面试回答</h3>
+<p>中文：Formal verification 不靠写很多 test 去覆盖场景，而是把设计行为写成 property，并在约束条件下证明 property 是否总成立。它适合控制逻辑、协议、不变量、死锁检查和等价性验证，优点是能覆盖随机仿真很难打到的 corner case；限制是状态空间容易爆炸，对大数据通路或完整 SoC 不一定可扩展，而且 assumption 写错可能导致 vacuous pass。所以实际项目通常 formal 和 simulation 配合使用。</p>
+<p>English: Formal verification proves properties mathematically under a set of assumptions instead of relying on simulation stimulus. It is useful for control logic, protocols, invariants, deadlock checks, and equivalence checking. The advantage is exhaustive reasoning within the bounded or proven state space, which can catch corner cases that simulation may miss. The main limitations are scalability and the risk of incorrect assumptions or vacuous proofs, so formal is usually used together with dynamic simulation.</p>
+<h3 id="_31">常见追问</h3>
+<ul>
+<li>Formal 是 static 还是 dynamic？</li>
+<li>更偏 static，不需要像仿真那样跑具体 stimulus waveform，而是对状态空间和 property 做证明。</li>
+<li>Formal 证明通过后还需要 coverage 吗？</li>
+<li>需要看证明范围、assumption、vacuity 和 formal coverage；同时系统级场景仍可能需要 simulation coverage。</li>
+<li>Formal 的最大限制是什么？</li>
+<li>状态空间爆炸和约束建模难度，尤其是大存储、大数据通路、完整 SoC 级场景。</li>
+</ul>
+<h3 id="_32">易错点</h3>
+<ul>
+<li>把 formal 当成“自动替代仿真”的万能工具。</li>
+<li>只看 property pass，不检查 assumption 是否过强。</li>
+<li>忽略 vacuous pass：antecedent 从未成立，property 也会显示 pass。</li>
+<li>对 data-heavy 模块强行做全状态证明，导致工具无法收敛。</li>
+</ul>
+<hr>
 <p><a id="dv-interview-answers"></a></p>
 <h2 id="english">面试回答速查（中文 + English）</h2>
 <h3 id="coverage-driven-verification">Coverage-driven verification</h3>
@@ -373,6 +686,12 @@ sim_run +ntb_random_seed=&lt;seed&gt; -snapshot=&lt;design_version&gt;
 <h3 id="debug-regression-failure">Debug regression failure</h3>
 <p>中文：Debug regression failure 我会先固定 seed 复现，记录 RTL/TB 版本和仿真命令；然后看 log 找 first failure，而不是最后一个 error；接着在 waveform 里 trace transaction，从 driver、monitor、scoreboard 到 DUT interface 判断是 TB 问题、constraint 问题还是 DUT 问题；最后缩小 testcase，方便和 designer 对齐。</p>
 <p>English: I would first reproduce the failure with the same seed and versions, then locate the first failure in the log, inspect the waveform around that time, trace the transaction through driver, monitor, scoreboard, and DUT interface, and finally minimize the testcase.</p>
+<h3 id="directed-vs-constrained-random">Directed vs constrained random</h3>
+<p>中文：Directed test 适合 bring-up、明确 corner case 和 bug 复现；constrained random 适合探索大状态空间。两者都要放在 self-checking testbench 中，用 scoreboard/reference model 判断对错，用 functional coverage 判断是否覆盖到 spec 场景。</p>
+<p>English: Directed tests are useful for bring-up, clear corner cases, and bug reproduction, while constrained random tests explore a larger legal state space. Both should run in a self-checking environment with scoreboards and coverage.</p>
+<h3 id="formal-verification_1">Formal verification</h3>
+<p>中文：Formal verification 通过 property 和 assumption 对状态空间做数学证明，适合协议、不变量、死锁、等价性和难以随机打到的 corner case。它不替代仿真，主要限制是状态空间爆炸和 assumption/vacuity 风险。</p>
+<p>English: Formal verification proves properties under assumptions and is useful for protocols, invariants, deadlock checks, equivalence, and hard-to-hit corner cases. It complements simulation rather than replacing it.</p>
     </article>
   </main>
   <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>

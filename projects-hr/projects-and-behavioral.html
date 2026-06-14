@@ -172,6 +172,43 @@
 <h2 id="axi-dma-uvm">AXI DMA UVM 验证项目</h2>
 <h3 id="_3">一句话概括</h3>
 <p>为一个 AXI DMA 控制器 RTL 从零搭建了完整 UVM 验证环境，覆盖 CSR 编程、数据搬移、burst 模式、backpressure、outstanding 压力测试、error injection 和 abort 等十余个测试场景，实现内存数据完整性 self-check。</p>
+<h3 id="_4">项目关键参数</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>参数</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI datapath</td>
+<td>32-bit address / 32-bit data / 8-bit ID</td>
+<td><code>AXI_ADDR_WIDTH=32</code>、<code>AXI_DATA_WIDTH=32</code>、<code>AXI_TXN_ID_WIDTH=8</code></td>
+</tr>
+<tr>
+<td>Burst length</td>
+<td>CSR <code>max_burst[9:2]</code> 配置 AXI <code>ALEN</code>，默认 <code>8'hff</code></td>
+<td>最大 256 beats；<code>8'h00</code> 表示 single-beat</td>
+</tr>
+<tr>
+<td>Outstanding</td>
+<td>read/write 各 8 笔</td>
+<td><code>DMA_RD_TXN_BUFF=8</code>、<code>DMA_WR_TXN_BUFF=8</code>，scoreboard 覆盖 depth 1/2-3/4-7/8</td>
+</tr>
+<tr>
+<td>Descriptor / FIFO</td>
+<td>2 个 descriptor slot，stream FIFO depth 16</td>
+<td><code>DMA_NUM_DESC=2</code>、<code>DMA_FIFO_DEPTH=16</code></td>
+</tr>
+<tr>
+<td>Corner cases</td>
+<td>INCR/FIXED burst、unaligned、4KB boundary split、OKAY/SLVERR/DECERR</td>
+<td>slave BFM + shared memory model + scoreboard 自检查</td>
+</tr>
+</tbody>
+</table>
 <h3 id="situation">Situation</h3>
 <p>DUT 是一个支持 descriptor-based、AXI-Lite CSR 编程、AXI4 master 读写、INCR/FIXED burst 模式的 DMA 控制器。DUT 有两路独立 DMA descriptor，支持最多 8 个 outstanding AXI transaction，并通过中断输出 done/error 状态。验证需要覆盖正常传输、边界条件（4KB boundary split、unaligned address）、错误响应、abort 和 outstanding 深度验证。</p>
 <h3 id="task">Task</h3>
@@ -348,7 +385,9 @@
 <li>code-only filtered coverage 从 <code>85.79%</code> 提升到 <code>88.44%</code>；主要提升来自 descriptor CSR pattern sweep 和 high-address toggle directed test。</li>
 <li>剩余 coverage hole 主要是 defensive/error/协议 stall 组合，不属于普通数据搬移场景的功能失败，需要进一步按“补 test / 记录 known issue / 合理 waiver”分类处理。</li>
 </ul>
-<h3 id="60">面试版 60 秒回答（英文）</h3>
+<h3 id="60">面试版 60 秒回答（中文）</h3>
+<p>我做的是一个 AXI DMA 控制器的 UVM 验证项目。DUT 通过 AXI-Lite 做 CSR 配置，通过 AXI4 master 访问 memory，当前数据通路是 32-bit address、32-bit data、8-bit ID；burst length 由 CSR 里的 <code>max_burst</code> 配置，最大可以到 256 beats，read/write outstanding window 各 8 笔。我从零搭了 UVM 环境，包括 AXI-Lite master agent、RAL model、AXI memory slave BFM、shared memory model、scoreboard 和 virtual sequencer。scoreboard 会根据 descriptor 从 memory model 取 expected data，DMA 完成后逐 byte 比较 destination，同时统计 outstanding depth。测试上我覆盖了 CSR 读写、descriptor 搬运、burst sweep、backpressure、unaligned address、4KB boundary split、FIXED burst、outstanding stress、SLVERR/DECERR error injection 和 abort。error injection 里我用 <code>try_next_item()</code> 让 slave BFM 可以非阻塞地接收 test 注入的 error response；等待 interrupt 的地方用 <code>fork/join_any</code> 加 timeout，避免 regression 卡死。最后 20 个 regression test 跑通，merged coverage total 到 <code>91.98%</code>，covergroup/assertion 达到 <code>100%</code>。</p>
+<h3 id="60_1">面试版 60 秒回答（英文）</h3>
 <p>I built a complete UVM verification environment for an AXI DMA controller. The testbench includes an AXI-Lite master agent for CSR programming through a RAL model, an AXI memory slave BFM that responds to DMA read/write requests using a shared memory model, and a scoreboard that checks data integrity and tracks AXI outstanding depth. I used a virtual sequencer to centralize access to the sub-sequencers, memory model, RAL model, and IRQ interface, which kept the virtual sequences clean and concise. For error injection, I used <code>try_next_item()</code> so the driver could non-blockingly accept error responses from a test sequence without needing a permanent background sequence. For timeout protection in IRQ waiting tasks, I used <code>fork/join_any</code> plus <code>disable fork</code>. The environment covered more than ten test scenarios including burst sweep, backpressure, unaligned transfers, 4KB boundary splits, outstanding stress, and error/abort paths.</p>
 <blockquote>
 <p><strong>详细技术实现笔记</strong>: <a href="axi-dma-uvm-details.html">axi-dma-uvm-details.md</a> — 包含 <a href="axi-dma-uvm-details.html#axi-dma-ral-mem-scoreboard">RAL / memory model / scoreboard 深入实现</a>、UVM组件代码、测试用例实现细节、覆盖率模型设计、仿真脚本、调试技巧和面试追问准备。</p>
@@ -604,7 +643,7 @@
 <p><strong>面试回答</strong></p>
 <p>中文：在这个 AXI DMA 项目里，我遇到过 regression fatal 和 coverage 偏低的问题。我先从 log 找 first fatal，确认 RAL/AXI-Lite CSR access 都已经返回 <code>UVM_IS_OK</code>，真正的问题是 DMA start 后部分场景等不到 interrupt。然后我修了 RTL 的非法配置 error、内部 FIFO error 汇总、error latch、clear 清理和 progress watchdog 等问题，让 20 个 regression test 全部通过。Coverage 方面，最新 merged total 到 <code>91.98%</code>，statement/branch 都在 <code>96%+</code>，covergroup/assertion 是 <code>100%</code>；剩下主要是 FEC condition 和 toggle。我没有简单关闭 toggle，而是增加 high-address test、DECERR test、random mixed test，并在 <code>csr_all_regs_test</code> 里通过 RAL/CSR 写 descriptor pattern，code-only coverage 从 <code>85.79%</code> 提到 <code>88.44%</code>。最后对 AXI optional sideband、tie-off 和不可达 defensive path 做 waiver/known issue 分类，而不是为了追 100% 去制造不符合 spec 的场景。</p>
 <p>English: In this AXI DMA project, I debugged both regression fatal issues and low coverage. I first located the first timeout in the log and confirmed that RAL frontdoor CSR accesses were completing successfully, so the issue was not the AXI-Lite path but DMA completion. I fixed RTL issues such as invalid-configuration error reporting, internal FIFO error propagation, error latching, clear cleanup, and a progress watchdog. After that, all 20 regression tests passed with no UVM errors or fatals. For coverage, the latest merged total reached 91.98%, with statement and branch coverage above 96% and covergroups/assertions at 100%. The remaining holes were mainly FEC conditions and toggle bins. Instead of disabling toggle coverage globally, I added high-address, DECERR, random mixed, and CSR descriptor pattern-sweep tests, which improved code-only coverage from 85.79% to 88.44%. For optional AXI sideband signals, tied-off fields, and structurally unreachable defensive paths, I documented waiver or known-issue reasoning rather than forcing illegal stimulus just to reach 100%.</p>
-<h3 id="_4">可追问点</h3>
+<h3 id="_5">可追问点</h3>
 <ul>
 <li>技术细节：slave BFM 各 channel 如何并行、semaphore 如何保护 <code>try_next_item()</code>、RAL predictor 如何接线</li>
 <li>难点：AXI slave BFM 要正确计算 beat address（INCR 递增、FIXED 不变），WLAST 要和 AWLEN 对应</li>
@@ -615,9 +654,46 @@
 <p><a id="star-int8-npu-tapeout"></a></p>
 <h2 id="int8-npu">INT8 NPU 流片项目</h2>
 <p>标签：<code>#project</code> <code>#npu</code> <code>#cnn</code> <code>#rtl</code> <code>#uvm</code> <code>#dpi</code> <code>#cmodel</code> <code>#tapeout</code> <code>#dc</code> <code>#apr</code> <code>#sta</code></p>
-<h3 id="_5">一句话概括</h3>
+<h3 id="_6">一句话概括</h3>
 <p>基于 Verilog 设计并验证一个面向 CNN 推理加速的 INT8 量化 NPU，从 RTL 微架构、UVM + DPI C model 验证、代码覆盖率收敛，到 DC 综合、STA、P&amp;R、后仿频率收敛和 2026.05 流片完成，覆盖了 ASIC 前端到后端交付的完整链路。</p>
-<h3 id="_6">工程路径</h3>
+<h3 id="_7">项目关键参数</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>参数</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>指令格式</td>
+<td>48-bit instruction，4-bit opcode</td>
+<td>支持 CONV、POOL、ADD、STORE、LOAD_ACT、LOAD_WT、LOAD_BS、AVG_POOL、CLASSIFIER 9 类 opcode</td>
+</tr>
+<tr>
+<td>SRAM</td>
+<td>activation SRAM 32-bit x 1024，weight SRAM 32-bit x 256</td>
+<td>activation 约 4 KB，weight 约 1 KB；TB 还有更大的文件数组用于 preload</td>
+</tr>
+<tr>
+<td>计算阵列</td>
+<td>4 个 <code>conv_unit_single</code> lane</td>
+<td>每 lane 是 4-input INT8 MAC tree + 4 个 32-bit accumulator，满载约 16 个 INT8 multiply/cycle</td>
+</tr>
+<tr>
+<td>卷积参数</td>
+<td>kernel/core dim 2 bit，image dim log 3 bit，channel field 5 bit，stride 1 bit</td>
+<td>channel 按 channels/4 编码，最多 128 channels；stride 支持 1/2</td>
+</tr>
+<tr>
+<td>时钟口径</td>
+<td>外部接口 10 MHz，内部目标 200 MHz；当前 RTL/qsim testbench core clock 是 100 MHz</td>
+<td>面试时把 tapeout 目标频率和本地仿真 clock 区分开</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">工程路径</h3>
 <table>
 <thead>
 <tr>
@@ -712,14 +788,14 @@
 <p>在计算架构上，我搭建了 4x4 MAC 阵列，每周期可以并行做 16 次 INT8 乘加，并在 accumulator 中集成 bias addition、ReLU 和 max pooling compare logic，理论峰值大约 6.4 GOPS，单张图片端到端分类延迟约 3 ms。存储方面，我设计了 16 KB unified buffer 和 1 KB weight SRAM，并处理外部写入、内部计算读取和结果写回之间的仲裁，缓解 feature map、weight 和 intermediate result 之间的带宽冲突。</p>
 <p>比较有挑战的是卷积窗口数据准备。我实现了二维 feature map 坐标到 SRAM 物理地址的映射，以及多 bank 数据拼接逻辑，支持 padding、invalid pixel mask 和窗口数据对齐，保证不同卷积窗口位置下的数据都能正确送入 MAC 阵列。</p>
 <p>验证方面，我基于 UVM 搭建了 core 级验证平台，通过 DPI 接口对接 C model，把 C model 作为 golden reference 做指令级和结果级比对，并建立 coverage 和 regression 闭环。最后代码覆盖率收敛到 90% 以上，也定位并修复了 CSA 加法链路和 input buffer 的 bug。项目后续完成了 DC 综合、STA、P&amp;R 和后仿收敛，后仿最高频率约 214 MHz，并在 2026 年 5 月完成流片。</p>
-<h3 id="60_1">面试版 60 秒回答（英文）</h3>
+<h3 id="60_2">面试版 60 秒回答（英文）</h3>
 <p>I worked on an INT8 quantized NPU tapeout project for CNN inference. The design runs external read/write traffic at 10 MHz and the internal compute core at 200 MHz. It supports nine instruction types, including load/store, configurable convolution, max pooling, average pooling, and classifier operations, and it can issue two independent instructions in parallel to improve throughput.</p>
 <p>Architecturally, I built a 4-by-4 MAC array that performs 16 INT8 multiply-accumulate operations per cycle. The accumulator path also integrates bias addition, ReLU activation, and max-pooling comparison logic. The peak performance is about 6.4 GOPS, and the end-to-end latency for classifying one input image is around 3 ms. I also designed the on-chip memory hierarchy with a 16 KB unified buffer and a 1 KB weight SRAM, including arbitration between external writes, internal compute reads, and result writeback.</p>
 <p>For verification, I built a UVM environment and connected a C model through DPI as the golden reference. The scoreboard performs both instruction-level and result-level comparison, and the regression flow closed code coverage to over 90%. We found and fixed bugs in the CSA adder path and input buffer. The project completed RTL simulation, synthesis, STA, P&amp;R, post-layout timing closure at around 214 MHz, and taped out in May 2026.</p>
 <blockquote>
 <p><strong>详细技术实现笔记</strong>: <a href="int8-npu-tapeout-details.html">int8-npu-tapeout-details.md</a> — 包含完整 RTL 设计代码、UVM+DPI 验证环境、Python golden model、DC/STA/P&amp;R 后端脚本、性能指标分析和调试经验。</p>
 </blockquote>
-<h3 id="_7">可追问点</h3>
+<h3 id="_9">可追问点</h3>
 <ul>
 <li>微架构：为什么选择 4x4 MAC array，INT8 accumulator bit-width 如何考虑，bias/ReLU/pooling 放在 accumulator 路径的 trade-off。</li>
 <li>指令并行发射：如何判断两条指令没有数据相关，遇到 load/store 和 compute 冲突时如何 stall 或仲裁。</li>
@@ -740,9 +816,51 @@
 <p><a id="star-ooo-riscv"></a></p>
 <h2 id="ooo-risc-v">OoO RISC-V 处理器项目</h2>
 <p>标签：<code>#project</code> <code>#ooo</code> <code>#riscv</code> <code>#rtl</code> <code>#microarchitecture</code> <code>#rob</code> <code>#rs</code> <code>#sq</code> <code>#cache</code> <code>#synthesis</code></p>
-<h3 id="_8">一句话概括</h3>
+<h3 id="_10">一句话概括</h3>
 <p>实现一个可综合的 3-wide out-of-order RV32IM 处理器，包含 register renaming、freelist/map table、32-entry ROB、16-entry reservation station、store queue、branch predictor、I/D cache、MSHR 和 precise branch recovery，并通过 program-level regression 与 Design Compiler synthesis flow 做验证和收敛。</p>
-<h3 id="_9">工程路径</h3>
+<h3 id="_11">项目关键参数</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>参数</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ISA / datapath</td>
+<td>RV32IM，<code>XLEN=32</code></td>
+<td>32-bit datapath，项目重点是 OoO microarchitecture</td>
+</tr>
+<tr>
+<td>Width</td>
+<td>3-wide dispatch / complete / retire</td>
+<td>ROB head 最多每周期按序 retire 3 条</td>
+</tr>
+<tr>
+<td>Rename / ROB / RS</td>
+<td>64 physical registers，32-entry ROB，16-entry RS</td>
+<td><code>PR=6</code>、<code>ROBW=32</code>、<code>RSW=16</code></td>
+</tr>
+<tr>
+<td>Memory ordering</td>
+<td>store queue 8 entries，D-cache MSHR 8 entries</td>
+<td><code>LSQ=3</code>、<code>MHSRS_W=8</code>，支持 cache miss latency hiding 和 load/store dependency check</td>
+</tr>
+<tr>
+<td>Execution resources</td>
+<td>8 个 FU</td>
+<td>3 ALU + 2 load/store + 2 multiplier + 1 branch；per-FU issue FIFO depth 32</td>
+</tr>
+<tr>
+<td>Memory model</td>
+<td>64 KiB unified memory，15 memory tags，约 100 ns latency</td>
+<td><code>MEM_SIZE_IN_BYTES=64*1024</code>、<code>NUM_MEM_TAGS=15</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">工程路径</h3>
 <table>
 <thead>
 <tr>
@@ -826,14 +944,14 @@
 <p>这个项目最核心的问题是保持 precise state。我的理解是，OoO 不是乱序提交，而是 ready 的指令可以乱序执行，但必须通过 ROB 按 program order commit。Dispatch 阶段为目的寄存器分配新的 physical register，map table 保存 speculative mapping，ROB 记录每条 in-flight instruction 的新旧 PR、complete bit、store/branch 信息。Retire 阶段只从 ROB head 开始提交，提交后更新 architectural map 并释放旧 PR。这样遇到 branch mispredict 时，就可以恢复 map table 和 freelist，flush RS、issue FIFO、FU、SQ 等 speculative state，再把 fetch redirect 到正确 PC。</p>
 <p>另一个重点是 memory ordering。我实现了 store queue：store 在 dispatch 时分配 entry，execute 后写入地址、数据和 byte mask，但只有 retire 后才真正进入 D-cache。Load 会查询所有 older stores，如果地址还没解析就 stall；如果地址匹配就按 byte 做 forwarding；如果不相关才访问 cache。这样可以支持 OoO 的 load/store 执行，同时保证 program order 的 memory correctness。</p>
 <p>为了处理 100 ns 级 memory latency，项目里有 I-cache、3-way D-cache、MSHR、dirty writeback 和 store-miss merge。验证上，我用 program-level testbench 跑 assembly/C 程序，生成 <code>.wb</code> 和 <code>.out</code>，再和 golden trace 比对；同时加了 no-retire diagnostic snapshot，遇到 hang 时可以直接看 ROB head、RS ready、SQ/cache stall、MSHR 和 recovery 状态。最后这个 full pipeline 也走了 Design Compiler synthesis，ASAP7 report 里 9800 ps clock period 下 timing met。</p>
-<h3 id="60_2">面试版 60 秒回答（英文）</h3>
+<h3 id="60_3">面试版 60 秒回答（英文）</h3>
 <p>I implemented a synthesizable three-wide out-of-order RV32IM processor. The core uses register renaming with a freelist and map table, a 32-entry ROB for in-order commit, a 16-entry reservation station for oldest-ready issue, a physical register file, and eight functional units including ALUs, load/store units, multipliers, and a branch unit.</p>
 <p>The key challenge was maintaining precise state. Instructions can execute out of order, but they retire in program order through the ROB. On branch recovery, the frontend is redirected, the speculative map table is restored from the architectural map, the freelist head is recovered, and speculative structures such as the RS, issue queues, FUs, and SQ are flushed.</p>
 <p>I also designed the memory-ordering path with a store queue. Loads check older stores, stall on unresolved store addresses, and use byte-granular store-to-load forwarding when addresses match. The cache subsystem includes an I-cache, a nonblocking three-way D-cache, MSHRs, dirty writeback, and store-miss merging. I built program-level regression scripts to compare writeback traces against golden outputs and added diagnostic logs for no-retire and pipeline hang debugging. The design was synthesized with an ASAP7 flow and met timing at a 9800 ps clock period.</p>
 <blockquote>
 <p><strong>详细技术实现笔记</strong>: <a href="ooo-riscv-details.html">ooo-riscv-details.md</a> — 包含顶层架构、关键参数、ROB/RS/SQ/cache/recovery 设计、验证 debug flow、综合结果和面试追问。</p>
 </blockquote>
-<h3 id="_10">可追问点</h3>
+<h3 id="_13">可追问点</h3>
 <ul>
 <li>OoO：为什么是乱序执行、按序提交，而不是乱序提交。</li>
 <li>Rename：freelist、map table、architectural map table 和 old PR release 的关系。</li>
@@ -857,8 +975,45 @@
 <p><a id="star-ddr4-controller-apb-axi-vip"></a></p>
 <h2 id="ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</h2>
 <p>标签：<code>#project</code> <code>#ddr4</code> <code>#memory-controller</code> <code>#apb</code> <code>#axi</code> <code>#uvm-vip</code> <code>#scoreboard</code></p>
-<h3 id="_11">一句话概括</h3>
+<h3 id="_14">一句话概括</h3>
 <p>基于 Synopsys DWC DDR54 验证环境理解并整理 DDR4 controller 的 APB + AXI VIP 验证主线：通过 APB VIP 配置 controller/PHY 寄存器，通过 AXI4 VIP 产生 DDR memory 读写流量，再用 APB/AXI checker、read-hash、AXI-HIF、HIF-DFI、DDR/DFI checker 和 postprocess 判断结果是否正确。</p>
+<h3 id="_15">项目关键参数</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>参数</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI ports</td>
+<td>当前生成配置 4 个 active AXI4 master port</td>
+<td><code>UMCTL2_A_NPORTS=4</code>，<code>UMCTL2_A_TYPE_0..3=3</code> 表示 AXI4</td>
+</tr>
+<tr>
+<td>AXI width</td>
+<td>每口 256-bit data，37-bit address，8-bit ID，8-bit LEN，4-bit QoS</td>
+<td><code>UMCTL2_PORT_DW_i=256</code>、<code>UMCTL2_A_ADDRW=37</code>、<code>UMCTL2_A_IDW=8</code>、<code>UMCTL2_A_LENW=8</code></td>
+</tr>
+<tr>
+<td>Burst / boundary</td>
+<td>AXI4 max burst 256 beats，4KB boundary</td>
+<td><code>SVT_AXI4_MAX_BURST_LENGTH=256</code>，<code>UMCTL2_AXI_ADDR_BOUNDARY=12</code></td>
+</tr>
+<tr>
+<td>Outstanding</td>
+<td>VIP master outstanding 默认 256</td>
+<td>因为 4 ports &lt;= 5，<code>num_outstanding_xact=SVT_AXI_MAX_NUM_OUTSTANDING_XACT</code></td>
+</tr>
+<tr>
+<td>APB config path</td>
+<td>32-bit address / 32-bit data APB master</td>
+<td>APB4 是否开启由 <code>DDRCTL_APB4_EN</code> 控制，不把它说死</td>
+</tr>
+</tbody>
+</table>
 <h3 id="situation_3">Situation</h3>
 <p>DUT 是 DDR4/DDR5/LPDDR 可配置的 DDR controller 验证环境。对 DDR4 普通数据通路来说，test writer 不需要自己手写 DDR4 pin-level driver，而是面对 controller 的上层接口：</p>
 <ul>
@@ -942,10 +1097,10 @@
 <h3 id="2_2">面试版 2 分钟回答（中文）</h3>
 <p>这个项目是一个 DDR controller 的验证环境。我理解的主线是：普通 DDR4 数据通路验证并不是直接手写 DDR4 command driver，而是通过 controller 的上层接口来产生激励。APB VIP 负责做寄存器配置，比如 DDR4 模式、timing、地址映射、端口使能和 DFI/PHY 初始化；配置完成后通过 APB read polling init done 或 training done。DDR ready 之后，再用 AXI4 VIP 在各个 AXI port 上发 write/read burst，比如先向某个 DDR memory address 写入 pattern，再从同一地址读回来。</p>
 <p>真正被验证的不是 APB/AXI 总线本身，而是 controller 接到 AXI 请求后，能不能正确把 system address 映射成 DDR4 的 rank、bank group、bank、row、column，并按 DDR4 协议调度 ACT、RD、WR、PRE、REF 等命令，同时满足 tRCD、tRP、tRAS、tFAW、refresh 等 timing。结果检查也不是单一的 readback，而是多层的：APB/AXI VIP checker 保证入口协议合法，read-hash scoreboard 检查写入和读回数据一致，AXI-HIF scoreboard 检查上层 AXI 请求到内部 HIF 请求的转换，HIF-DFI/DDR checker 检查 controller 发到内存侧的命令和 timing。最后 postprocess 扫 test log，确认没有 UVM error/fatal、没有 scoreboard mismatch，并且出现 <code>COMPLETED - done with Env</code>，才认为 test passed。</p>
-<h3 id="60_3">面试版 60 秒回答（英文）</h3>
+<h3 id="60_4">面试版 60 秒回答（英文）</h3>
 <p>In this DDR controller project, the main verification flow uses APB and AXI VIPs as the stimulus entry points. The APB VIP is used for CSR programming: DDR mode, timing, address mapping, port configuration, refresh settings, and DFI/PHY initialization. After polling the status registers and confirming that initialization and training are done, the AXI4 VIP generates memory traffic, typically write bursts followed by read bursts to the same DDR address space.</p>
 <p>The goal is not just to verify APB or AXI protocol compliance. Those protocols are only the front-door interfaces. The real target is the DDR controller behavior: address mapping to rank, bank group, bank, row and column; scheduling ACT, READ, WRITE, PRECHARGE and REFRESH commands; meeting DDR4 timing constraints; and preserving data integrity. The checking is multi-layered: APB and AXI VIP checkers validate the bus transactions, read-hash scoreboards compare written and read data, AXI-to-HIF and HIF-to-DFI scoreboards check internal conversion and DDR command behavior, and the postprocess script scans logs and the completion message to produce the final pass/fail result.</p>
-<h3 id="_12">可追问点</h3>
+<h3 id="_16">可追问点</h3>
 <ul>
 <li>为什么普通 test 不需要写 DDR4 pin-level driver？</li>
 <li>APB 配置路径和 AXI 数据路径的本质区别是什么？</li>
@@ -953,14 +1108,71 @@
 <li>AXI protocol pass 为什么不等于 DDR controller pass？</li>
 <li>read-hash、AXI-HIF、HIF-DFI scoreboard 分别抓哪一类 bug？</li>
 <li>如果 AXI 写和读 response 都是 OKAY，但数据错了，可能是哪一层的问题？</li>
+<li>UVM env 五层结构各自的职责是什么？</li>
+<li>虚拟 sequencer 和虚拟 sequence 的分工？</li>
+<li>RAL adapter（reg2apb）在整个寄存器访问链路中处于哪个位置？</li>
+</ul>
+<h3 id="bullets_2">可直接放简历的 bullets</h3>
+<p><strong>中文版（适合中文简历或面试简历讲述）：</strong></p>
+<ul>
+<li>基于 Synopsys DWC DDR54 工业级验证平台，分析并掌握 DDR4 controller 的 APB + AXI UVM 验证主线：通过 Synopsys SVT APB VIP（<code>svt_apb_system_env</code>）进行 DDR controller/PHY CSR 配置，通过 SVT AXI VIP（<code>svt_axi_system_env</code>）产生多端口 DDR memory 读写流量，验证 controller 地址映射、DDR4 命令调度与数据完整性。</li>
+<li>深入理解五层 UVM 环境架构（<code>ddr_uvm_pve_tb_top</code> → <code>dwc_ddrctl_mss_env</code> → <code>dwc_ddrctl_vip_env</code> → <code>dwc_ddrctl_env</code> / <code>dwc_ddrctl_reg_utilities</code>），能准确描述 APB/AXI/DDR4/DFI VIP 的内部 driver-monitor-sequencer 结构及各 agent 职责。</li>
+<li>掌握基于 <code>uvm_reg_adapter</code>（<code>dwc_ddrctl_reg2apb_adapter</code>）的 RAL-to-APB 寄存器访问链路：RAL write/read 调用经 <code>reg2bus()</code> 转为 <code>svt_apb_transaction</code>，APB monitor 观察后经 predictor 更新 mirror，实现配置通路的完整可观测性。</li>
+<li>分析多层 scoreboard 检查链路：APB/AXI VIP protocol checker 保证入口合规，read-hash scoreboard（<code>dwc_ddrctl_axi_read_hash_sb</code>）检查 end-to-end 数据完整性，AXI-HIF scoreboard（<code>dwc_ddrctl_axi_hif_top_sb</code>）检查地址/命令转换，HIF-DFI scoreboard（<code>dwc_ddrctl_hif_dfi_sb_env</code>）检查 DDR4 command/timing 调度行为。</li>
+<li>梳理工程中 200+ 个测试用例的覆盖方向，包括 AXI basic/random/directed/QoS/exclusive/streaming 等场景，以及 APB timeout、ECC error injection、low-power 状态机和 HWFFC/SWFFC 频率切换等专项测试。</li>
+</ul>
+<p><strong>English version (for English resume or international interviews):</strong></p>
+<ul>
+<li>Analyzed and mastered the DDR4 controller APB + AXI UVM verification flow in the Synopsys DWC DDR54 industrial verification platform; used Synopsys SVT APB VIP (<code>svt_apb_system_env</code>) for DDR controller/PHY CSR programming and SVT AXI VIP (<code>svt_axi_system_env</code>) to generate multi-port DDR memory traffic.</li>
+<li>Understood the five-level UVM environment hierarchy (<code>ddr_uvm_pve_tb_top</code> → <code>dwc_ddrctl_mss_env</code> → <code>dwc_ddrctl_vip_env</code> → <code>dwc_ddrctl_env</code> / <code>dwc_ddrctl_reg_utilities</code>), including the internal driver-monitor-sequencer structure of APB, AXI, DDR4, and DFI VIPs, and the role of each agent.</li>
+<li>Studied the RAL-to-APB register access chain via <code>uvm_reg_adapter</code> (<code>dwc_ddrctl_reg2apb_adapter</code>): RAL write/read calls are converted to <code>svt_apb_transaction</code> through <code>reg2bus()</code>, observed by the APB monitor, and used by the register predictor to update the mirror value.</li>
+<li>Analyzed the multi-layer scoreboard and checker chain: APB/AXI VIP protocol checkers for bus compliance; read-hash scoreboard for end-to-end data integrity; AXI-to-HIF scoreboard for address, command, and direction conversion; HIF-to-DFI scoreboard for DDR4 command scheduling, timing, and page-hit/miss behavior.</li>
+<li>Mapped 200+ test cases across AXI basic, random, QoS, exclusive access, streaming, and directed scenarios, plus APB timeout, ECC error injection, low-power, and HW/SW frequency-change tests.</li>
 </ul>
 <hr>
 <p><a id="star-ibex-rv32im-uvm"></a></p>
 <h2 id="ibex-rv32im-uvm-dv-bring-up">Ibex RV32IM UVM / 官方 DV Bring-up 项目</h2>
 <p>标签：<code>#project</code> <code>#ibex</code> <code>#riscv</code> <code>#rv32imc</code> <code>#rtl</code> <code>#uvm</code> <code>#scoreboard</code> <code>#coverage</code></p>
-<h3 id="_13">一句话概括</h3>
+<h3 id="_17">一句话概括</h3>
 <p>基于 lowRISC Ibex 开源 RISC-V core 搭建面向简历展示的 RV32IMC 验证项目：用 <code>simple_system</code> RTL wrapper 运行 directed <code>.vmem</code> 程序作为真实指令流激励，并搭建轻量 UVM scaffold，规划 sequence、monitor、scoreboard、coverage 和 reference model 的 instruction-level checking 流程。</p>
-<h3 id="_14">工程路径</h3>
+<h3 id="_18">项目关键参数</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>参数</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core config</td>
+<td><code>RV32MFast</code> + <code>RV32BNone</code> + <code>RV32Zca</code> + <code>RegFileFF</code></td>
+<td>RV32IMC-style baseline：支持 M 和 compressed Zca，不开 bitmanip</td>
+</tr>
+<tr>
+<td>Wrapper</td>
+<td>Ibex <code>examples/simple_system</code></td>
+<td>core + RAM + timer + simulator_ctrl，适合作 directed <code>.vmem</code> sanity regression</td>
+</tr>
+<tr>
+<td>Bus / memory</td>
+<td>32-bit local memory/data path</td>
+<td>当前不是完整 SoC interconnect 验证，而是 simple_system bring-up</td>
+</tr>
+<tr>
+<td>Disabled features</td>
+<td>no I-cache、branch predictor、writeback stage、PMP in local config</td>
+<td>这些是后续可扩展点，不在当前项目里夸大</td>
+</tr>
+<tr>
+<td>Regression guard</td>
+<td><code>TimeoutCycles=2000</code> per program</td>
+<td>通过 program self-check、halt/status 和后续 scoreboard 规划验证结果</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_19">工程路径</h3>
 <table>
 <thead>
 <tr>
@@ -1051,10 +1263,10 @@
 <blockquote>
 <p><strong>详细技术实现笔记</strong>: <a href="ibex-rv32im-uvm-details.html">ibex-rv32im-uvm-details.md</a> — 包含 DUT/simple_system RTL 结构、directed <code>.vmem</code> 激励、UVM scaffold、sequence 如何发送 item、scoreboard/coverage 如何验证结果、RVFI/ISS 扩展计划和面试追问。</p>
 </blockquote>
-<h3 id="60_4">面试版 60 秒回答（英文）</h3>
+<h3 id="60_5">面试版 60 秒回答（英文）</h3>
 <p>I built an Ibex RV32IMC verification project based on the open-source lowRISC Ibex core. On the RTL side, I used the Ibex simple_system wrapper, which contains the Ibex core, RAM, timer, and simulator-control block. The stimulus is software-driven: directed RISC-V programs are preloaded as VMEM images, and the core naturally fetches and executes them. I currently have smoke, ALU, branch, and load/store directed tests in a Makefile regression.</p>
 <p>For checking, the directed programs perform self-checks and write the simulator halt register on success; otherwise the testbench timeout reports a failure. On the UVM side, I built a lightweight scaffold with a base test, environment, instruction item, smoke sequence, scoreboard, and opcode functional coverage. The sequence uses the standard <code>start_item</code>, <code>randomize</code>, and <code>finish_item</code> flow. The next step is to connect a commit/RVFI monitor so the scoreboard can compare PC, register writeback, memory side effects, and exceptions against a reference model or ISS.</p>
-<h3 id="_15">可追问点</h3>
+<h3 id="_20">可追问点</h3>
 <ul>
 <li>为什么 CPU 验证适合用 instruction stream 作为激励。</li>
 <li><code>.vmem</code> program 如何进入 Ibex simple_system 的 RAM。</li>
@@ -1065,7 +1277,7 @@
 <li>Scoreboard 如何和 reference model / ISS 比较 architectural state。</li>
 <li>如果继续完善：接入 RVFI monitor、实现轻量 reference model、扩展 functional coverage、再接官方 riscv-dv/Spike flow。</li>
 </ul>
-<h3 id="bullets_2">可直接放简历的 bullets</h3>
+<h3 id="bullets_3">可直接放简历的 bullets</h3>
 <ul>
 <li>Built a runnable Ibex RV32IMC simple_system verification baseline using directed VMEM programs for smoke, ALU, branch, and load/store scenarios.</li>
 <li>Structured a lightweight UVM environment with base test, environment, instruction sequence item, smoke sequence, scoreboard, and opcode functional coverage.</li>
@@ -1077,7 +1289,7 @@
 <p><a id="star-apb-uart"></a></p>
 <h2 id="apb-uart-uvm">APB-UART UVM 验证环境</h2>
 <p>标签：<code>#project</code> <code>#apb</code> <code>#uart</code> <code>#uvm</code> <code>#dv</code> <code>#coverage</code> <code>#error-injection</code></p>
-<h3 id="_16">一句话概括</h3>
+<h3 id="_21">一句话概括</h3>
 <p>为 APB-UART IP 搭建完整 UVM 验证环境，覆盖 UART config/protocol、data compare、parity error、frame error、overrun error 等 6 个测试场景，并收集 functional coverage。</p>
 <h3 id="situation_5">Situation</h3>
 <p>DUT 是一个 APB-slave 接口的 UART 控制器，支持可编程 baud rate、parity、frame 格式配置，以及 RX/TX 数据通路。验证需要覆盖正常收发、寄存器配置、各种 error 注入场景，并收集 coverage 确认配置空间全覆盖。</p>
@@ -1137,9 +1349,9 @@
 <li>Functional coverage 达到 100%（配置空间全覆盖）。</li>
 <li>项目来自 <code>IC_EDA_Lite/share/apb-uart-uvm-env</code>，包含完整 Questa 仿真 flow 和 coverage report。</li>
 </ul>
-<h3 id="60_5">面试版 60 秒回答（英文）</h3>
+<h3 id="60_6">面试版 60 秒回答（英文）</h3>
 <p>I built a UVM verification environment for an APB-UART controller. The testbench has an APB active master agent for register programming and a UART monitor/predictor for RX/TX data checking. I implemented six test scenarios covering register configuration, data loopback comparison, parity error injection, frame error injection, overrun error handling, and register readback. The scoreboard compares transmitted and received data, and a functional coverage model ensures all configuration combinations and error conditions are exercised. All tests passed and coverage reached 100%.</p>
-<h3 id="_17">可追问点</h3>
+<h3 id="_22">可追问点</h3>
 <ul>
 <li>APB 协议：APB vs AXI-Lite 的区别，APB transfer 的 write/read 时序</li>
 <li>UART protocol：start bit / data / parity / stop bit 格式，baud rate 如何分频</li>
@@ -1150,7 +1362,7 @@
 <p><a id="star-async-fifo"></a></p>
 <h2 id="async-fifo-uvm">Async FIFO UVM 验证</h2>
 <p>标签：<code>#project</code> <code>#async-fifo</code> <code>#cdc</code> <code>#uvm</code> <code>#systemverilog</code> <code>#gray-code</code> <code>#cross-clock</code></p>
-<h3 id="_18">一句话概括</h3>
+<h3 id="_23">一句话概括</h3>
 <p>基于 UVM Primer 实现异步 FIFO 的双版本 testbench（SystemVerilog OOP 版 + UVM 版），覆盖指针同步、空满判断、数据完整性等验证点，掌握跨时钟域验证方法。</p>
 <h3 id="situation_6">Situation</h3>
 <p>DUT 是一个异步 FIFO，读写时钟域独立，使用格雷码指针跨时钟同步，通过 <code>rptr_empty</code> / <code>wptr_full</code> 判断空满状态。需要验证跨时钟数据正确性、指针同步正确性、空满标志时序，以及 reset 和边界条件。</p>
@@ -1189,9 +1401,9 @@
 <li>理解 SV OOP testbench 与 UVM 的差异：UVM 的 factory/phase/objection/config_db 在复杂项目中优势明显。</li>
 <li>项目来自 <code>IC_EDA_Lite/share/fifo_uvm</code>，包含完整 UVM Primer 学习笔记。</li>
 </ul>
-<h3 id="60_6">面试版 60 秒回答（英文）</h3>
+<h3 id="60_7">面试版 60 秒回答（英文）</h3>
 <p>I verified an asynchronous FIFO using both a SystemVerilog OOP testbench and a UVM testbench to compare the two approaches. The DUT uses Gray-code pointers synchronized across clock domains, with empty/full flags derived from the synchronized pointers. The SV testbench helped me understand the fundamentals—clock generation, mailbox-based communication, and basic assertions. The UVM environment added a proper scoreboard, coverage subscriber, and reusable agents. I tested various clock frequency ratios and verified that the Gray-code synchronization latency correctly causes conservative full/empty assertions. This project gave me a solid understanding of CDC verification and why UVM is valuable for complex testbench reuse.</p>
-<h3 id="_19">可追问点</h3>
+<h3 id="_24">可追问点</h3>
 <ul>
 <li>CDC：为什么格雷码可以安全跨时钟同步，二进制指针为什么不行</li>
 <li>空满判断：同步指针比较时，为什么 full 会"提前"置位（保守策略）</li>
@@ -1202,7 +1414,7 @@
 <p><a id="star-tvip-axi"></a></p>
 <h2 id="tvip-axi-uvm-axi4-vip-crossbar">TVIP-AXI (UVM AXI4 VIP) Crossbar 验证</h2>
 <p>标签：<code>#project</code> <code>#axi</code> <code>#vip</code> <code>#uvm</code> <code>#crossbar</code> <code>#multi-master</code> <code>#backpressure</code> <code>#contention</code></p>
-<h3 id="_20">一句话概括</h3>
+<h3 id="_25">一句话概括</h3>
 <p>基于开源 TVIP-AXI UVM VIP，搭建 AXI4 crossbar 多 master/slave 验证环境，覆盖 multi-master contention、outstanding、backpressure、BRESP error 等场景，掌握 AXI protocol 验证和 VIP 使用方法。</p>
 <h3 id="situation_7">Situation</h3>
 <p>需要验证一个 AXI crossbar（多 master → 多 slave 互联），验证重点包括：multi-master 并发访问的 arbitration、outstanding transaction 管理、slave backpressure 处理、crossbar 地址解码正确性，以及 error response 传播。</p>
@@ -1261,9 +1473,9 @@
 <li>理解了 AXI crossbar 验证的关键点：address decoding、ID 管理、outstanding 深度、response 路由。</li>
 <li>项目来自 <code>IC_EDA_Lite/share/uvm_axi</code>，VIP 源码在 <code>src/</code>，sample 环境在 <code>sample/</code>。</li>
 </ul>
-<h3 id="60_7">面试版 60 秒回答（英文）</h3>
+<h3 id="60_8">面试版 60 秒回答（英文）</h3>
 <p>I used the open-source <code>tvip-axi</code> UVM VIP to verify an AXI crossbar with multiple masters and slaves. The testbench instantiates <code>tvip_axi_master_agent</code> for initiators and <code>tvip_axi_slave_agent</code> for targets, with a scoreboard that collects transactions from both sides and checks data integrity and response codes. I wrote virtual sequences to launch parallel master sequences and create contention, and I used the slave agent's response configuration to inject backpressure and error responses. The four test scenarios covered multi-master arbitration, mixed ready delays, BRESP backpressure propagation, and same-ID transaction ordering. This project gave me hands-on experience with AXI protocol verification and how to use and extend a third-party AXI VIP.</p>
-<h3 id="_21">可追问点</h3>
+<h3 id="_26">可追问点</h3>
 <ul>
 <li>AXI protocol：outstanding transaction 如何管理 ID，同一 ID 的 transaction 是否保证 ordering</li>
 <li>Crossbar：arbitration 策略（round-robin / priority），如何避免 starvation</li>
@@ -1284,9 +1496,9 @@
 <p>你具体做了什么？</p>
 <h3 id="result_8">Result</h3>
 <p>结果是什么？最好包含量化结果、验证结果或学到的经验。</p>
-<h3 id="60_8">面试版 60 秒回答</h3>
+<h3 id="60_9">面试版 60 秒回答</h3>
 <p>待补充。</p>
-<h3 id="_22">可追问点</h3>
+<h3 id="_27">可追问点</h3>
 <ul>
 <li>技术细节：</li>
 <li>团队协作：</li>
@@ -1296,7 +1508,7 @@
 <hr>
 <p><a id="behavioral-interview"></a></p>
 <h2 id="behavioral">Behavioral 面试</h2>
-<h3 id="_23">常见题目</h3>
+<h3 id="_28">常见题目</h3>
 <ul>
 <li>Tell me about yourself.</li>
 <li>Why ASIC/DV?</li>
@@ -1304,19 +1516,19 @@
 <li>Tell me about a time you worked with ambiguity.</li>
 <li>Tell me about a conflict or disagreement.</li>
 </ul>
-<h3 id="_24">回答策略</h3>
+<h3 id="_29">回答策略</h3>
 <p>先用中文把经历讲顺，再压缩成 60 秒英文版本。重点不是背稿，而是让每个故事都有清楚的背景、你的动作和结果。</p>
 <hr>
 <p><a id="english-answer-template"></a></p>
-<h2 id="_25">英文回答模板</h2>
-<h3 id="_26">技术问题回答结构</h3>
+<h2 id="_30">英文回答模板</h2>
+<h3 id="_31">技术问题回答结构</h3>
 <ol>
 <li>Define the concept.</li>
 <li>Explain why it matters.</li>
 <li>Give a concrete example.</li>
 <li>Mention common pitfalls or trade-offs.</li>
 </ol>
-<h3 id="_27">常用句型</h3>
+<h3 id="_32">常用句型</h3>
 <ul>
 <li>"The key difference is..."</li>
 <li>"In a verification environment, I would check this by..."</li>
@@ -1324,7 +1536,7 @@
 <li>"From a debug perspective, I would first..."</li>
 <li>"This matters because..."</li>
 </ul>
-<h3 id="_28">中英结合规则</h3>
+<h3 id="_33">中英结合规则</h3>
 <ul>
 <li>笔记里先写中文回答，保证逻辑准确。</li>
 <li>再写 English answer，用自然面试表达，不逐字硬翻。</li>
