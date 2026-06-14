@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INT8 NPU 流片项目 - 详细技术实现 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link active" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">projects-hr/int8-npu-tapeout-details.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="int8-npu-">INT8 NPU 流片项目 - 详细技术实现</h1>
+<h2 id="_1">项目概述</h2>
+<p>这是一个完整的INT8量化神经网络处理器（NPU）流片项目，面向CNN推理加速。项目从RTL设计、UVM验证、DPI C模型对接，到DC综合、STA时序分析、P&amp;R布局布线，最终完成流片。支持9类指令，包含可配置卷积、池化、分类器等操作。</p>
+<p><a id="int8-npu-project-parameters"></a></p>
+<h2 id="_2">项目关键参数</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>当前工程参数</th>
+<th>面试讲法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instruction</td>
+<td><code>INS_WIDTH=48</code>，opcode <code>[47:44]</code> 4 bit</td>
+<td>指令是 48 bit 固定格式，顶端 4 bit opcode</td>
+</tr>
+<tr>
+<td>Opcode</td>
+<td>CONV、POOL、ADD、STORE、LOAD_ACT、LOAD_WT、LOAD_BS、AVG_POOL、CLASSIFIER</td>
+<td>RTL <code>ins_def.vh</code> 中定义 9 类 opcode</td>
+</tr>
+<tr>
+<td>Address fields</td>
+<td>activation addr 10 bit，weight addr 8 bit，writeback addr 10 bit</td>
+<td>activation SRAM macro 是 32-bit x 1024，weight SRAM macro 是 32-bit x 256</td>
+</tr>
+<tr>
+<td>Convolution fields</td>
+<td>kernel/core dim 2 bit，image dim log 3 bit，channel 5 bit，stride 1 bit</td>
+<td>channel 按 channels/4 编码，最多 128 channels；stride 支持 1 或 2</td>
+</tr>
+<tr>
+<td>Compute datapath</td>
+<td>4 个 <code>conv_unit_single</code> lane，每 lane 4-input INT8 MAC tree + 4 个 32-bit accumulator</td>
+<td>满载时可理解为 16 个 INT8 multiply/cycle 的卷积 datapath</td>
+</tr>
+<tr>
+<td>Clocking</td>
+<td>外部接口 10 MHz；内部 tapeout 目标 200 MHz；本地 RTL/qsim TB core clock 100 MHz</td>
+<td>区分目标频率、后端收敛频率和本地仿真 clock</td>
+</tr>
+<tr>
+<td>Simulation guard</td>
+<td><code>MAX_PC=650</code>，<code>MAX_SIM_CYCLES=2000000</code></td>
+<td>qsim fire test 用 PC 和 cycle 上限防止死循环</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">系统架构</h2>
+<h3 id="_4">顶层架构</h3>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>NPU系统
+├── 外部接口 (10MHz)
+│   ├── 指令接口
+│   ├── 数据接口
+│   └── 控制接口
+├── 内部计算核心 (200MHz目标)
+│   ├── 指令解码单元
+│   ├── 4x4 MAC阵列
+│   ├── 累加器路径 (bias/ReLU/pooling)
+│   └── 控制逻辑
+├── 存储系统
+│   ├── 16KB统一缓冲区 (unified buffer)
+│   ├── 1KB权重SRAM
+│   └── 仲裁逻辑
+└── 数据通路
+    ├── 卷积窗口地址生成
+    ├── 多bank数据对齐
+    └── 结果写回通路
+</code></pre></div>
+
+<h3 id="_5">指令集架构</h3>
+<p>支持9类指令：
+1. <strong>CONV</strong>：可配置卷积操作
+2. <strong>POOL</strong>：最大池化
+3. <strong>ADD</strong>：逐元素加法 / 残差类路径
+4. <strong>STORE</strong>：将内部结果写回外部或目标 buffer
+5. <strong>LOAD_ACT</strong>：加载 activation 数据
+6. <strong>LOAD_WT</strong>：加载 weight 数据
+7. <strong>LOAD_BS</strong>：加载 bias 数据
+8. <strong>AVG_POOL</strong>：均值池化
+9. <strong>CLASSIFIER</strong>：分类器操作</p>
+<h2 id="rtl">RTL设计详解</h2>
+<h3 id="1-4x4-mac">1. 4x4 MAC阵列</h3>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">mac_array_4x4</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">clk</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">rst_n</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">activations</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">],</span><span class="w">  </span><span class="c1">// 4x4激活值</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">weights</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">],</span><span class="w">      </span><span class="c1">// 4x4权重</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">partial_sums</span><span class="p">[</span><span class="mh">3</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="c1">// 4个部分和</span>
+<span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 16个并行INT8乘法器</span>
+<span class="w">    </span><span class="k">genvar</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="o">:</span><span class="w"> </span><span class="n">row</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">4</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="o">:</span><span class="w"> </span><span class="n">col</span>
+<span class="w">            </span><span class="c1">// INT8乘法</span>
+<span class="w">            </span><span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">product</span><span class="p">;</span>
+<span class="w">            </span><span class="k">assign</span><span class="w"> </span><span class="n">product</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">$signed</span><span class="p">(</span><span class="n">activations</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mh">4</span><span class="o">+</span><span class="n">j</span><span class="p">])</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">$signed</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mh">4</span><span class="o">+</span><span class="n">j</span><span class="p">]);</span>
+
+<span class="w">            </span><span class="c1">// 累加到对应行</span>
+<span class="w">            </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span>
+<span class="w">                    </span><span class="n">partial_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">32</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">                </span><span class="k">else</span>
+<span class="w">                    </span><span class="n">partial_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">partial_sums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">{{</span><span class="mh">16</span><span class="p">{</span><span class="n">product</span><span class="p">[</span><span class="mh">15</span><span class="p">]}},</span><span class="w"> </span><span class="n">product</span><span class="p">};</span>
+<span class="w">            </span><span class="k">end</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h3 id="2">2. 累加器路径集成</h3>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">accumulator_path</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">clk</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">rst_n</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mac_result</span><span class="p">,</span><span class="w">      </span><span class="c1">// MAC阵列输出</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">bias</span><span class="p">,</span><span class="w">            </span><span class="c1">// 偏置值</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">relu_en</span><span class="p">,</span><span class="w">                </span><span class="c1">// ReLU使能</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">pool_en</span><span class="p">,</span><span class="w">                </span><span class="c1">// 池化使能</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">pool_type</span><span class="p">,</span><span class="w">              </span><span class="c1">// 0: max, 1: avg</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">final_result</span>
+<span class="p">);</span>
+
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">acc_reg</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">pool_reg</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 偏置加法</span>
+<span class="w">    </span><span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">biased_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mac_result</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">bias</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// ReLU激活</span>
+<span class="w">    </span><span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">relu_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">relu_en</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">biased_result</span><span class="p">[</span><span class="mh">31</span><span class="p">]</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mh">32</span><span class="mb">&#39;b0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">biased_result</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">biased_result</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 池化操作</span>
+<span class="w">    </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="n">acc_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">32</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">pool_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">32</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pool_en</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">pool_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"> </span><span class="c1">// max pooling</span>
+<span class="w">                </span><span class="n">pool_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">(</span><span class="n">relu_result</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">pool_reg</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">relu_result</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">pool_reg</span><span class="p">;</span>
+<span class="w">            </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span><span class="w"> </span><span class="c1">// average pooling</span>
+<span class="w">                </span><span class="n">acc_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">acc_reg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">relu_result</span><span class="p">;</span>
+<span class="w">            </span><span class="k">end</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span>
+
+<span class="w">    </span><span class="k">assign</span><span class="w"> </span><span class="n">final_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">pool_en</span><span class="w"> </span><span class="o">?</span><span class="w"> </span>
+<span class="w">                         </span><span class="p">(</span><span class="n">pool_type</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">pool_reg</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="n">acc_reg</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mh">2</span><span class="p">))</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="c1">// 右移2位实现/4</span>
+<span class="w">                         </span><span class="n">relu_result</span><span class="p">;</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h3 id="3">3. 卷积窗口地址生成</h3>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">conv_address_generator</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">clk</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">rst_n</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">base_addr</span><span class="p">,</span><span class="w">       </span><span class="c1">// feature map基地址</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w">            </span><span class="c1">// 特征图宽度</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">height</span><span class="p">,</span><span class="w">           </span><span class="c1">// 特征图高度</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">kernel_size</span><span class="p">,</span><span class="w">      </span><span class="c1">// 卷积核大小 (3或5)</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">stride</span><span class="p">,</span><span class="w">           </span><span class="c1">// 步长</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">padding</span><span class="p">,</span><span class="w">          </span><span class="c1">// 填充</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">window_addrs</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="c1">// 4x4窗口地址</span>
+<span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// 二维坐标计算</span>
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">x_pos</span><span class="p">,</span><span class="w"> </span><span class="n">y_pos</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">3</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">window_idx</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="n">x_pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">8</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">y_pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">8</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">            </span><span class="n">window_idx</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">4</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="c1">// 计算窗口内每个位置的地址</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">4</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">4</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                    </span><span class="c1">// 考虑padding</span>
+<span class="w">                    </span><span class="kt">int</span><span class="w"> </span><span class="n">x_abs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">padding</span><span class="p">;</span>
+<span class="w">                    </span><span class="kt">int</span><span class="w"> </span><span class="n">y_abs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">padding</span><span class="p">;</span>
+
+<span class="w">                    </span><span class="c1">// 边界检查</span>
+<span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x_abs</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mh">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">x_abs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>
+<span class="w">                        </span><span class="n">y_abs</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mh">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">y_abs</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">height</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                        </span><span class="n">window_addrs</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mh">4</span><span class="o">+</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">base_addr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y_abs</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">x_abs</span><span class="p">;</span>
+<span class="w">                    </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                        </span><span class="n">window_addrs</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="mh">4</span><span class="o">+</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">16&#39;hFFFF</span><span class="p">;</span><span class="w"> </span><span class="c1">// 无效地址标记</span>
+<span class="w">                    </span><span class="k">end</span>
+<span class="w">                </span><span class="k">end</span>
+<span class="w">            </span><span class="k">end</span>
+
+<span class="w">            </span><span class="c1">// 更新窗口位置</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">window_idx</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mh">4</span><span class="mi">&#39;d15</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                </span><span class="n">x_pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">x_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stride</span><span class="p">;</span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">x_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">width</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                    </span><span class="n">x_pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">8</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">                    </span><span class="n">y_pos</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">y_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stride</span><span class="p">;</span>
+<span class="w">                </span><span class="k">end</span>
+<span class="w">                </span><span class="n">window_idx</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">4</span><span class="mb">&#39;b0</span><span class="p">;</span>
+<span class="w">            </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">                </span><span class="n">window_idx</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">window_idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span>
+<span class="w">            </span><span class="k">end</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h3 id="4-bank">4. 多bank数据对齐</h3>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">multi_bank_alignment</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">clk</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="n">rst_n</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">sram_addrs</span><span class="p">[</span><span class="mh">3</span><span class="o">:</span><span class="mh">0</span><span class="p">],</span><span class="w"> </span><span class="c1">// 4个bank的地址</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">sram_data</span><span class="p">[</span><span class="mh">3</span><span class="o">:</span><span class="mh">0</span><span class="p">],</span><span class="w">  </span><span class="c1">// 4个bank的数据</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">aligned_data</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="c1">// 4x4对齐数据</span>
+<span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// bank交叉访问</span>
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">bank_sel</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">bank_offset</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">0</span><span class="p">];</span>
+
+<span class="w">    </span><span class="c1">// 根据卷积窗口位置选择bank和偏移</span>
+<span class="w">    </span><span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mh">16</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="c1">// 简单的bank交错映射</span>
+<span class="w">            </span><span class="n">bank_sel</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">sram_addrs</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mh">4</span><span class="p">]</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mh">2</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b11</span><span class="p">;</span>
+<span class="w">            </span><span class="n">bank_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sram_addrs</span><span class="p">[</span><span class="n">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mh">4</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="mh">8&#39;hFF</span><span class="p">;</span>
+
+<span class="w">            </span><span class="c1">// 从对应bank读取数据</span>
+<span class="w">            </span><span class="k">case</span><span class="w"> </span><span class="p">(</span><span class="n">bank_sel</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="w">                </span><span class="mh">2</span><span class="mb">&#39;b00</span><span class="o">:</span><span class="w"> </span><span class="n">aligned_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sram_data</span><span class="p">[</span><span class="mh">0</span><span class="p">][</span><span class="n">bank_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mh">8</span><span class="w"> </span><span class="o">+:</span><span class="w"> </span><span class="mh">8</span><span class="p">];</span>
+<span class="w">                </span><span class="mh">2</span><span class="mb">&#39;b01</span><span class="o">:</span><span class="w"> </span><span class="n">aligned_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sram_data</span><span class="p">[</span><span class="mh">1</span><span class="p">][</span><span class="n">bank_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mh">8</span><span class="w"> </span><span class="o">+:</span><span class="w"> </span><span class="mh">8</span><span class="p">];</span>
+<span class="w">                </span><span class="mh">2</span><span class="mb">&#39;b10</span><span class="o">:</span><span class="w"> </span><span class="n">aligned_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sram_data</span><span class="p">[</span><span class="mh">2</span><span class="p">][</span><span class="n">bank_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mh">8</span><span class="w"> </span><span class="o">+:</span><span class="w"> </span><span class="mh">8</span><span class="p">];</span>
+<span class="w">                </span><span class="mh">2</span><span class="mb">&#39;b11</span><span class="o">:</span><span class="w"> </span><span class="n">aligned_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sram_data</span><span class="p">[</span><span class="mh">3</span><span class="p">][</span><span class="n">bank_offset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">*</span><span class="mh">8</span><span class="w"> </span><span class="o">+:</span><span class="w"> </span><span class="mh">8</span><span class="p">];</span>
+<span class="w">            </span><span class="k">endcase</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h2 id="uvm">UVM验证环境</h2>
+<h3 id="_6">验证架构</h3>
+<div class="codehilite" data-lang="Code"><pre><span></span><code>UVM验证环境
+├── 测试层 (test)
+│   ├── tpu_base_test
+│   ├── tpu_smoke_test
+│   ├── tpu_rand_test
+│   └── tpu_fire_test
+├── 环境层 (env)
+│   ├── tpu_env
+│   │   ├── tpu_agent (driver/monitor/sequencer)
+│   │   ├── tpu_scoreboard
+│   │   ├── tpu_coverage
+│   │   └── tpu_virtual_sequencer
+│   └── 配置对象
+├── 序列层 (sequence)
+│   ├── tpu_base_seq
+│   ├── tpu_file_seq (文件驱动)
+│   ├── tpu_rand_seq (随机激励)
+│   └── tpu_smoke_seq (冒烟测试)
+└── 接口层 (interface)
+    └── tpu_if (DPI接口到C模型)
+</code></pre></div>
+
+<h3 id="dpi-c">DPI C模型集成</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// DPI-C接口定义</span>
+<span class="kn">import</span><span class="w"> </span><span class="err">&quot;</span><span class="nn">DPI</span><span class="o">-</span><span class="n">C</span><span class="s">&quot; function void npu_cmodel_init();</span>
+<span class="kn">import</span><span class="w"> </span><span class="err">&quot;</span><span class="nn">DPI</span><span class="o">-</span><span class="n">C</span><span class="s">&quot; function void npu_cmodel_reset();</span>
+<span class="kn">import</span><span class="w"> </span><span class="err">&quot;</span><span class="nn">DPI</span><span class="o">-</span><span class="n">C</span><span class="s">&quot; function int npu_cmodel_execute(</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">insn</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="kt">longint</span><span class="w"> </span><span class="n">data_addr</span><span class="p">,</span>
+<span class="w">    </span><span class="k">input</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">data_len</span><span class="p">,</span>
+<span class="w">    </span><span class="k">output</span><span class="w"> </span><span class="kt">longint</span><span class="w"> </span><span class="n">result</span>
+<span class="p">);</span>
+
+<span class="c1">// UVM driver中使用C模型</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">tpu_driver</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_driver</span><span class="w"> </span><span class="p">#(</span><span class="n">tpu_seq_item</span><span class="p">);</span>
+<span class="w">    </span><span class="k">virtual</span><span class="w"> </span><span class="k">task</span><span class="w"> </span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
+<span class="w">        </span><span class="k">forever</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="n">seq_item_port</span><span class="p">.</span><span class="n">get_next_item</span><span class="p">(</span><span class="n">req</span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 调用C模型执行指令</span>
+<span class="w">            </span><span class="kt">longint</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">npu_cmodel_execute</span><span class="p">(</span>
+<span class="w">                </span><span class="n">req</span><span class="p">.</span><span class="n">insn</span><span class="p">,</span>
+<span class="w">                </span><span class="n">req</span><span class="p">.</span><span class="n">data_addr</span><span class="p">,</span>
+<span class="w">                </span><span class="n">req</span><span class="p">.</span><span class="n">data_len</span><span class="p">,</span>
+<span class="w">                </span><span class="n">result</span>
+<span class="w">            </span><span class="p">);</span>
+
+<span class="w">            </span><span class="c1">// 创建response</span>
+<span class="w">            </span><span class="n">rsp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tpu_seq_item</span><span class="o">::</span><span class="n">type_id</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;rsp&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">rsp</span><span class="p">.</span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+<span class="w">            </span><span class="n">rsp</span><span class="p">.</span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">            </span><span class="n">seq_item_port</span><span class="p">.</span><span class="n">put_response</span><span class="p">(</span><span class="n">rsp</span><span class="p">);</span>
+
+<span class="w">            </span><span class="n">seq_item_port</span><span class="p">.</span><span class="n">item_done</span><span class="p">();</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+
+<span class="c1">// Scoreboard中比对结果</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">tpu_scoreboard</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_scoreboard</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">compare_results</span><span class="p">(</span><span class="n">tpu_seq_item</span><span class="w"> </span><span class="n">req</span><span class="p">,</span><span class="w"> </span><span class="n">tpu_seq_item</span><span class="w"> </span><span class="n">rsp</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 从C模型获取golden结果</span>
+<span class="w">        </span><span class="kt">longint</span><span class="w"> </span><span class="n">golden_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_golden_result</span><span class="p">(</span><span class="n">req</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 比对</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rsp</span><span class="p">.</span><span class="n">result</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="n">golden_result</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">            </span><span class="no">`uvm_error</span><span class="p">(</span><span class="s">&quot;SCOREBOARD&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                </span><span class="p">$</span><span class="n">sformatf</span><span class="p">(</span><span class="s">&quot;Mismatch! Expected: 0x%0h, Got: 0x%0h&quot;</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                </span><span class="n">golden_result</span><span class="p">,</span><span class="w"> </span><span class="n">rsp</span><span class="p">.</span><span class="n">result</span><span class="p">))</span>
+<span class="w">        </span><span class="k">end</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="python-golden-model">Python Golden Model</h3>
+<div class="codehilite" data-lang="Python"><pre><span></span><code><span class="c1"># python/golden_model/fire_test.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NPUGoldenModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">activations</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">,</span> <span class="n">weight_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;加载权重文件&quot;&quot;&quot;</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">weight_file</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">[</span><span class="n">layer_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">conv_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">bias</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;卷积层模拟&quot;&quot;&quot;</span>
+        <span class="c1"># 实现INT8卷积</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+        <span class="c1"># ... 卷积计算逻辑</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_pool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">,</span> <span class="n">pool_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;最大池化&quot;&quot;&quot;</span>
+        <span class="c1"># ... 池化逻辑</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">relu</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ReLU激活&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;前向传播&quot;&quot;&quot;</span>
+        <span class="c1"># Fire module结构</span>
+        <span class="c1"># conv1 -&gt; fire2 -&gt; fire3 -&gt; fire4 -&gt; fire5 -&gt; classifier</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_layer</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fire_module</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+        <span class="c1"># ... 更多层</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+<span class="c1"># 生成测试向量</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_test_vectors</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">NPUGoldenModel</span><span class="p">()</span>
+    <span class="c1"># 加载预训练权重</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="s2">&quot;conv1&quot;</span><span class="p">,</span> <span class="s2">&quot;conv1_weights.txt&quot;</span><span class="p">)</span>
+    <span class="c1"># ... 更多层</span>
+
+    <span class="c1"># 生成输入数据</span>
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="o">-</span><span class="mi">128</span><span class="p">,</span> <span class="mi">127</span><span class="p">,</span> <span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
+
+    <span class="c1"># 运行golden model</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+
+    <span class="c1"># 保存结果用于比对</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="s2">&quot;golden_output.txt&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="_7">验证测试用例</h2>
+<h3 id="1">1. 冒烟测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">tpu_smoke_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">tpu_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 加载简单指令</span>
+<span class="w">        </span><span class="n">tpu_file_seq</span><span class="w"> </span><span class="n">file_seq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tpu_file_seq</span><span class="o">::</span><span class="n">type_id</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;file_seq&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">file_seq</span><span class="p">.</span><span class="n">insn_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;smoke_insn.bin&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">file_seq</span><span class="p">.</span><span class="n">data_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;smoke_data.bin&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 执行</span>
+<span class="w">        </span><span class="n">file_seq</span><span class="p">.</span><span class="n">start</span><span class="p">(</span><span class="n">p_sequencer</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 检查基本功能</span>
+<span class="w">        </span><span class="n">check_basic_functionality</span><span class="p">();</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="2_1">2. 随机测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">tpu_rand_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">tpu_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 随机指令序列</span>
+<span class="w">        </span><span class="n">tpu_rand_seq</span><span class="w"> </span><span class="n">rand_seq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tpu_rand_seq</span><span class="o">::</span><span class="n">type_id</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;rand_seq&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">rand_seq</span><span class="p">.</span><span class="n">num_insn</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span>
+<span class="w">        </span><span class="n">rand_seq</span><span class="p">.</span><span class="n">constraint_mode</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 执行随机测试</span>
+<span class="w">        </span><span class="n">rand_seq</span><span class="p">.</span><span class="n">start</span><span class="p">(</span><span class="n">p_sequencer</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 收集覆盖率</span>
+<span class="w">        </span><span class="n">collect_coverage</span><span class="p">();</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h3 id="3-fire">3. Fire模块完整测试</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">tpu_fire_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">tpu_base_test</span><span class="p">;</span>
+<span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">run_phase</span><span class="p">(</span><span class="n">uvm_phase</span><span class="w"> </span><span class="n">phase</span><span class="p">);</span>
+<span class="w">        </span><span class="c1">// 加载完整Fire网络指令</span>
+<span class="w">        </span><span class="n">tpu_file_seq</span><span class="w"> </span><span class="n">fire_seq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tpu_file_seq</span><span class="o">::</span><span class="n">type_id</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;fire_seq&quot;</span><span class="p">);</span>
+<span class="w">        </span><span class="n">fire_seq</span><span class="p">.</span><span class="n">insn_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;squeezenet_insn.bin&quot;</span><span class="p">;</span>
+<span class="w">        </span><span class="n">fire_seq</span><span class="p">.</span><span class="n">data_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;input_data.bin&quot;</span><span class="p">;</span>
+
+<span class="w">        </span><span class="c1">// 执行完整网络</span>
+<span class="w">        </span><span class="n">fire_seq</span><span class="p">.</span><span class="n">start</span><span class="p">(</span><span class="n">p_sequencer</span><span class="p">);</span>
+
+<span class="w">        </span><span class="c1">// 与golden model比对</span>
+<span class="w">        </span><span class="n">compare_with_golden</span><span class="p">(</span><span class="s">&quot;fire_golden_output.txt&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="k">endtask</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<h2 id="_8">覆盖率模型</h2>
+<h3 id="_9">功能覆盖率</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">covergroup</span><span class="w"> </span><span class="n">tpu_cg</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 指令类型覆盖率</span>
+<span class="w">    </span><span class="nl">insn_type:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">insn</span><span class="p">.</span><span class="n">opcode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">load</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">LOAD</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">store</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">STORE</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">conv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CONV</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">max_pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">MAX_POOL</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">avg_pool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">AVG_POOL</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">classifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CLASSIFIER</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="k">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">CONFIG</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">nop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">NOP</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">halt</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">HALT</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 卷积参数覆盖率</span>
+<span class="w">    </span><span class="nl">conv_params:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="p">{</span><span class="n">insn</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">,</span><span class="w"> </span><span class="n">insn</span><span class="p">.</span><span class="n">stride</span><span class="p">,</span><span class="w"> </span><span class="n">insn</span><span class="p">.</span><span class="n">padding</span><span class="p">}</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 常见组合</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">common_3x3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">common_5x5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">stride_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// 数据对齐覆盖率</span>
+<span class="w">    </span><span class="nl">data_alignment:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">data_addr</span><span class="p">[</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">aligned</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">misaligned</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Cross coverage</span>
+<span class="w">    </span><span class="nl">insn_x_alignment:</span><span class="w"> </span><span class="k">cross</span><span class="w"> </span><span class="n">insn_type</span><span class="p">,</span><span class="w"> </span><span class="n">data_alignment</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// 特殊场景</span>
+<span class="w">    </span><span class="nl">corner_cases:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// 边界条件</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">zero_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">max_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">65535</span><span class="p">};</span>
+<span class="w">        </span><span class="k">bins</span><span class="w"> </span><span class="n">boundary_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="n">xFFF0</span><span class="p">};</span><span class="w"> </span><span class="c1">// 接近4KB边界</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="k">endgroup</span>
+</code></pre></div>
+
+<h3 id="_10">代码覆盖率目标</h3>
+<ul>
+<li><strong>行覆盖率</strong>: &gt;95%</li>
+<li><strong>分支覆盖率</strong>: &gt;90%</li>
+<li><strong>条件覆盖率</strong>: &gt;85%</li>
+<li><strong>FSM覆盖率</strong>: 100%</li>
+</ul>
+<h2 id="_11">后端流程</h2>
+<h3 id="1-dc">1. 逻辑综合 (DC)</h3>
+<div class="codehilite" data-lang="Tcl"><pre><span></span><code><span class="c"># dc/run.tcl</span>
+<span class="k">set</span><span class="w"> </span>target_library<span class="w"> </span><span class="s2">&quot;typical.db&quot;</span>
+<span class="k">set</span><span class="w"> </span>link_library<span class="w"> </span><span class="s2">&quot;* $target_library&quot;</span>
+
+<span class="nv">read_verilog</span><span class="w"> </span><span class="o">-</span>rtl<span class="w"> </span>..<span class="o">/</span>rtl<span class="o">/</span><span class="mo">0414</span><span class="o">/</span>ELEN6350_TPU<span class="o">/</span>TPU_all.v
+<span class="c"># ... 更多文件</span>
+
+<span class="nv">current_design</span><span class="w"> </span>TPU_all
+<span class="nv">link</span>
+
+<span class="c"># 约束</span>
+<span class="nv">create_clock</span><span class="w"> </span><span class="o">-</span>name<span class="w"> </span>clk<span class="w"> </span><span class="o">-</span>period<span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="k">[</span><span class="nv">get_ports</span><span class="w"> </span>clk<span class="k">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="mi">200</span>MHz
+<span class="nv">set_input_delay</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span>clock<span class="w"> </span>clk<span class="w"> </span><span class="k">[</span><span class="nv">all_inputs</span><span class="k">]</span>
+<span class="nv">set_output_delay</span><span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="o">-</span>clock<span class="w"> </span>clk<span class="w"> </span><span class="k">[</span><span class="nv">all_outputs</span><span class="k">]</span>
+
+<span class="c"># 综合</span>
+<span class="nv">compile_ultra</span>
+
+<span class="c"># 报告</span>
+<span class="nv">report_timing</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span>timing.rpt
+<span class="nv">report_area</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span>area.rpt
+<span class="nv">report_power</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span>power.rpt
+
+<span class="nv">write</span><span class="w"> </span><span class="o">-</span>format<span class="w"> </span>verilog<span class="w"> </span><span class="o">-</span>hierarchy<span class="w"> </span><span class="o">-</span>output<span class="w"> </span>TPU_all_syn.v
+<span class="nv">write_sdc</span><span class="w"> </span>TPU_all.sdc
+</code></pre></div>
+
+<h3 id="2-sta">2. 静态时序分析 (STA)</h3>
+<div class="codehilite" data-lang="Tcl"><pre><span></span><code><span class="c"># pt_dc/run_pt.tcl</span>
+<span class="nv">read_verilog</span><span class="w"> </span>TPU_all_syn.v
+<span class="nv">current_design</span><span class="w"> </span>TPU_all
+<span class="nv">link</span>
+
+<span class="nv">read_sdc</span><span class="w"> </span>TPU_all.sdc
+
+<span class="c"># 时序检查</span>
+<span class="nv">report_timing</span><span class="w"> </span><span class="o">-</span>from<span class="w"> </span><span class="k">[</span><span class="nv">all_registers</span><span class="w"> </span><span class="o">-</span>clock_pins<span class="k">]</span><span class="w"> </span><span class="err">\</span>
+<span class="w">              </span><span class="nv">-to</span><span class="w"> </span><span class="k">[</span><span class="nv">all_registers</span><span class="w"> </span><span class="o">-</span>data_pins<span class="k">]</span><span class="w"> </span><span class="err">\</span>
+<span class="w">              </span><span class="nv">-max_paths</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span>setup.rpt
+
+<span class="nv">report_timing</span><span class="w"> </span><span class="o">-</span>from<span class="w"> </span><span class="k">[</span><span class="nv">all_registers</span><span class="w"> </span><span class="o">-</span>clock_pins<span class="k">]</span><span class="w"> </span><span class="err">\</span>
+<span class="w">              </span><span class="nv">-to</span><span class="w"> </span><span class="k">[</span><span class="nv">all_registers</span><span class="w"> </span><span class="o">-</span>data_pins<span class="k">]</span><span class="w"> </span><span class="err">\</span>
+<span class="w">              </span><span class="nv">-delay_type</span><span class="w"> </span>min<span class="w"> </span><span class="o">&gt;</span><span class="w"> </span>hold.rpt
+
+<span class="c"># 违反检查</span>
+<span class="nv">check_timing</span>
+<span class="nv">report_constraint</span><span class="w"> </span><span class="o">-</span>all_violators
+</code></pre></div>
+
+<h3 id="3-innovus">3. 布局布线 (Innovus)</h3>
+<div class="codehilite" data-lang="Tcl"><pre><span></span><code><span class="c"># innovus3/run_innovus.tcl</span>
+<span class="c"># 初始化</span>
+<span class="k">set</span><span class="w"> </span>init_design_netlisttype<span class="w"> </span>Verilog
+<span class="k">set</span><span class="w"> </span>init_verilog<span class="w"> </span>TPU_all_syn.v
+<span class="k">set</span><span class="w"> </span>init_top_cell<span class="w"> </span>TPU_all
+<span class="k">set</span><span class="w"> </span>init_design_settop<span class="w"> </span><span class="mi">1</span>
+
+<span class="c"># 布局</span>
+<span class="nv">floorPlan</span><span class="w"> </span><span class="o">-</span>site<span class="w"> </span>CoreSite<span class="w"> </span><span class="o">-</span>r<span class="w"> </span><span class="mf">1.0</span><span class="w"> </span><span class="mf">0.7</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span><span class="w"> </span><span class="mi">10</span>
+<span class="nv">place_opt_design</span>
+
+<span class="c"># 时钟树综合</span>
+<span class="nv">clock_opt</span><span class="w"> </span><span class="o">-</span>fix_hold_all_clocks
+
+<span class="c"># 布线</span>
+<span class="nv">route_opt</span>
+
+<span class="c"># 物理验证</span>
+<span class="nv">verifyGeometry</span>
+<span class="nv">verifyConnectivity</span>
+
+<span class="c"># 输出</span>
+<span class="nv">streamOut</span><span class="w"> </span>TPU_all.gds<span class="w"> </span><span class="o">-</span>mapFile<span class="w"> </span>stream_out.map
+</code></pre></div>
+
+<h3 id="4">4. 后仿验证</h3>
+<div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 后仿流程</span>
+<span class="c1"># 1. 提取寄生参数</span>
+rcgen<span class="w"> </span>-i<span class="w"> </span>TPU_all.def<span class="w"> </span>-o<span class="w"> </span>TPU_all.spef
+
+<span class="c1"># 2. 生成SDF</span>
+pt_shell<span class="w"> </span>-f<span class="w"> </span>gen_sdf.tcl
+
+<span class="c1"># 3. 后仿</span>
+vcs<span class="w"> </span>-full64<span class="w"> </span>-sverilog<span class="w"> </span>+v2k<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>TPU_all_syn.v<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>../testbench/tb_top.sv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>+define+SDF<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>+neg_tchk<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>simv_post
+
+./simv_post<span class="w"> </span>+sdf+TPU_all.sdf
+</code></pre></div>
+
+<h2 id="_12">性能指标</h2>
+<h3 id="_13">计算性能</h3>
+<ul>
+<li><strong>MAC阵列</strong>: 4x4 INT8, 16次乘加/周期</li>
+<li><strong>时钟频率</strong>: 200MHz (目标), 214MHz (后仿达成)</li>
+<li><strong>峰值性能</strong>: 16 MAC/cycle × 200MHz = 3.2 GMAC/s</li>
+<li><strong>实际性能</strong>: 考虑数据搬运和调度开销，实际约1.6-2.4 GMAC/s</li>
+</ul>
+<h3 id="_14">存储带宽</h3>
+<ul>
+<li><strong>外部接口</strong>: 10MHz, 32位总线 → 40MB/s</li>
+<li><strong>内部带宽</strong>: 200MHz, 多bank并行 → 1.6GB/s</li>
+<li><strong>权重SRAM</strong>: 1KB, 支持并行读取4个权重</li>
+</ul>
+<h3 id="_15">能效比</h3>
+<ul>
+<li><strong>计算能效</strong>: ~10 TOPS/W (INT8)</li>
+<li><strong>面积效率</strong>: ~5 GOPS/mm²</li>
+<li><strong>功耗</strong>: &lt;100mW @ 200MHz</li>
+</ul>
+<h2 id="_16">调试经验</h2>
+<h3 id="1-csabug">1. CSA加法器bug</h3>
+<p><strong>现象</strong>: 在某些输入模式下，累加器结果错误
+<strong>定位</strong>: 
+1. 通过波形分析发现特定输入模式下的错误
+2. 使用assertion检查CSA加法器中间结果
+3. 对比RTL和C模型输出，定位到特定模块</p>
+<p><strong>修复</strong>:</p>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="c1">// 修复前</span>
+<span class="k">assign</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+
+<span class="c1">// 修复后 - 使用进位保存加法器</span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">s</span><span class="p">,</span><span class="w"> </span><span class="n">c_out</span><span class="p">;</span>
+<span class="k">assign</span><span class="w"> </span><span class="p">{</span><span class="n">c_out</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<span class="k">assign</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">c_out</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mh">1</span><span class="p">);</span>
+</code></pre></div>
+
+<h3 id="2-input-buffer">2. Input Buffer竞争条件</h3>
+<p><strong>现象</strong>: 在背靠背load指令时数据丢失
+<strong>定位</strong>:
+1. 添加transaction-level debug打印
+2. 分析buffer指针更新时序
+3. 发现read和write指针更新存在竞争</p>
+<p><strong>修复</strong>:</p>
+<div class="codehilite" data-lang="Verilog"><pre><span></span><code><span class="c1">// 修复前 - 组合逻辑更新指针</span>
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_en</span><span class="p">)</span><span class="w"> </span><span class="n">wr_ptr_next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wr_ptr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span>
+<span class="k">end</span>
+
+<span class="c1">// 修复后 - 时序逻辑更新，避免竞争</span>
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="n">wr_ptr</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_en</span><span class="p">)</span><span class="w"> </span><span class="n">wr_ptr</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">wr_ptr</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<h3 id="3_1">3. 时序收敛问题</h3>
+<p><strong>关键路径</strong>: MAC阵列到累加器的数据通路
+<strong>优化措施</strong>:
+1. <strong>流水线插入</strong>: 在关键路径添加寄存器
+2. <strong>逻辑重构</strong>: 使用进位选择加法器
+3. <strong>约束优化</strong>: 调整时钟不确定性(margin)
+4. <strong>物理优化</strong>: 布局时靠近放置相关单元</p>
+<h2 id="_17">项目经验总结</h2>
+<h3 id="_18">技术收获</h3>
+<ol>
+<li><strong>完整芯片开发流程</strong>: 从架构设计到流片的完整经验</li>
+<li><strong>神经网络加速器设计</strong>: INT8量化、MAC阵列、数据流优化</li>
+<li><strong>高级验证方法</strong>: UVM+DPI混合验证、覆盖率驱动</li>
+<li><strong>后端设计技能</strong>: 综合、STA、P&amp;R、后仿</li>
+</ol>
+<h3 id="_19">验证经验</h3>
+<ol>
+<li><strong>混合语言验证</strong>: SystemVerilog + C + Python协同验证</li>
+<li><strong>性能验证</strong>: 不仅功能正确，还要验证性能指标</li>
+<li><strong>功耗验证</strong>: 评估不同工作负载下的功耗</li>
+<li><strong>可靠性验证</strong>: 错误注入、边界条件测试</li>
+</ol>
+<h3 id="_20">团队协作</h3>
+<ol>
+<li><strong>跨团队协作</strong>: 前端设计、验证、后端团队的协作</li>
+<li><strong>文档管理</strong>: 设计文档、验证计划、测试报告</li>
+<li><strong>版本控制</strong>: Git管理RTL、脚本、文档</li>
+<li><strong>持续集成</strong>: 自动化回归测试流程</li>
+</ol>
+<h2 id="_21">面试准备要点</h2>
+<h3 id="_22">架构设计问题</h3>
+<ol>
+<li><strong>为什么选择4x4 MAC阵列?</strong> 平衡面积和性能</li>
+<li><strong>INT8累加器位宽选择?</strong> 考虑累加深度和溢出风险</li>
+<li><strong>存储层次设计?</strong> 平衡带宽、容量和功耗</li>
+</ol>
+<h3 id="_23">验证问题</h3>
+<ol>
+<li><strong>如何验证计算正确性?</strong> DPI C模型作为golden reference</li>
+<li><strong>覆盖率如何收敛?</strong> 功能覆盖率+代码覆盖率组合</li>
+<li><strong>遇到的最难bug?</strong> CSA加法器或input buffer竞争条件</li>
+</ol>
+<h3 id="_24">后端问题</h3>
+<ol>
+<li><strong>关键路径是什么?</strong> MAC到accumulator数据通路</li>
+<li><strong>如何优化时序?</strong> 流水线、逻辑重构、物理优化</li>
+<li><strong>后仿频率如何?</strong> 214MHz，满足200MHz目标</li>
+</ol>
+<h3 id="_25">扩展问题</h3>
+<ol>
+<li><strong>如果重做会改进什么?</strong> 更好的数据流架构、更丰富的指令集</li>
+<li><strong>支持其他网络?</strong> 可以扩展支持ResNet、MobileNet等</li>
+<li><strong>商业化考虑?</strong> 面积优化、功耗优化、软件栈开发</li>
+</ol>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

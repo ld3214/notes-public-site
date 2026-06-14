@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ASIC/DV Notebook - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link active" href="index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="projects-hr/index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="projects-hr/axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="projects-hr/ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="projects-hr/ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">index.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="asicdv-notebook">ASIC/DV Notebook</h1>
+<p>这是总入口。想快速复习时，从这里开始；想新增材料时，先放 <a href="inbox.html">Inbox</a>，再归档到对应模块。</p>
+<h2 id="_1">今天优先看</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>复盘真实面试</td>
+<td><a href="actual-interviews/questions.html#actual-question-table">真实问题表</a> / <a href="actual-interviews/questions.html#review-board">复盘看板</a></td>
+</tr>
+<tr>
+<td>刷高频题</td>
+<td><a href="question-bank/question-bank.html#qb-systemverilog-uvm">面试题库</a></td>
+</tr>
+<tr>
+<td>刷笔试题</td>
+<td><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">2026 数字 IC 公司卷整理</a></td>
+</tr>
+<tr>
+<td>系统补知识</td>
+<td><a href="knowledge-base/index.html">知识库导航</a></td>
+</tr>
+<tr>
+<td>准备项目讲述</td>
+<td><a href="projects-hr/projects-and-behavioral.html#project-stories">项目故事库</a></td>
+</tr>
+<tr>
+<td>准备投递公司</td>
+<td><a href="company-sites.html#chengdu-sites">公司 Site 清单</a></td>
+</tr>
+<tr>
+<td>查术语</td>
+<td><a href="glossary.html">Glossary</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">复习路线</h2>
+<ol>
+<li><strong>真实问题优先</strong>：先看 <a href="actual-interviews/questions.html#actual-p0">P0 复盘项</a>，把被问过的问题讲顺。</li>
+<li><strong>项目表达</strong>：准备 <a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM</a>、<a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU</a>、<a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V</a> 三个主项目。</li>
+<li><strong>UVM/DV 高频</strong>：重点看 <a href="knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-ral">RAL</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a>、<a href="knowledge-base/design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a>、<a href="knowledge-base/design-verification.html#functional-coverage">Coverage</a>。</li>
+<li><strong>协议和 RTL 手撕</strong>：看 <a href="knowledge-base/protocols.html#axi-outstanding">AXI outstanding/interleaving</a>、<a href="knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a>、<a href="knowledge-base/asic-frontend.html#find-first-one">find first one</a>、<a href="knowledge-base/asic-frontend.html#one-hot">one-hot</a>。</li>
+<li><strong>书籍整理速刷</strong>：看 <a href="knowledge-base/asic-frontend.html#book-dv-logic-architecture">数字逻辑与体系结构</a>、<a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础</a>、<a href="knowledge-base/systemverilog-uvm.html#book-sv-verilog-checklist">SV/Verilog 语法清单</a>、<a href="knowledge-base/systemverilog-uvm.html#book-uvm-interview-checklist">UVM 高频问法</a>。</li>
+</ol>
+<h2 id="_3">主目录</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>内容</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Actual Interviews</td>
+<td>自己真实被问过的问题，保留原始问法</td>
+<td><a href="actual-interviews/index.html">actual-interviews/README.md</a></td>
+</tr>
+<tr>
+<td>Knowledge Base</td>
+<td>ASIC 前端、DV、SystemVerilog/UVM、协议正文</td>
+<td><a href="knowledge-base/index.html">knowledge-base/README.md</a></td>
+</tr>
+<tr>
+<td>Question Bank</td>
+<td>通用题库和网上面经，适合刷题</td>
+<td><a href="question-bank/index.html">question-bank/README.md</a></td>
+</tr>
+<tr>
+<td>Projects / HR</td>
+<td>项目 STAR、英文回答、行为面</td>
+<td><a href="projects-hr/index.html">projects-hr/README.md</a></td>
+</tr>
+<tr>
+<td>Company Sites</td>
+<td>投递公司和城市 site 清单，成都 site 单独标注</td>
+<td><a href="company-sites.html">company-sites.md</a></td>
+</tr>
+<tr>
+<td>Glossary</td>
+<td>缩写和术语速查</td>
+<td><a href="glossary.html">glossary.md</a></td>
+</tr>
+<tr>
+<td>Inbox</td>
+<td>未归档材料暂存</td>
+<td><a href="inbox.html">inbox.md</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">知识库</h2>
+<ul>
+<li><a href="knowledge-base/asic-frontend.html#asic-overview">ASIC Frontend</a></li>
+<li><a href="knowledge-base/design-verification.html#dv-overview">Design Verification</a></li>
+<li><a href="knowledge-base/systemverilog-uvm.html#sv-overview">SystemVerilog / UVM</a></li>
+<li><a href="knowledge-base/protocols.html#protocol-overview">Protocols</a></li>
+<li><a href="knowledge-base/index.html#高频复习入口">Cracking Digital VLSI Verification Interview 书籍整理入口</a></li>
+</ul>
+<h2 id="_5">题库</h2>
+<ul>
+<li><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">笔试题：2026 数字 IC 公司卷整理</a></li>
+<li><a href="question-bank/question-bank.html#qb-asic-frontend">ASIC Frontend</a></li>
+<li><a href="question-bank/question-bank.html#qb-design-verification">Design Verification</a></li>
+<li><a href="question-bank/question-bank.html#qb-systemverilog-uvm">SystemVerilog / UVM</a></li>
+<li><a href="question-bank/question-bank.html#qb-protocols">Protocols</a></li>
+<li><a href="question-bank/dv-online-digest.html#common-directions">DV 网上面经知识点汇总</a></li>
+</ul>
+<h2 id="_6">项目</h2>
+<ul>
+<li><a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM 验证项目</a> / <a href="projects-hr/axi-dma-uvm-details.html">详细技术实现</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a> / <a href="projects-hr/int8-npu-tapeout-details.html">详细技术实现</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V 处理器项目</a> / <a href="projects-hr/ooo-riscv-details.html">详细技术实现</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">详细技术实现</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级场景</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">checker 分工</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-ibex-rv32im-uvm">Ibex RV32IM UVM / 官方 DV Bring-up 项目</a> / <a href="projects-hr/ibex-rv32im-uvm-details.html">详细技术实现</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-apb-uart">APB-UART UVM 验证环境</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-async-fifo">Async FIFO UVM 验证</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-tvip-axi">TVIP-AXI Crossbar 验证</a></li>
+</ul>
+<h2 id="_7">模板</h2>
+<ul>
+<li><a href="templates/topic-note-template.html">知识点模板</a></li>
+<li><a href="templates/interview-question-template.html">面试题模板</a></li>
+<li><a href="templates/project-story-template.html">项目故事模板</a></li>
+</ul>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "";</script>
+  <script src="assets/search-data.js"></script>
+  <script src="assets/search.js"></script>
+</body>
+</html>

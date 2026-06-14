@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ibex RV32IM UVM 验证项目 - 详细技术实现 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link active" href="ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">projects-hr/ibex-rv32im-uvm-details.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <h1 id="ibex-rv32im-uvm-">Ibex RV32IM UVM 验证项目 - 详细技术实现</h1>
+<h2 id="_1">项目定位</h2>
+<p>这是一个基于 lowRISC Ibex 开源 RISC-V core 的前端验证项目，工程路径为：</p>
+<p><code>C:\Users\28724\Desktop\IC_EDA_Lite（精简版50G）\virtual\IC_EDA_Lite\share\ibex_rv32im_uvm_verification</code></p>
+<p>项目目标不是重新设计 Ibex，而是围绕 Ibex core 搭建一个面试可讲的验证平台：</p>
+<ul>
+<li>用 <code>simple_system</code> 路径跑真实 RTL directed program，证明 DUT 能编译、运行指令、访问 memory 并正常结束。</li>
+<li>搭建轻量 UVM scaffold，明确 test / env / sequence / item / scoreboard / coverage 的分层。</li>
+<li>后续把 UVM scaffold 接到 DUT 的 memory interface 和 commit/RVFI monitor，实现 instruction-level checking。</li>
+<li>官方 <code>core_ibex</code> UVM/riscv-dv/Spike flow 作为参考和扩展方向，而不是项目叙述主线。</li>
+</ul>
+<p><a id="ibex-project-parameters"></a></p>
+<h2 id="_2">项目关键参数</h2>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>当前工程参数</th>
+<th>面试讲法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DUT wrapper</td>
+<td><code>ibex_simple_system</code></td>
+<td>不是重新设计 CPU，而是在 simple system 上做 RTL bring-up 和 DV scaffold</td>
+</tr>
+<tr>
+<td>ISA config</td>
+<td><code>RV32MFast</code>、<code>RV32BNone</code>、<code>RV32Zca</code></td>
+<td>RV32IMC-style baseline：M 扩展打开，bitmanip 关闭，compressed Zca 打开</td>
+</tr>
+<tr>
+<td>Register file</td>
+<td><code>RegFileFF</code></td>
+<td>FF regfile，适合本地仿真和移植</td>
+</tr>
+<tr>
+<td>Memory / bus</td>
+<td>simple system 32-bit local memory/data path</td>
+<td>当前不夸大成完整 SoC/AXI interconnect 验证</td>
+</tr>
+<tr>
+<td>默认关闭项</td>
+<td>I-cache、branch predictor、writeback stage、PMP、debug trigger 等本地 baseline 未打开</td>
+<td>面试时说明这些是官方 Ibex/后续扩展方向</td>
+</tr>
+<tr>
+<td>Regression guard</td>
+<td><code>ProgramFile</code> 选择 <code>.vmem</code>，<code>TimeoutCycles=2000</code></td>
+<td>directed program 作为真实指令流激励，防止 hang 住</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dut-rtl">DUT / RTL 结构</h2>
+<p>本地 RTL baseline 使用 Ibex 的 <code>examples/simple_system</code> wrapper。这个 wrapper 把 Ibex core 放在一个最小系统里，便于直接加载程序并运行。</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>simple_system testbench
+  └── ibex_simple_system
+        ├── ibex_top / ibex_core
+        │     ├── IF stage / prefetch / compressed decoder
+        │     ├── ID stage / decoder / register file
+        │     ├── EX block / ALU / mult-div
+        │     ├── load-store unit
+        │     ├── controller / CSR
+        │     └── WB stage / tracer
+        ├── RAM
+        ├── timer
+        └── simulator_ctrl
+</code></pre></div>
+
+<p>当前 testbench 中 Ibex 配置为：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">ibex_simple_system</span><span class="w"> </span><span class="p">#(</span>
+<span class="w">  </span><span class="p">.</span><span class="n">RV32M</span><span class="p">(</span><span class="n">ibex_pkg</span><span class="o">::</span><span class="n">RV32MFast</span><span class="p">),</span>
+<span class="w">  </span><span class="p">.</span><span class="n">RV32B</span><span class="p">(</span><span class="n">ibex_pkg</span><span class="o">::</span><span class="n">RV32BNone</span><span class="p">),</span>
+<span class="w">  </span><span class="p">.</span><span class="n">RV32ZC</span><span class="p">(</span><span class="n">ibex_pkg</span><span class="o">::</span><span class="n">RV32Zca</span><span class="p">),</span>
+<span class="w">  </span><span class="p">.</span><span class="n">RegFile</span><span class="p">(</span><span class="n">ibex_pkg</span><span class="o">::</span><span class="n">RegFileFF</span><span class="p">),</span>
+<span class="w">  </span><span class="p">.</span><span class="n">SRAMInitFile</span><span class="p">(</span><span class="n">ProgramFile</span><span class="p">)</span>
+<span class="p">)</span><span class="w"> </span><span class="n">dut</span><span class="w"> </span><span class="p">(...);</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>选择</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>RV32MFast</code></td>
+<td>快速乘除法实现</td>
+<td>支持 RV32M multiply/divide 类指令</td>
+</tr>
+<tr>
+<td><code>RV32BNone</code></td>
+<td>关闭 bitmanip</td>
+<td>避免本地旧 RISC-V GCC/assembler 不支持 B/Zb 扩展</td>
+</tr>
+<tr>
+<td><code>RV32Zca</code></td>
+<td>支持 compressed 基础子集</td>
+<td>覆盖 compressed decode 路径</td>
+</tr>
+<tr>
+<td><code>RegFileFF</code></td>
+<td>FF register file</td>
+<td>仿真和移植最直接</td>
+</tr>
+<tr>
+<td><code>SRAMInitFile</code></td>
+<td>从 <code>.vmem</code> 初始化 RAM</td>
+<td>directed program 作为激励源</td>
+</tr>
+</tbody>
+</table>
+<h2 id="rtl-testbench">本地 RTL Testbench</h2>
+<p>本地 RTL testbench 文件：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>rtl_tb/simple_system_smoke_tb.sv
+rtl_tb/ibex_simple_system_files.f
+</code></pre></div>
+
+<p><code>simple_system_tb_base</code> 是公共 testbench base，通过参数 <code>ProgramFile</code> 选择不同 <code>.vmem</code> 程序：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">simple_system_tb_base</span><span class="w"> </span><span class="p">#(</span>
+<span class="w">  </span><span class="k">parameter</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="n">ProgramFile</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;programs/smoke.vmem&quot;</span>
+<span class="p">);</span>
+<span class="w">  </span><span class="k">localparam</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">TimeoutCycles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span><span class="p">;</span>
+
+<span class="w">  </span><span class="kt">logic</span><span class="w"> </span><span class="n">io_clk</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">logic</span><span class="w"> </span><span class="n">io_rst_n</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">ibex_simple_system</span><span class="w"> </span><span class="p">#(</span>
+<span class="w">    </span><span class="p">.</span><span class="n">SRAMInitFile</span><span class="p">(</span><span class="n">ProgramFile</span><span class="p">)</span>
+<span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="n">dut</span><span class="w"> </span><span class="p">(...);</span>
+
+<span class="w">  </span><span class="k">initial</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="k">repeat</span><span class="w"> </span><span class="p">(</span><span class="n">TimeoutCycles</span><span class="p">)</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">dut</span><span class="p">.</span><span class="n">clk_sys</span><span class="p">);</span>
+<span class="w">    </span><span class="p">$</span><span class="n">fatal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Timeout: %s did not request simulation finish&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ProgramFile</span><span class="p">);</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<p>然后派生出多个 directed test top：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">simple_system_smoke_tb</span><span class="p">;</span>
+<span class="w">  </span><span class="n">simple_system_tb_base</span><span class="w"> </span><span class="p">#(.</span><span class="n">ProgramFile</span><span class="p">(</span><span class="s">&quot;programs/smoke.vmem&quot;</span><span class="p">))</span><span class="w"> </span><span class="n">tb</span><span class="p">();</span>
+<span class="k">endmodule</span>
+
+<span class="k">module</span><span class="w"> </span><span class="n">simple_system_alu_tb</span><span class="p">;</span>
+<span class="w">  </span><span class="n">simple_system_tb_base</span><span class="w"> </span><span class="p">#(.</span><span class="n">ProgramFile</span><span class="p">(</span><span class="s">&quot;programs/alu_directed.vmem&quot;</span><span class="p">))</span><span class="w"> </span><span class="n">tb</span><span class="p">();</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<p>这个结构的好处：</p>
+<ul>
+<li>同一个 DUT/testbench base 可以复用。</li>
+<li>每个 test 只通过 <code>ProgramFile</code> 替换激励。</li>
+<li>timeout 统一放在 base testbench，防止程序跑飞或没有写 halt register 时仿真挂死。</li>
+</ul>
+<h2 id="_3">激励如何发送</h2>
+<p>当前可运行 baseline 的激励不是 pin-level driver 直接打信号，而是 <strong>software-driven stimulus</strong>：</p>
+<ol>
+<li>手写小型 RISC-V 程序。</li>
+<li>汇编/转成 <code>.vmem</code> 或直接维护 <code>.vmem</code>。</li>
+<li>testbench 通过 <code>SRAMInitFile</code> 把程序加载到 Ibex simple_system RAM。</li>
+<li>reset 释放后，Ibex 从 boot address 开始取指执行。</li>
+<li>程序通过普通 load/store/branch/ALU 指令刺激 core 内部 pipeline、LSU、register file、branch path 和 memory system。</li>
+<li>程序结束时写 simulator control halt register，作为 pass/end-of-test 事件。</li>
+</ol>
+<p>例如 <code>smoke.vmem</code> 的意图是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>lui   x1, 0x20        // simulator control base
+addi  x2, x0, 1       // x2 = 1
+sw    x2, 8(x1)       // write halt bit
+jal   x0, 0           // fallback loop if halt write fails
+</code></pre></div>
+
+<p>对应 <code>.vmem</code>：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>000200b7
+00100113
+0020a423
+0000006f
+</code></pre></div>
+
+<p>当前 directed programs：</p>
+<table>
+<thead>
+<tr>
+<th>程序</th>
+<th>主要激励</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>smoke.vmem</code></td>
+<td>boot、基本 addi/store、写 halt register</td>
+</tr>
+<tr>
+<td><code>alu_directed.vmem</code></td>
+<td>简单整数运算，检查 ALU result 后 halt</td>
+</tr>
+<tr>
+<td><code>branch_directed.vmem</code></td>
+<td>taken loop branch，覆盖 branch path</td>
+</tr>
+<tr>
+<td><code>load_store_directed.vmem</code></td>
+<td>RAM store/load，覆盖 LSU 和 memory side effect</td>
+</tr>
+</tbody>
+</table>
+<p>这种激励方式更接近 CPU 验证常见模式：不是直接 force 内部信号，而是通过 instruction stream 让 core 自然执行，结果从 architectural state / memory side effect / halt 行为观察。</p>
+<h2 id="_4">结果如何验证</h2>
+<p>当前 RTL baseline 的结果检查分三层：</p>
+<h3 id="1-end-of-test">1. End-of-test 检查</h3>
+<p>程序成功时会写 <code>simulator_ctrl</code> 的 halt register。Ibex simple_system 收到 halt 请求后结束仿真。若程序没有正确执行到 halt，testbench timeout：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">repeat</span><span class="w"> </span><span class="p">(</span><span class="n">TimeoutCycles</span><span class="p">)</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">dut</span><span class="p">.</span><span class="n">clk_sys</span><span class="p">);</span>
+<span class="p">$</span><span class="n">fatal</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Timeout: %s did not request simulation finish&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ProgramFile</span><span class="p">);</span>
+</code></pre></div>
+
+<p>这能检查：</p>
+<ul>
+<li>core 是否正常取指。</li>
+<li>程序是否跑到预期结束点。</li>
+<li>branch/load/store 是否没有导致程序跑飞。</li>
+<li>simulator control register 是否被正确写到。</li>
+</ul>
+<h3 id="2-directed-program">2. Directed program 自检查</h3>
+<p>更复杂的 <code>.vmem</code> 程序在软件内部做 self-check：</p>
+<ul>
+<li>ALU test：计算结果与 expected value 比较。</li>
+<li>Branch test：通过 loop counter / branch path 确认 taken 行为。</li>
+<li>Load/store test：写 RAM 后再读回比较。</li>
+</ul>
+<p>如果比较失败，程序不会写 halt register，而是进入 fallback loop，最终由 testbench timeout 报错。这样检查逻辑留在程序里，testbench 不需要知道每条指令的内部细节。</p>
+<h3 id="3-uvm-scoreboard">3. 后续 UVM scoreboard 目标</h3>
+<p>UVM scoreboard 规划检查更细粒度的 commit-level 信息：</p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PC</td>
+<td>DUT commit PC 与 reference PC 一致</td>
+</tr>
+<tr>
+<td>GPR writeback</td>
+<td>destination register index/value 与 reference model 一致</td>
+</tr>
+<tr>
+<td>Memory write</td>
+<td>store address/data/byte enable 与预期一致</td>
+</tr>
+<tr>
+<td>Exception</td>
+<td>illegal/misaligned/trap cause 与 reference 一致</td>
+</tr>
+<tr>
+<td>End state</td>
+<td>程序结束时 architectural state digest 一致</td>
+</tr>
+</tbody>
+</table>
+<p>当前 scaffold 中 <code>ibex_scoreboard</code> 已有最小 PC compare 接口：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">write_commit</span><span class="p">(</span><span class="kt">bit</span><span class="w"> </span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">dut_pc</span><span class="p">,</span><span class="w"> </span><span class="kt">bit</span><span class="w"> </span><span class="p">[</span><span class="mi">31</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">ref_pc</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">dut_pc</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="n">ref_pc</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="no">`uvm_error</span><span class="p">(</span><span class="n">get_type_name</span><span class="p">(),</span>
+<span class="w">      </span><span class="p">$</span><span class="n">sformatf</span><span class="p">(</span><span class="s">&quot;PC mismatch: dut=0x%08x ref=0x%08x&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">dut_pc</span><span class="p">,</span><span class="w"> </span><span class="n">ref_pc</span><span class="p">))</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">endfunction</span>
+</code></pre></div>
+
+<p>后续接 RVFI/commit monitor 后，这个接口会扩展成完整 commit item compare。</p>
+<h2 id="uvm">UVM 结构</h2>
+<p>当前轻量 UVM scaffold 位于：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>uvm_tb/
+  ibex_uvm_pkg.sv
+  tb_top.sv
+  env/
+    ibex_env.sv
+    ibex_scoreboard.sv
+  seq/
+    ibex_instr_item.sv
+    ibex_smoke_seq.sv
+  tests/
+    ibex_base_test.sv
+  cov/
+    ibex_func_cov.sv
+  ref/
+    README.md
+</code></pre></div>
+
+<p>Package 统一 include：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kn">package</span><span class="w"> </span><span class="n">ibex_uvm_pkg</span><span class="p">;</span>
+<span class="w">  </span><span class="k">import</span><span class="w"> </span><span class="n">uvm_pkg</span><span class="o">::*</span><span class="p">;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;uvm_macros.svh&quot;</span>
+
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_instr_item.sv&quot;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_smoke_seq.sv&quot;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_func_cov.sv&quot;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_scoreboard.sv&quot;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_env.sv&quot;</span>
+<span class="w">  </span><span class="no">`include</span><span class="w"> </span><span class="s">&quot;ibex_base_test.sv&quot;</span>
+<span class="k">endpackage</span>
+</code></pre></div>
+
+<p>顶层：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">tb_top</span><span class="p">;</span>
+<span class="w">  </span><span class="k">import</span><span class="w"> </span><span class="n">uvm_pkg</span><span class="o">::*</span><span class="p">;</span>
+<span class="w">  </span><span class="k">import</span><span class="w"> </span><span class="n">ibex_uvm_pkg</span><span class="o">::*</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">initial</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="n">run_test</span><span class="p">(</span><span class="s">&quot;ibex_base_test&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h3 id="uvm_1">UVM 组件分工</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>当前职责</th>
+<th>后续扩展</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ibex_base_test</code></td>
+<td>创建 env，控制 objection，证明 UVM scaffold 可运行</td>
+<td>派生 smoke/alu/branch/load-store/random tests</td>
+</tr>
+<tr>
+<td><code>ibex_env</code></td>
+<td>创建 scoreboard 和 functional coverage</td>
+<td>加 env_cfg、agent、virtual sequencer、reference model</td>
+</tr>
+<tr>
+<td><code>ibex_instr_item</code></td>
+<td>描述一条 instruction stimulus：<code>instr_word</code> + <code>pc</code></td>
+<td>扩展 opcode/rs/rd/imm/expected side effect</td>
+</tr>
+<tr>
+<td><code>ibex_smoke_seq</code></td>
+<td>随机生成若干 instruction item</td>
+<td>后续生成 directed/random instruction stream 或 program image</td>
+</tr>
+<tr>
+<td><code>ibex_scoreboard</code></td>
+<td>最小 PC compare 方法</td>
+<td>扩展为 commit stream vs reference model compare</td>
+</tr>
+<tr>
+<td><code>ibex_func_cov</code></td>
+<td>按 instruction opcode 采样 coverage</td>
+<td>加 cross coverage：instr type × operand corner × branch/load/store</td>
+</tr>
+</tbody>
+</table>
+<h2 id="uvm_2">UVM 激励怎么发</h2>
+<p>当前 <code>ibex_smoke_seq</code> 展示的是标准 UVM sequence/item 发送方式：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">repeat</span><span class="w"> </span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="n">item</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ibex_instr_item</span><span class="o">::</span><span class="n">type_id</span><span class="o">::</span><span class="n">create</span><span class="p">(</span><span class="s">&quot;item&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">start_item</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">item</span><span class="p">.</span><span class="n">randomize</span><span class="p">())</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="no">`uvm_error</span><span class="p">(</span><span class="n">get_type_name</span><span class="p">(),</span><span class="w"> </span><span class="s">&quot;Failed to randomize instruction item&quot;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end</span>
+<span class="w">  </span><span class="n">finish_item</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>这个模式对应真实环境中的两种扩展方向：</p>
+<h3 id="ainstruction-item-program-image">方向 A：Instruction item -&gt; program image</h3>
+<p>sequence 随机/定向生成 <code>ibex_instr_item</code>，再由 program builder 写入 memory image：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>ibex_smoke_seq
+  -&gt; ibex_instr_item stream
+  -&gt; program/memory image builder
+  -&gt; RAM preload
+  -&gt; Ibex executes instruction stream
+</code></pre></div>
+
+<p>优点：</p>
+<ul>
+<li>适合 CPU verification。</li>
+<li>激励通过真实 instruction stream 进入 DUT。</li>
+<li>比 pin-level force 更接近真实软件执行场景。</li>
+</ul>
+<h3 id="bvirtual-sequence">方向 B：Virtual sequence 控制场景</h3>
+<p>后续 virtual sequence 不直接操作内部 RTL，而是协调：</p>
+<ul>
+<li>选择 directed program 或随机 instruction stream。</li>
+<li>初始化 memory。</li>
+<li>配置 reset / timeout / end condition。</li>
+<li>启动 reference model。</li>
+<li>等待 halt / commit count / timeout。</li>
+<li>收集 scoreboard 和 coverage 结果。</li>
+</ul>
+<p>目标结构：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>ibex_base_vseq
+  ├── load_program(&quot;alu_directed.vmem&quot;)
+  ├── start_reference_model()
+  ├── release_reset()
+  ├── wait_for_halt_or_timeout()
+  └── check_scoreboard()
+</code></pre></div>
+
+<h2 id="monitor-scoreboard">Monitor / Scoreboard 怎么验证结果</h2>
+<p>后续接 DUT 后，推荐使用 commit/RVFI monitor，而不是只看 pin-level bus：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>DUT commit/RVFI signals
+  -&gt; rvfi_monitor
+  -&gt; ibex_commit_item
+  -&gt; scoreboard
+  -&gt; compare with reference model / ISS
+</code></pre></div>
+
+<p>一个 commit item 应包含：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pc_rdata</code> / <code>pc_wdata</code></td>
+<td>检查 PC progression 和 branch/jump target</td>
+</tr>
+<tr>
+<td><code>instr</code></td>
+<td>coverage 分类和 reference decode</td>
+</tr>
+<tr>
+<td><code>rd_addr</code> / <code>rd_wdata</code></td>
+<td>检查 GPR writeback</td>
+</tr>
+<tr>
+<td><code>mem_addr</code> / <code>mem_wdata</code> / <code>mem_rdata</code> / <code>mem_wmask</code></td>
+<td>检查 load/store side effect</td>
+</tr>
+<tr>
+<td><code>trap</code> / <code>exception cause</code></td>
+<td>检查 illegal/misaligned/interrupt/trap</td>
+</tr>
+<tr>
+<td><code>order</code></td>
+<td>确保 commit order 单调递增</td>
+</tr>
+</tbody>
+</table>
+<p>Scoreboard 检查流程：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>rvfi_monitor.write(commit_item)
+  -&gt; scoreboard receives DUT commit
+  -&gt; reference model steps one instruction
+  -&gt; compare PC / rd write / memory / trap
+  -&gt; report UVM_ERROR on mismatch
+</code></pre></div>
+
+<p>对 directed program，也可以做 end-state compare：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>program finishes
+  -&gt; read final architectural digest
+  -&gt; compare expected register/memory values
+  -&gt; no mismatch and halt reached = PASS
+</code></pre></div>
+
+<h2 id="functional-coverage">Functional Coverage</h2>
+<p>当前 <code>ibex_func_cov</code> 已经按 opcode 做基础分类：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">covergroup</span><span class="w"> </span><span class="n">instr_cg</span><span class="p">;</span>
+<span class="w">  </span><span class="nl">opcode_cp:</span><span class="w"> </span><span class="k">coverpoint</span><span class="w"> </span><span class="n">opcode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">alu_reg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b0110011</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">alu_imm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b0010011</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">load</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b0000011</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">store</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b0100011</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">branch</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b1100011</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">jal</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b1101111</span><span class="p">};</span>
+<span class="w">    </span><span class="k">bins</span><span class="w"> </span><span class="n">jalr</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mb">7&#39;b1100111</span><span class="p">};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="k">endgroup</span>
+</code></pre></div>
+
+<p>后续 coverage plan：</p>
+<table>
+<thead>
+<tr>
+<th>Coverage</th>
+<th>Bins</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instruction group</td>
+<td>ALU reg/imm、load、store、branch、JAL、JALR、CSR、M extension</td>
+</tr>
+<tr>
+<td>Operand corner</td>
+<td>zero、all ones、sign bit、same rs/rd、x0 source/destination</td>
+</tr>
+<tr>
+<td>Branch behavior</td>
+<td>taken/not taken、forward/backward target、back-to-back branch</td>
+</tr>
+<tr>
+<td>Load/store</td>
+<td>byte/half/word、signed/unsigned、aligned/misaligned、same-address RAW</td>
+</tr>
+<tr>
+<td>Pipeline event</td>
+<td>stall、flush、branch redirect、exception flush</td>
+</tr>
+<tr>
+<td>End condition</td>
+<td>normal halt、timeout、expected trap</td>
+</tr>
+</tbody>
+</table>
+<p>Coverage subscriber 接收 monitor 发来的 instruction/commit item，不应该直接从 sequence 采样。这样 coverage 反映的是 DUT 实际执行过的指令，而不是“曾经生成过”的指令。</p>
+<h2 id="reference-model">Reference Model 策略</h2>
+<p>项目可以分阶段实现 reference checking：</p>
+<h3 id="phase-1directed-self-check">Phase 1：Directed self-check</h3>
+<p>程序内部做 expected result compare，失败则不 halt，testbench timeout 报错。</p>
+<p>适合 smoke bring-up，简单稳定。</p>
+<h3 id="phase-2-sv-reference-model">Phase 2：轻量 SV reference model</h3>
+<p>只实现项目覆盖范围内的 RV32I/M/C 子集：</p>
+<ul>
+<li>PC 更新。</li>
+<li>GPR writeback。</li>
+<li>load/store memory side effect。</li>
+<li>branch/jump target。</li>
+<li>illegal/misaligned trap。</li>
+</ul>
+<p>适合面试项目，因为能讲清楚 scoreboard 如何比对。</p>
+<h3 id="phase-3spike-iss-compare">Phase 3：Spike / ISS compare</h3>
+<p>用 Spike commit log 或 DPI cosim 做 golden model：</p>
+<ul>
+<li>riscv-dv 生成随机程序。</li>
+<li>RTL 和 Spike 执行同一 binary。</li>
+<li>scoreboard/checker 比较 commit trace。</li>
+</ul>
+<p>适合扩展到官方 <code>core_ibex</code> flow，但工具链依赖更重。</p>
+<h2 id="_5">当前已实现与待完善</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>当前状态</th>
+<th>后续完善</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RTL directed regression</td>
+<td>已有 smoke/ALU/branch/load-store <code>.vmem</code> 和 Makefile target</td>
+<td>增加 multiply/divide、CSR、exception directed programs</td>
+</tr>
+<tr>
+<td>UVM package/test/env</td>
+<td>已有最小 scaffold，可 compile/run</td>
+<td>加 env_cfg、agent、virtual sequencer</td>
+</tr>
+<tr>
+<td>Sequence/item</td>
+<td>已有 <code>ibex_instr_item</code> 和 <code>ibex_smoke_seq</code></td>
+<td>让 sequence 生成合法 instruction/program image</td>
+</tr>
+<tr>
+<td>Scoreboard</td>
+<td>已有 PC compare 方法</td>
+<td>接 commit monitor，扩展 GPR/memory/trap compare</td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td>已有 opcode covergroup</td>
+<td>从 monitor 采样并增加 cross coverage</td>
+</tr>
+<tr>
+<td>Reference model</td>
+<td>规划中</td>
+<td>先做轻量 SV model，再接 Spike</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_6">面试讲法</h2>
+<p>中文：</p>
+<p>这个项目我把 Ibex 放在一个最小 simple_system 里验证。RTL 结构上，DUT 包含 Ibex core、RAM、timer 和 simulator control。激励不是直接 force 内部信号，而是用 <code>.vmem</code> 预加载 RISC-V directed program，让 core 通过真实取指执行来刺激 ALU、branch、load/store 和 memory path。结果检查分两层：程序内部做 self-check，成功后写 simulator control halt register；如果没有写 halt，testbench timeout 报错。UVM 方面，我搭了一个轻量 scaffold，包括 base test、env、instruction item、sequence、scoreboard 和 functional coverage。sequence 通过标准 <code>start_item/randomize/finish_item</code> 生成 instruction item，后续会转成 program image 或由 virtual sequence 控制 memory preload。scoreboard 规划从 RVFI/commit monitor 接收 commit item，与 reference model 比较 PC、寄存器写回、memory side effect 和 exception。coverage 现在先按 opcode 分类，后续从实际 commit stream 采样 instruction type、operand corner、branch taken、load/store alignment 和 flush/stall。</p>
+<p>English:</p>
+<p>In this project, I verified the lowRISC Ibex core in a minimal simple_system setup. The RTL baseline instantiates the Ibex core together with RAM, a timer, and a simulator-control block. Instead of forcing internal signals, I use software-driven stimulus: directed RISC-V programs are preloaded as VMEM images, and the core naturally fetches and executes them. The directed programs check ALU, branch, and load/store behavior internally and write the simulator halt register on success; otherwise the testbench timeout reports a failure.</p>
+<p>On the UVM side, I built a lightweight scaffold with a base test, environment, instruction sequence item, smoke sequence, scoreboard, and functional coverage collector. The sequence uses the standard <code>start_item</code>, <code>randomize</code>, and <code>finish_item</code> flow to generate instruction items. The next step is to convert these items into program images or drive them through a virtual sequence that controls memory preload and reset. The scoreboard is intended to consume commit/RVFI monitor items and compare PC, register writeback, memory side effects, and exceptions against a reference model or ISS. Coverage is collected from executed instruction items, starting with opcode bins and later extending to operand corners, branch behavior, load/store alignment, stalls, and flushes.</p>
+<h2 id="_7">可追问点</h2>
+<ul>
+<li>为什么 CPU 验证更适合 instruction-stream stimulus，而不是 pin-level force。</li>
+<li><code>.vmem</code> directed program 如何作为激励进入 DUT。</li>
+<li>程序 self-check 和 scoreboard check 的区别。</li>
+<li>为什么 coverage 应该从 monitor/commit stream 采样，而不是从 sequence 采样。</li>
+<li>RVFI/commit monitor 需要采哪些字段。</li>
+<li>Scoreboard 如何比较 PC、GPR writeback 和 memory side effect。</li>
+<li>为什么先做 simple_system baseline，再扩展到官方 UVM/riscv-dv/Spike flow。</li>
+</ul>
+<h2 id="bullets">简历 bullets</h2>
+<ul>
+<li>Built a runnable Ibex RV32IMC simple_system verification baseline using directed VMEM programs for smoke, ALU, branch, and load/store scenarios.</li>
+<li>Structured a lightweight UVM environment with base test, environment, instruction sequence item, sequence, scoreboard, and opcode functional coverage.</li>
+<li>Used software-driven instruction-stream stimulus instead of direct internal forcing, allowing the DUT to exercise fetch, decode, execute, branch, load/store, and memory paths naturally.</li>
+<li>Planned commit/RVFI-based scoreboard checking for PC, register writeback, memory side effects, exceptions, and end-of-test architectural state.</li>
+<li>Defined a phased verification strategy from directed self-checking programs to UVM monitor-based checking and later ISS/Spike comparison.</li>
+</ul>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>
