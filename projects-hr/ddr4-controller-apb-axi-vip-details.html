@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -87,9 +89,111 @@
 <li><strong>Scoreboard / checker</strong>：负责判断配置、协议、地址映射、数据完整性和 DDR4 command/timing 是否正确。</li>
 </ul>
 <p>一句话讲：<strong>APB 是配置入口，AXI 是数据入口，真正验证目标是 DDR controller 是否正确控制 DDR4。</strong></p>
-<p>常用入口：<a href="#ddr4-project-parameters">项目参数</a> / <a href="#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="#ddr4-advanced-test-scenarios">高级测试场景</a> / <a href="#ddr4-vip-checker-scope">VIP/checker 分工</a> / <a href="#ddr4-axi-read-hash-implementation">read-hash</a></p>
+<p><a id="ddr4-review-map"></a></p>
+<h2 id="_2">复习地图</h2>
+<p>先用下面这张地图决定今天要看哪一层。不要从头硬啃到尾；DDR4 项目的复习目标是能把 <strong>APB 配置、AXI traffic、controller 内部转换、DFI/DDR checker、debug 路线</strong> 串成一条线。</p>
+<table>
+<thead>
+<tr>
+<th>复习场景</th>
+<th>先解决的问题</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 分钟速刷</td>
+<td>我到底做了什么，边界是什么</td>
+<td><a href="#ddr4-controller-apb-axi-vip-details">项目定位</a> / <a href="#ddr4-html-diagram">HTML 图解</a></td>
+</tr>
+<tr>
+<td>面试开场</td>
+<td>30-90 秒怎么讲，不夸大成手写 DDR4 VIP</td>
+<td><a href="#ddr4-interview-answer-points">面试回答要点</a> / <a href="#ddr4-common-followups">常见追问</a></td>
+</tr>
+<tr>
+<td>参数和配置</td>
+<td>FR1:2、256-bit AXI、ECC、9 颗 x8、NODIMM、CINIT timing 怎么说</td>
+<td><a href="#ddr4-my-fr2-ecc-config">我的 FR1:2 + ECC 配置</a> / <a href="#ddr4-project-parameters">项目关键参数</a> / <a href="#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="#ddr4-timing-cinit-config">Timing 配置</a></td>
+</tr>
+<tr>
+<td>数据通路</td>
+<td>一笔 AXI write/read 如何到 DDR4</td>
+<td><a href="#ddr4-axi-hif-address-map-example">AXI/HIF 地址转换</a> / <a href="#ddr4-typical-test-flow">一次典型测试流程</a></td>
+</tr>
+<tr>
+<td>Checker 分层</td>
+<td>VIP checker、read-hash、AXI-HIF、HIF-DFI 各看什么</td>
+<td><a href="#ddr4-vip-checker-scope">VIP/checker 分工</a> / <a href="#ddr4-axi-read-hash-implementation">read-hash 实现</a> / <a href="#ddr4-axi-monitor-callback-scoreboard">AXI callback 到 scoreboard</a></td>
+</tr>
+<tr>
+<td>场景深挖</td>
+<td>QoS、exclusive、ECC、unaligned、多端口、low-power</td>
+<td><a href="#ddr4-advanced-test-scenarios">高级测试场景</a> / <a href="#ddr4-lowpower-test-checks">低功耗检查</a></td>
+</tr>
+<tr>
+<td>Debug 演练</td>
+<td>test fail 时先看哪一层</td>
+<td><a href="#ddr4-debug-method">Debug 思路</a> / <a href="#ddr4-env-build-flow">环境搭建流程</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">一张链路图</h3>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>APB control path
+  APB VIP -&gt; controller/PHY CSR -&gt; timing / address map / port / refresh / init
+
+AXI data path
+  AXI4 VIP -&gt; AXI port -&gt; HIF -&gt; DDRC scheduler -&gt; DFI -&gt; PHY wrapper -&gt; DDR4 memory model
+
+检查链
+  APB checker + RAL predictor
+  AXI checker
+  AXI read-hash scoreboard
+  AXI-HIF scoreboard
+  HIF-DFI scoreboard
+  DFI / DDR4 Memory VIP checker
+  postprocess log scan
+</code></pre></div>
+
+<h3 id="_4">分层记忆</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>要背到什么程度</th>
+<th>对应内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L0 边界</td>
+<td>能一句话说明“我用 VIP 验证 controller，不是手写 DDR4 pin-level driver”</td>
+<td><a href="#ddr4-controller-apb-axi-vip-details">项目定位</a></td>
+</tr>
+<tr>
+<td>L1 主流程</td>
+<td>能按 APB init -&gt; AXI traffic -&gt; checker/postprocess 讲 90 秒</td>
+<td><a href="#ddr4-typical-test-flow">一次典型测试流程</a></td>
+</tr>
+<tr>
+<td>L2 细节</td>
+<td>能解释 256-bit AXI 地址、NODIMM、CINIT timing、read-hash</td>
+<td><a href="#ddr4-axi-hif-address-map-example">AXI/HIF 地址转换</a> / <a href="#ddr4-timing-cinit-config">Timing 配置</a> / <a href="#ddr4-axi-read-hash-implementation">read-hash 实现</a></td>
+</tr>
+<tr>
+<td>L3 Debug</td>
+<td>能按 fail 类型定位 APB、AXI、read-hash、AXI-HIF、HIF-DFI、postprocess</td>
+<td><a href="#ddr4-debug-method">Debug 思路</a></td>
+</tr>
+<tr>
+<td>L4 代码</td>
+<td>能说出 top/env/cfg/scoreboard/test 的文件位置</td>
+<td><a href="#ddr4-code-locations">工程对应位置</a> / <a href="#ddr4-real-file-list">真实工程文件清单</a></td>
+</tr>
+</tbody>
+</table>
 <p><a id="ddr4-project-parameters"></a></p>
-<h2 id="_2">项目关键参数</h2>
+<h2 id="_5">项目关键参数</h2>
 <table>
 <thead>
 <tr>
@@ -141,10 +245,221 @@
 </tr>
 </tbody>
 </table>
+<p><a id="ddr4-my-fr2-ecc-config"></a></p>
+<h2 id="fr12-ecc">我的 FR1:2 + ECC 配置口径</h2>
+<p>这版面试口径按 <strong>DDR4 x72、FR1:2、AXI data 256-bit、ECC enabled</strong> 来讲。它记录的是我的最终配置口径；如果后面看到整理包 demo defconfig 里 <code>ECC_MODE=0</code> 的快速仿真记录，要把那部分当作原始 demo/init 值，不覆盖这里的面试配置。核心关系是：AXI 只搬 data payload；ECC byte lane 由 controller/ECC path 生成并落到 DDR/DFI 的 ECC sideband，所以 <code>256-bit AXI</code> 和 <code>9 颗 x8</code> 不冲突。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>我的配置</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DDR 颗粒组织</td>
+<td>9 颗 DDR4 x8</td>
+<td>8 颗 x8 组成 64-bit data，1 颗 x8 作为 8-bit ECC lane</td>
+</tr>
+<tr>
+<td>DDR 侧总宽</td>
+<td>72 bit</td>
+<td><code>64-bit data + 8-bit ECC</code>，也就是常说的 ECC x72 组织</td>
+</tr>
+<tr>
+<td>Rank</td>
+<td>1 rank</td>
+<td>每个 rank 9 颗 x8；如果多 rank 才按 rank 数再乘</td>
+</tr>
+<tr>
+<td>DFI frequency ratio</td>
+<td>1:2 / FR2</td>
+<td><code>MEMC_FREQ_RATIO=2</code>，一个 controller/DFI cycle 覆盖 2 个 DDR CK、4 个 DDR data edges</td>
+</tr>
+<tr>
+<td>AXI data width</td>
+<td>256 bit</td>
+<td><code>64-bit DDR data * 2 * 2 = 256-bit</code>，这里不包含 ECC sideband</td>
+</tr>
+<tr>
+<td>DFI data-only width</td>
+<td>256 bit</td>
+<td>data payload 与 AXI 聚合宽度一致，都是 64-bit data 在 FR2 + 双沿下的聚合</td>
+</tr>
+<tr>
+<td>DFI ECC sideband width</td>
+<td>32 bit</td>
+<td><code>8-bit ECC * 2 * 2 = 32-bit</code></td>
+</tr>
+<tr>
+<td>DFI total data width</td>
+<td>288 bit</td>
+<td><code>72-bit total DDR width * 2 * 2 = 288-bit</code>，等于 256-bit data + 32-bit ECC</td>
+</tr>
+</tbody>
+</table>
+<p>面试一句话：</p>
+<blockquote>
+<p>My DDR4 organization is one-rank x72 using x8 devices, so it has eight x8 data devices plus one x8 ECC device, nine devices in total. The DFI frequency ratio is 1:2, so one controller cycle packs four DDR data edges. Therefore the 64-bit data payload becomes a 256-bit AXI/DFI data path, while the 8-bit ECC lane becomes a 32-bit DFI ECC sideband. The total DDR/DFI payload including ECC is 72 * 4 = 288 bits.</p>
+</blockquote>
+<p><a id="ddr4-axi-hif-address-map-example"></a></p>
+<h2 id="axi-256-bit-hif-ddr">AXI 256-bit 与 HIF / DDR 地址转换</h2>
+<p>这个项目里 AXI data bus 确实是 256-bit：<code>UMCTL2_A_DW=256</code>，也就是每个 AXI beat 最多搬 32 bytes。容易混淆的点是：<strong>AXI 地址仍然是 byte address，地址粒度不因为 data bus 是 256-bit 就变成 256-bit。</strong></p>
+<p>当前 RTL 生成常量里还有几个关键值：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>当前值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UMCTL2_A_DW</code></td>
+<td>256</td>
+<td>AXI data width，每 beat 32 bytes</td>
+</tr>
+<tr>
+<td><code>UMCTL2_A_ADDRW</code></td>
+<td>37</td>
+<td>AXI byte address 宽度</td>
+</tr>
+<tr>
+<td><code>MEMC_DRAM_DATA_WIDTH</code></td>
+<td>32</td>
+<td>controller/DRAM word 粒度是 32-bit</td>
+</tr>
+<tr>
+<td><code>MEMC_DRAM_NBYTES_LG2</code></td>
+<td>2</td>
+<td>32-bit word = 4 bytes，所以低 2 bit 是 byte offset</td>
+</tr>
+<tr>
+<td><code>MEMC_HIF_ADDR_WIDTH</code></td>
+<td>35</td>
+<td>AXI byte address 去掉低 2 bit 后进入 HIF 地址域</td>
+</tr>
+</tbody>
+</table>
+<p>所以这里的核心转换是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>HIF_addr = AXI_byte_addr &gt;&gt; MEMC_DRAM_NBYTES_LG2
+         = AXI_byte_addr &gt;&gt; 2
+</code></pre></div>
+
+<p><code>&gt;&gt;2</code> 来自 <strong>32-bit DRAM/HIF word = 4 bytes</strong>，不是来自 AXI data width。一个 256-bit AXI beat 覆盖 32 bytes，因此对应：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>32 bytes / 4 bytes per HIF word = 8 HIF words
+</code></pre></div>
+
+<p>举例：</p>
+<table>
+<thead>
+<tr>
+<th>AXI byte address</th>
+<th>AXI beat 覆盖的 byte 范围</th>
+<th>HIF word address 范围</th>
+<th>直观理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x0000</code></td>
+<td><code>0x0000..0x001f</code></td>
+<td><code>0x0000..0x0007</code></td>
+<td>第 1 个 256-bit beat，覆盖 8 个 32-bit HIF words</td>
+</tr>
+<tr>
+<td><code>0x0020</code></td>
+<td><code>0x0020..0x003f</code></td>
+<td><code>0x0008..0x000f</code></td>
+<td>下一个 256-bit beat，HIF column/word 前进 8</td>
+</tr>
+<tr>
+<td><code>0x0040</code></td>
+<td><code>0x0040..0x005f</code></td>
+<td><code>0x0010..0x0017</code></td>
+<td>再下一个 beat</td>
+</tr>
+</tbody>
+</table>
+<p>后续 ADDRMAP 不是直接拿 AXI byte address 拆 rank/bank/row/column，而是拿 HIF address 拆。源码里的基本口径是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>field_bit[i] = HIF_addr[base + i + ADDRMAP_offset_i]
+</code></pre></div>
+
+<p>当前 <code>ddrc_parameters.svh</code> 里能静态看到这些 base：column base = 0，bank group base = 3，bank base = 3，row base = 6，rank base = 6。具体 runtime offset 由 CINIT 写入 <code>ADDRMAP*</code> 寄存器；没有 APB trace 时，下面只作为便于面试理解的示意映射：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>HIF[0:10]  -&gt; column
+HIF[11:12] -&gt; bank group
+HIF[13:14] -&gt; bank
+HIF[15:32] -&gt; row
+HIF[33]    -&gt; rank
+</code></pre></div>
+
+<p>按这个示意映射：</p>
+<table>
+<thead>
+<tr>
+<th>AXI byte address</th>
+<th>HIF address</th>
+<th>示例 DDR 位置变化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x0000</code></td>
+<td><code>0x0000</code></td>
+<td>row0 / bank0 / BG0 / col0</td>
+</tr>
+<tr>
+<td><code>0x0020</code></td>
+<td><code>0x0008</code></td>
+<td>仍在 row0 / bank0 / BG0，column 前进 8 个 HIF words</td>
+</tr>
+<tr>
+<td><code>0x2000</code></td>
+<td><code>0x0800</code></td>
+<td><code>HIF[11]</code> 变 1，示意切到 BG1</td>
+</tr>
+<tr>
+<td><code>0x4000</code></td>
+<td><code>0x1000</code></td>
+<td>示意切到 BG2</td>
+</tr>
+<tr>
+<td><code>0x6000</code></td>
+<td><code>0x1800</code></td>
+<td>示意切到 BG3</td>
+</tr>
+<tr>
+<td><code>0x8000</code></td>
+<td><code>0x2000</code></td>
+<td><code>HIF[13]</code> 变 1，示意切到 bank1</td>
+</tr>
+<tr>
+<td><code>0x20000</code></td>
+<td><code>0x8000</code></td>
+<td><code>HIF[15]</code> 变 1，示意切到 row1</td>
+</tr>
+</tbody>
+</table>
+<p>DFI 侧还有一个容易混的 256-bit。按我的 FR1:2 + ECC 口径，<code>256-bit</code> 是 data-only 聚合宽度：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>64-bit DDR data * FR2 * 2 DDR edges = 256-bit
+</code></pre></div>
+
+<p>ECC 另外占 sideband：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>8-bit ECC * FR2 * 2 DDR edges = 32-bit
+DFI total including ECC = 256 + 32 = 288-bit
+</code></pre></div>
+
+<p>所以 AXI 256-bit 是上层总线每 beat 的 data payload 宽度；DFI 256-bit 是 DDR/PHY 接口在 FR1:2 和双沿打包后的 data-only 宽度。两者数值相同，但来源和层次不同。</p>
+<p>面试一句话：</p>
+<blockquote>
+<p>My AXI data bus is 256-bit, but AXI addresses are byte addresses. The controller converts the byte address into an internal HIF word address by dropping the low 2 bits because the DRAM/HIF word is 32-bit, or 4 bytes. One 256-bit AXI beat therefore spans 8 HIF words. Then the ADDRMAP registers map the HIF address into column, bank group, bank, row and rank.</p>
+</blockquote>
 <p><a id="ddr4-nodimm-test-config"></a></p>
 <h2 id="ddr4-nodimm">DDR4 NODIMM 测试配置</h2>
 <p>当前 NODIMM 测试对应的是 <code>test_ddr4</code> 路径：<code>runtest</code> 把它映射成 <code>protocol=ddr4</code>、<code>module_type=NODIMM</code>，编译时打开 <code>DWC_DDRCTL_MEM_DDR4_ON</code> 和 <code>DWC_DDRCTL_MEM_MODULE_TYPE_NODIMM_ON</code>，仿真时用 APB 配置 controller，用 AXI4 VIP 发 DDR memory traffic。</p>
-<h3 id="_3">配置来源</h3>
+<h3 id="_6">配置来源</h3>
 <table>
 <thead>
 <tr>
@@ -181,7 +496,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="_4">核心参数</h3>
+<h3 id="_7">核心参数</h3>
 <table>
 <thead>
 <tr>
@@ -331,7 +646,205 @@
 </tbody>
 </table>
 <p>如果后续 debug 出现 rank、data width、ECC lane 或 address map mismatch，要先确认三件事：当前 simv 是否真按 <code>test_ddr4</code> / NODIMM 编译，defconfig 是否通过 <code>parseDefConfigFile()</code> 转成了正确 plusargs，RTL 常量包是否来自同一版生成配置。</p>
-<h3 id="_5">面试回答</h3>
+<p><a id="ddr4-timing-cinit-config"></a></p>
+<h3 id="ddr4-timing-cinit-apb">DDR4 Timing 配置（CINIT / APB）</h3>
+<p>当前工程里的 DDR4 timing 不是在某个 test 里手填 <code>tRCD/tRP/tRAS</code>，而是由 defconfig 选定 memory 条件，再由 Synopsys DWC DDR controller 的 CINIT flow 换算成 APB timing register。</p>
+<h4 id="timing">Timing 配置源头</h4>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>当前配置</th>
+<th>来源 / 依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Defconfig</td>
+<td><code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code></td>
+<td><code>ddr54/sim/testbench/defconfig/demo/ddr4/nodimm/..._defconfig</code></td>
+</tr>
+<tr>
+<td>DRAM protocol</td>
+<td>DDR4</td>
+<td><code>CONFIG_DWC_DDRCTL_CINIT_SDRAM_PROTOCOL_DDR4=y</code></td>
+</tr>
+<tr>
+<td>Speed grade</td>
+<td>DDR4-3200W</td>
+<td><code>CONFIG_DWC_DDRCTL_CINIT_DDR4_SG_3200W=y</code></td>
+</tr>
+<tr>
+<td>tCK</td>
+<td><code>625ps</code></td>
+<td><code>dwc_ddrctl_mem_sys_config.sv::get_ddr4_speed_bin_str()</code> 将 <code>3200W</code> 映射到 <code>0_625</code></td>
+</tr>
+<tr>
+<td>Capacity / width</td>
+<td>4Gb, x8 device</td>
+<td><code>SDRAM_CAPACITY_MBIT_0_4_GB</code> + <code>SDRAM_WIDTH_BITS_0_8_BITS</code></td>
+</tr>
+<tr>
+<td>Rank / channel</td>
+<td>1 rank, single channel</td>
+<td><code>NUM_RANKS_1_RANK=y</code>、<code>CONFIG_NUM_DCH=1</code></td>
+</tr>
+<tr>
+<td>Module type</td>
+<td>NODIMM</td>
+<td><code>CONFIG_DWC_DDRCTL_CINIT_MODULE_TYPE_NODIMM=y</code></td>
+</tr>
+<tr>
+<td>Frequency ratio</td>
+<td>4</td>
+<td><code>MEMC_FREQ_RATIO=4</code>，影响 controller/DFI clock domain 下的 timing 换算</td>
+</tr>
+</tbody>
+</table>
+<p>核心理解：CINIT 先根据 DDR4 speed grade、tCK、density、device width、rank、module type 找到 JEDEC timing 要求，再按 controller register 所在 clock domain 做 <code>ceil()</code> 换算，并加上 IP 需要的 latency、margin 或 pipeline offset。</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>register_value ~= ceil(timing_ps / register_clock_ps) + controller_offset
+</code></pre></div>
+
+<p>所以 APB timing register 的数值通常不等于 JEDEC 表里原始的 nCK 数字。比如 DDR4-3200 的 <code>tCK=625ps</code>，而当前生成配置里 controller/DFI 频率比是 4，很多 controller 调度字段会落在更慢的内部 clock domain；因此 <code>t_rp=0x05</code> 这类字段看起来会比 JEDEC CK count 小。</p>
+<h4 id="timing-register">当前源码可静态确认的 timing register</h4>
+<p>以下值来自 <code>ddr54/src/apb/DWC_ddrctl_apb_defines.svh</code> 和 RAL model 的 reset/default 定义。实际仿真最终值要以 CINIT APB write trace 为准。</p>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>字段配置</th>
+<th>组合值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REGB_FREQ0_CH0.DRAMSET1TMG0</code></td>
+<td><code>0x000</code></td>
+<td><code>t_ras_min=0x0f</code>, <code>t_ras_max=0x1b</code>, <code>t_faw=0x10</code>, <code>wr2pre=0x0f</code></td>
+<td><code>0x0f101b0f</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.DRAMSET1TMG1</code></td>
+<td><code>0x004</code></td>
+<td><code>t_rc=0x14</code>, <code>rd2pre=0x04</code>, <code>t_xp=0x08</code>; 另有 <code>t_rcd_write</code> field define default <code>0x05</code></td>
+<td>aggregate default <code>0x00080414</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.DRAMSET1TMG2</code></td>
+<td><code>0x008</code></td>
+<td><code>wr2rd=0x0d</code>, <code>rd2wr=0x06</code>, <code>read_latency=0x05</code>, <code>write_latency=0x03</code></td>
+<td><code>0x0305060d</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.DRAMSET1TMG4</code></td>
+<td><code>0x010</code></td>
+<td><code>t_rp=0x05</code>, <code>t_rrd=0x04</code>, <code>t_ccd=0x04</code>, <code>t_rcd=0x05</code></td>
+<td><code>0x05040405</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.RFSHSET1TMG0</code></td>
+<td><code>0x600</code></td>
+<td><code>t_refi_x1_x32=0x062</code>, <code>refresh_to_x1_x32=0x10</code>, <code>refresh_margin=0x2</code></td>
+<td><code>0x02100062</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.RFSHSET1TMG1</code></td>
+<td><code>0x604</code></td>
+<td><code>t_rfc_min=0x08c</code></td>
+<td><code>0x0000008c</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>RFSHSET1TMG0.t_refi_x1_x32=0x62</code> 可以作为换算例子：DDR4 常见 <code>tREFI=7.8us</code>，如果内部 register clock 约为 <code>4*tCK=2.5ns</code>，则 <code>7800ns / 2.5ns = 3120 cycles</code>，再按字段名里的 <code>x32</code> 缩放，<code>3120/32=97.5</code>，向上取整就是 <code>98 = 0x62</code>。</p>
+<h4 id="dfi-phy-timing">当前 DFI / PHY timing 相关配置</h4>
+<table>
+<thead>
+<tr>
+<th>Register</th>
+<th>Address</th>
+<th>字段配置</th>
+<th>组合值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>REGB_FREQ0_CH0.DFITMG0</code></td>
+<td><code>0x580</code></td>
+<td><code>dfi_tphy_wrlat=0x02</code>, <code>dfi_tphy_wrdata=0x00</code>, <code>dfi_t_rddata_en=0x02</code>, <code>dfi_t_ctrl_delay=0x07</code></td>
+<td><code>0x07020002</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.DFITMG1</code></td>
+<td><code>0x584</code></td>
+<td><code>dfi_t_dram_clk_enable=0x04</code>, <code>dfi_t_dram_clk_disable=0x04</code>, <code>dfi_t_wrdata_delay=0x00</code>, <code>dfi_t_parin_lat=0x00</code>, <code>dfi_t_cmd_lat=0x00</code></td>
+<td><code>0x00000404</code></td>
+</tr>
+<tr>
+<td><code>REGB_FREQ0_CH0.DFITMG2</code></td>
+<td><code>0x588</code></td>
+<td><code>dfi_tphy_wrcslat=0x02</code>, <code>dfi_tphy_rdcslat=0x02</code>, <code>dfi_twck_delay=0x00</code></td>
+<td><code>0x00000202</code></td>
+</tr>
+</tbody>
+</table>
+<p>这些字段是 controller 到 PHY/DFI 侧的 timing，不是 DDR4 pin-level JEDEC timing 本身。工程里的 <code>dwc_ddrctl_dfi_env.sv</code> 会 backdoor 读 <code>DFITMG*</code> 字段，让 DFI monitor / scoreboard 使用同一套 latency 配置。</p>
+<h4 id="init-refresh-speedup">Init / refresh speedup 配置</h4>
+<p>当前 defconfig 为了缩短仿真初始化时间，显式覆盖了部分 init timing：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>CONFIG_DWC_DDRCTL_CINIT_REGB_DDRC_CH0_INITTMG0_PRE_CKE_X1024=2
+CONFIG_DWC_DDRCTL_CINIT_REGB_DDRC_CH0_INITTMG0_POST_CKE_X1024=2
+CONFIG_DWC_DDRCTL_CINIT_REGB_DDRC_CH0_INITTMG1_DRAM_RSTN_X1024=2
+CONFIG_DWC_DDRCTL_CINIT_REGB_FREQ0_CH0_DFIUPDTMG1_DFI_T_CTRLUPD_INTERVAL_MAX_X1024=2
+CONFIG_DWC_DDRCTL_CINIT_REGB_FREQ0_CH0_DFIUPDTMG1_DFI_T_CTRLUPD_INTERVAL_MIN_X1024=1
+</code></pre></div>
+
+<p>这类 <code>x1024</code> 字段不是普通 DDR command 间隔，而是初始化等待时间的缩放字段。面试时可以说：为了让仿真快起来，PVE demo 把部分 DDR init wait time 压短；这不等价于真实硬件 bring-up 配置。</p>
+<h4 id="ddr4-vip-timing">和 DDR4 VIP timing 的对应关系</h4>
+<p>可以对应，但不是逐字段数值相等。</p>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>配置 / 检查内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CINIT / APB timing</td>
+<td>把 DDR4-3200W、<code>tCK=625ps</code>、x8、4Gb、1 rank、NODIMM 等信息换算成 controller 内部 <code>DRAMSET1TMG*</code>、<code>RFSHSET1TMG*</code>、<code>DFITMG*</code></td>
+</tr>
+<tr>
+<td>DDR4 Memory VIP timing</td>
+<td>根据同一 speed bin / memory config 检查 PHY 后的 DDR4 JEDEC pin-level command、bank/rank state、DQ/DQS 和 timing violation</td>
+</tr>
+<tr>
+<td>HIF-DFI scoreboard</td>
+<td>读取 RAL/APB timing 字段，检查 controller 内部 HIF request 到 DFI command 的调度和 latency 是否符合配置</td>
+</tr>
+</tbody>
+</table>
+<p>所以正确关系是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>CINIT APB timing register
+  -&gt; controller scheduler/DFI latency 生效
+  -&gt; PHY/DDR4 pin-level 命令间隔
+  -&gt; DDR4 Memory VIP 检查是否满足 JEDEC timing
+</code></pre></div>
+
+<p>不是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>APB t_rcd field == VIP tRCD nCK
+</code></pre></div>
+
+<p>如果 DDR4 VIP 报 timing violation，优先检查 defconfig 和 VIP cfgfile 是否同源、speed grade/tCK 是否一致、rank/density/x8 配置是否一致、frequency ratio 是否一致、是否有手动 APB override，以及是否误把 RAL default 当成 CINIT 最终写入值。</p>
+<h4 id="_8">面试追问口径</h4>
+<p>中文回答：</p>
+<blockquote>
+<p>我这个工程的 DDR4 timing 来源是 CINIT，不是在 test 里手填。defconfig 选的是 <code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code>，核心是 DDR4-3200W、<code>tCK=625ps</code>、4Gb x8 device、1 rank、NODIMM。CINIT 根据这些信息和 controller 的 frequency ratio，把 JEDEC timing 换算成 APB timing register，比如 <code>DRAMSET1TMG0/1/2/4</code> 管 <code>tRAS/tRC/tRP/tRCD/tRRD/tCCD</code> 等调度约束，<code>RFSHSET1TMG0/1</code> 管 refresh，<code>DFITMG0/1/2</code> 管 DFI/PHY latency。它和 DDR4 VIP timing 是对应的，因为 VIP 也用同一套 DDR4 speed bin 和 memory config；但 APB 字段是 controller 内部时钟域的值，不一定等于 JEDEC 表上的原始 nCK。最终是否正确，要看 controller 发到 DDR4 pin-level 的 ACT/RD/WR/PRE/REF 间隔能不能被 DDR4 VIP 通过。</p>
+</blockquote>
+<p>English answer:</p>
+<blockquote>
+<p>The DDR4 timing in this project is generated by the CINIT flow, not manually hard-coded in each test. The selected defconfig is <code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code>, which means DDR4-3200W, 625 ps tCK, x8 devices, one active rank and a NODIMM setup. CINIT converts the JEDEC timing requirements into controller register fields such as <code>DRAMSET1TMG*</code>, <code>RFSHSET1TMG*</code> and <code>DFITMG*</code>, taking the controller clock domain and frequency ratio into account. The DDR4 VIP is configured from the same memory speed bin, so it should correspond at the pin-level behavior. However, the APB register values are controller-domain scheduling values, so they are not expected to be numerically identical to the JEDEC nCK values. The real check is whether the DDR4 commands generated by the controller meet the VIP's JEDEC timing checks.</p>
+</blockquote>
+<h3 id="_9">面试回答</h3>
 <p>中文 60 秒版：</p>
 <blockquote>
 <p>我当前跑的是 DDR4 NODIMM 快速仿真配置。test group 走 <code>test_ddr4</code>，脚本会把 protocol 设成 <code>ddr4</code>、module type 设成 <code>NODIMM</code>，编译时打开 DDR4 和 NODIMM 相关宏。defconfig 是 <code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code>，核心参数是 DDR4-3200W、x8 device、1 rank、single channel，VIP 侧 3200W 映射为 <code>tCK=625ps</code>。APB 负责把这些配置写进 controller/PHY 寄存器，AXI4 VIP 再产生 DDR memory write/read traffic。这个配置里 ECC support 是打开的，但 <code>ECCCFG0_ECC_MODE=0</code>，所以要区分“硬件支持 ECC”和“当前 test 是否启用 ECC 功能模式”；CRC、CA parity 都是关闭的，PHY training 也被 skip，用于加速仿真。</p>
@@ -340,7 +853,7 @@
 <blockquote>
 <p>For the NODIMM regression, I use the <code>test_ddr4</code> path, which maps to <code>protocol=ddr4</code> and <code>module_type=NODIMM</code>. The defconfig is <code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code>. It describes a DDR4-3200W, x8-device, one-rank, single-channel setup, and the DDR4 VIP maps the 3200W speed bin to a 625 ps clock period. APB is used as the CSR programming and polling path, while AXI4 VIP generates memory write/read traffic. ECC support exists in the configuration, but the current init value keeps <code>ECC_MODE</code> at zero, so this is not an ECC-enabled functional test. CRC, CA parity, and full PHY training are also disabled for a faster simulation flow.</p>
 </blockquote>
-<h3 id="_6">常见坑</h3>
+<h3 id="_10">常见坑</h3>
 <table>
 <thead>
 <tr>
@@ -371,6 +884,7 @@
 </tr>
 </tbody>
 </table>
+<p><a id="ddr4-html-diagram"></a></p>
 <h2 id="html">HTML 图解</h2>
 <p>已把之前画的 HTML 图加入到 notes 项目目录：</p>
 <ul>
@@ -379,7 +893,8 @@
 <p>如果 Markdown 预览器支持 raw HTML，也可以直接在本页内查看：</p>
 <iframe src="ddr4-controller-apb-axi-vip-diagram.html" title="APB + AXI VIP 验证 DDR4 Controller 图解" width="100%" height="760"></iframe>
 
-<h2 id="_7">工程对应位置</h2>
+<p><a id="ddr4-code-locations"></a></p>
+<h2 id="_11">工程对应位置</h2>
 <table>
 <thead>
 <tr>
@@ -418,6 +933,7 @@
 </tr>
 </tbody>
 </table>
+<p><a id="ddr4-real-file-list"></a></p>
 <h2 id="dwc-ddr54-vip">真实工程文件清单（DWC DDR54 VIP 工程）</h2>
 <blockquote>
 <p>以下来自 <code>ddr54_proj/ddr54/sim/</code> 目录的实际分析，对应 DDR4 + APB + AXI UVM 验证。</p>
@@ -764,7 +1280,7 @@
 <p><a id="ddr4-advanced-test-scenarios"></a></p>
 <h2 id="ddr4_1">DDR4 高级测试场景分析</h2>
 <p>这些场景不是只看 AXI protocol 是否握手成功，而是把 AXI transaction 打进 DDR controller 的调度、仲裁、RMW/ECC、low-power 状态机和内部 scoreboard 链路里。共同流程一般是：先通过 <code>m_mss_initialize_subsystem</code> 做 APB/RAL 初始化，再在一个或多个 <code>m_mctl_axi_master_seqr[port]</code> 上启动对应 AXI sequence，最后由 AXI VIP checker、read-hash scoreboard、AXI-HIF scoreboard、HIF-DFI scoreboard、DDR/DFI monitor 和 ISR/postprocess 一起收敛结果。</p>
-<h3 id="_8">场景总览</h3>
+<h3 id="_12">场景总览</h3>
 <table>
 <thead>
 <tr>
@@ -917,6 +1433,34 @@
 </tr>
 </tbody>
 </table>
+<h4 id="32-bit-data-8-bit-ecc">32-bit data 为什么配 8-bit ECC</h4>
+<p>当前 RTL 常量里 <code>MEMC_DRAM_DATA_WIDTH=32</code>、<code>MEMC_DRAM_ECC_WIDTH=8</code>、<code>MEMC_DRAM_TOTAL_DATA_WIDTH=40</code>，可以按 <code>4 个 data byte lanes + 1 个 ECC byte lane</code> 理解。详细 Hamming / SECDED 公式见 <a href="../knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a>。</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>面试口径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32-bit data 单 bit 纠错最少几个 Hamming parity bits？</td>
+<td><code>2^r &gt;= m+r+1</code>，<code>m=32</code> 时 <code>r=6</code> 才够。</td>
+</tr>
+<tr>
+<td>SECDED 为什么还要多 1 bit？</td>
+<td>第 7 bit 是 overall parity，用来区分 single-bit correctable 和 double-bit detectable。</td>
+</tr>
+<tr>
+<td>那为什么工程里是 8-bit ECC？</td>
+<td>数学最小 SECDED 是 7 bit；DDR/DFI/controller 数据通路常按 byte lane/x8 sideband 组织，所以配成完整 <code>8-bit ECC lane</code>。</td>
+</tr>
+<tr>
+<td>lane 是什么？</td>
+<td>固定宽度的数据通道分片；byte lane 通常是 8 bit，32-bit data 有 4 个 byte lanes，ECC 再占 1 个 8-bit lane。</td>
+</tr>
+</tbody>
+</table>
 <p>恢复路径怎么讲：</p>
 <ol>
 <li>对 correctable ECC，controller/scoreboard 期望数据被纠正后继续参与 readback compare，同时状态/计数器体现 corrected error。</li>
@@ -928,7 +1472,7 @@
 <blockquote>
 <p>我会把 ECC 相关场景拆成 AXI poison 和 DDR ECC RMW 两类。Poison 场景重点验证错误 sideband 是否转成 interrupt 或 <code>SLVERR</code>，并且 ISR 清中断要等 response 回来。ECC RMW 场景则通过打开 ECC mode、data mask 和特定 <code>WSTRB</code>，制造 read-modify-write，再看 HIF-DFI ECC engine 对 corrected/uncorrected error、poison bit 和 read-hash skip 策略的处理。</p>
 </blockquote>
-<h3 id="_9">非对齐传输</h3>
+<h3 id="_13">非对齐传输</h3>
 <p>非对齐测试不是直接发非法 AXI，而是在合法 AXI burst 的前提下，让请求地址和 DDR 内部 burst / data width / RMW 粒度产生不整齐关系。</p>
 <p>流程：</p>
 <ol>
@@ -939,7 +1483,7 @@
 <li>read-hash 按 byte 地址和 <code>WSTRB</code> 比较，AXI-HIF/HIF-DFI 检查地址拆分、mask 和数据 beat 顺序。</li>
 </ol>
 <p>Debug 时如果失败，优先看 <code>WSTRB</code>、burst size、AXI address lower bits、HIF address、DDR column 地址和 read-hash 里的 byte address。</p>
-<h3 id="_10">多端口并发仲裁</h3>
+<h3 id="_14">多端口并发仲裁</h3>
 <p>多端口场景覆盖的是 controller 前端 port arbiter 和 XPI/HIF 资源竞争，核心不是“多开几个 sequence”，而是让多个 port 在队列、mask、enable/disable、QoS 影响下同时竞争。</p>
 <table>
 <thead>
@@ -973,8 +1517,35 @@
 </tbody>
 </table>
 <p>检查链路：AXI VIP 保证每个 port 的 protocol 合法；read-hash 保证多 port 写读不会互相污染；AXI-HIF scoreboard 看 port/QoS/ID/address 转换；HIF-DFI perf recorder 可以看 LPR/HPR queue depth、credit、latency。</p>
+<p><a id="ddr4-lowpower-test-checks"></a></p>
 <h3 id="ddr4_2">DDR4 低功耗状态</h3>
 <p><code>test_dwc_ddrctl_axi_lowpower.sv</code> 同时测 AXI hardware low-power interface 和 DDRC low-power/self-refresh。它先打开 <code>hw_lp_en</code>，设置较短的 idle timeout 和 refresh 参数，然后每个 AXI port 依次覆盖 accept、peripheral exit、deny 三类低功耗 handshake，最后在非 DDR5 情况下做 AXI + DDRC 一起进入 self-refresh 的 case。</p>
+<p>这里的 low power 分两层：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>是谁的 low power</th>
+<th>含义</th>
+<th>test 里的入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AXI port-level low power</td>
+<td>某个 AXI port 前端接口 / port wrapper 的低功耗</td>
+<td>单个 port idle、没有 outstanding、内部队列 drain 后，可以通过 AXI hardware low-power handshake 进入 inactive，通常对应该 port clock removal/gating</td>
+<td>Case 1-3：<code>m_n_port_id == p_port_id</code></td>
+</tr>
+<tr>
+<td>DDRC-level low power</td>
+<td>整个 DDR controller / DRAM 侧的低功耗</td>
+<td>所有 AXI ports 都 idle 后，再请求 DDRC 进入 self-refresh，影响 controller 和 DDR4 侧状态</td>
+<td>Case 4：<code>m_n_port_id == -1</code> 后调用 <code>request_ddrc_lowpower_entry()</code></td>
+</tr>
+</tbody>
+</table>
+<p>所以“某个 port low power”不是 DDR4 颗粒已经 self-refresh，而是 <strong>DUT AXI slave port interface / port wrapper</strong> 这一层进入低功耗。只有所有 port 都进入 LP、controller 内部也满足条件后，Case 4 才进一步检查 DDRC self-refresh。</p>
 <p>关键流程：</p>
 <table>
 <thead>
@@ -1007,11 +1578,51 @@
 </tr>
 </tbody>
 </table>
+<p>低功耗请求和普通 AXI 请求要分开讲：</p>
+<table>
+<thead>
+<tr>
+<th>问法</th>
+<th>正确理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>port 进入 low power 是不是因为发了普通 AXI read/write？</td>
+<td>不是。进入 low power 是 test/clock controller 通过 AXI hardware low-power interface 发 LP entry request；普通 AXI read/write 是数据流量，不是 low-power request。</td>
+</tr>
+<tr>
+<td><code>m_b_lp_accept=1</code> 表示什么？</td>
+<td>test 期望当前 port idle，DUT 应接受 LP entry request，lowpower agent/sequence 等待对应 handshake 完成。</td>
+</tr>
+<tr>
+<td><code>m_b_lp_accept=0</code> 表示什么？</td>
+<td>test 故意在 port busy 时发 LP entry request，期望 DUT 拒绝或不真正进入 low power，正在进行的 AXI transaction 不能被打断。</td>
+</tr>
+<tr>
+<td>已经进入 low power 后又来了 AXI traffic 怎么办？</td>
+<td>这不是 entry request，而是 peripheral activity；它应触发 LP exit，让 <code>cactive[port]</code> 恢复 active，然后正常接收 AXI transaction。</td>
+</tr>
+<tr>
+<td>system exit 和 peripheral exit 区别？</td>
+<td><code>m_b_sys_lp_exit=1</code> 是系统/clock controller 主动唤醒；<code>m_b_sys_lp_exit=0</code> 时 test 同时发普通 AXI traffic，用 peripheral activity 唤醒。</td>
+</tr>
+</tbody>
+</table>
+<p>判断对错时，Case 1-3 主要看 lowpower agent/sequence 是否按 <code>m_b_lp_accept</code> 和 exit 类型完成 handshake，并结合 AXI VIP、read-hash、AXI-HIF scoreboard 确认 transaction 没有丢失或阻塞；Case 4 额外用 <code>STAT.operating_mode/selfref_state/selfref_type</code> 做显式寄存器检查。</p>
 <p>DDR4 侧面试口径：</p>
 <blockquote>
 <p>DDR4 low-power 不只是 AXI clock gating。AXI port 先通过 hardware low-power handshake 进入 idle/clock removal 状态；当所有 port 都 idle 后，test 再请求 DDRC 进入 self-refresh，并通过 <code>STAT.operating_mode/selfref_state/selfref_type</code> 和 DFI low-power sideband monitor 检查状态。退出后还要继续发少量 AXI write/read，证明 controller 从 self-refresh 回到 normal mode 后数据路径恢复。</p>
 </blockquote>
-<h3 id="_11">一句话总答</h3>
+<p>追问口径：</p>
+<blockquote>
+<p>Low-power entry request 和 AXI transaction 是两类东西。Port idle 时 test 发 LP entry request，<code>m_b_lp_accept=1</code> 表示期望 DUT 接受并进入 low power；port busy 时也可以故意发 LP entry request，但 <code>m_b_lp_accept=0</code> 表示期望 DUT 拒绝，不能硬关掉正在服务的 AXI port。如果 port 已经在 low power，新的 AXI read/write 不是“再次请求 low power”，而是 peripheral activity，应触发退出并恢复 <code>cactive</code>。</p>
+</blockquote>
+<p>如果被问“这个 low power 是谁的 low power”，可以答：</p>
+<blockquote>
+<p>Case 1-3 的 single-port low power 是 AXI port 前端接口的 low power，不是整个 DDRC 或 DDR4 DRAM 的 self-refresh。它验证的是某个 AXI slave port 在 idle 时能不能进入 inactive/clock removal，busy 时能不能拒绝 entry，以及有新 AXI traffic 时能不能退出。Case 4 才是 DDRC-level low power：所有 AXI port 先进入 LP，然后 test 请求 DDRC 进入 self-refresh，并用 <code>STAT.operating_mode/selfref_type</code> 检查 DDRC/DRAM 侧状态。</p>
+</blockquote>
+<h3 id="_15">一句话总答</h3>
 <blockquote>
 <p>这些高级场景的共同点是都要跨层检查：AXI VIP 只保证入口协议，真正的结果要结合 RAL 配置、AXI-HIF 转换、HIF-DFI 调度、DDR4 timing/state、read-hash 数据一致性、ISR 和 postprocess。面试时我会按“激励怎么构造、配置改了哪些寄存器、checker 看哪一层、失败时先 debug 哪些信号”四步讲。</p>
 </blockquote>
@@ -1225,7 +1836,7 @@
 <li>DDR4 Memory VIP 接的是 PHY 之后的 DDR4 pin-level interface，不直接接 DFI。</li>
 <li>DFI 是 controller 和 PHY 之间的接口，主要由 DFI VIP / HIF-DFI scoreboard 监控。</li>
 <li>AXI read-hash scoreboard 不是 AXI VIP 自带功能，而是 PVE/UVM env 中自建的功能 scoreboard；它复用 AXI VIP monitor 采到的 <code>svt_axi_transaction</code>。</li>
-<li><code>DDR PHY / wrapper</code> 不是自己写的逻辑，而是 Synopsys DWC DDR controller/PHY IP wrapper，负责把 controller 的 DFI 行为转换成 DDR4 物理引脚行为。</li>
+<li>这个工程里没有看到完整 DDR PHY RTL；<code>PHY</code> 更多是 controller 的 PHY-facing DFI 边界，以及 testbench/memory model wrapper 对 DDR 侧行为的抽象。</li>
 </ul>
 <p>可以把链路记成：</p>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>APB/AXI VIP
@@ -1236,6 +1847,51 @@
   -&gt; DDR4 Memory VIP
 </code></pre></div>
 
+<p><a id="ddr4-phy-memory-model-abstraction"></a></p>
+<h3 id="phy">这个项目里的 PHY 是什么</h3>
+<p>这个项目里的 <code>PHY</code> 不是完整的 DDR PHY RTL。它主要表示 DDR controller 面向 PHY 的 DFI/sideband 边界，以及 testbench 中把 DDR 侧行为接到 SVT DDR4 memory model 的接口抽象。</p>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>这里的含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>真实芯片链路</td>
+<td><code>DDR Controller -&gt; DFI -&gt; DDR PHY -&gt; DDR pins -&gt; DDR DRAM</code></td>
+</tr>
+<tr>
+<td>当前仿真工程</td>
+<td><code>DWC_ddrctl -&gt; DFI / pad_ddr_* -&gt; TB wrapper/interface -&gt; SVT DDR4 memory model</code></td>
+</tr>
+<tr>
+<td>RTL 里看到的 <code>phy_*</code> / <code>ddrphy_*</code></td>
+<td>controller 的 PHY-facing port、DFI latency、init/update、PHY master/sideband handshake 等</td>
+</tr>
+<tr>
+<td>TB 里“像 PHY 一样”的部分</td>
+<td>DDR memory model interface 和 wrapper 接住 DUT 的 DDR pad-like 信号，返回 read data 并提供 JEDEC/timing 检查</td>
+</tr>
+</tbody>
+</table>
+<p>因此从跑仿真的角度，可以说 PHY 被 DDR memory model 的接口/包装层抽象掉了；但不要说 DDR4 Memory VIP 直接接 DFI。DFI VIP 是旁路监测 controller-PHY 接口，DDR4 Memory VIP 看的是 PHY 之后的 JEDEC pin-level 行为。</p>
+<p>工程里可以这样定位：</p>
+<ul>
+<li><code>src/dfi/</code>：controller 内部 DFI data/control/interconnect 逻辑，是面向 PHY 的接口适配，不是完整 PHY。</li>
+<li><code>gs_phyupd.sv</code> / <code>gs_phymstr.sv</code>：处理 DFI PHY update / PHY master sideband。</li>
+<li><code>ddr_uvm_pve_tb_top.sv</code>、<code>dwc_ddrctl_ddr_chip_wrapper.sv</code>、<code>mem_wrap/dwc_ddrctl_mem_sys_top.sv</code>：把 DUT 的 DDR/DFI/pad-like 行为接到 DFI VIP 和 SVT DDR memory model。</li>
+<li><code>dwc_ddrctl_dfi_env.sv</code>：DFI VIP passive monitor/checker，主要观察 DFI，不主动产生普通 DDR traffic。</li>
+</ul>
+<p>面试口径：</p>
+<blockquote>
+<p>这个工程里我不会把 PHY 说成自己实现的完整 DDR PHY。RTL 主要暴露的是 controller 的 PHY-facing DFI 接口和一些 PHY sideband 响应逻辑；仿真时真正接住 DDR 侧行为的是 testbench wrapper 加 SVT DDR4 memory model。DFI VIP 旁路监控 controller 到 PHY 的 DFI 命令、数据和 latency，DDR4 Memory VIP 则检查 PHY 后的 JEDEC pin-level command、state 和 timing。所以从仿真角度，PHY 可以理解成被 memory model interface/wrapper 抽象掉了。</p>
+</blockquote>
+<p>English version:</p>
+<blockquote>
+<p>In this project, I would not claim that I implemented a full DDR PHY. What is visible in the RTL is mainly the PHY-facing DFI boundary and a few PHY sideband handshakes. In simulation, the DDR side is abstracted by the testbench wrapper and the SVT DDR4 memory model. The DFI VIP passively monitors the controller-to-PHY interface, while the DDR4 Memory VIP checks the JEDEC pin-level behavior after the PHY abstraction.</p>
+</blockquote>
 <p><a id="ddr4-axi-read-hash-implementation"></a></p>
 <h3 id="axi-read-hash-scoreboard">AXI read-hash scoreboard 实现细节</h3>
 <p><code>read-hash</code> 里的 hash 不是 CRC/MD5 这类算法，而是 <strong>用 SystemVerilog associative array 建一个 sparse memory image</strong>。工程源码里的核心结构类似：</p>
@@ -1337,7 +1993,8 @@
 </code></pre></div>
 
 <hr>
-<h2 id="_12">验证环境架构</h2>
+<p><a id="ddr4-env-architecture"></a></p>
+<h2 id="_16">验证环境架构</h2>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>UVM test / virtual sequence
   |
   |-- APB VIP master sequence
@@ -1532,9 +2189,11 @@ R  channel: RDATA, RRESP, RLAST
 <p>AXI 看到的是线性 memory address，但 DDR4 实际组织不是平坦数组。controller 需要把地址拆成：</p>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>AXI byte address
   -&gt; system address
+  -&gt; HIF word address
   -&gt; rank / bank group / bank / row / column
 </code></pre></div>
 
+<p>当前工程里 AXI data width 是 256-bit，但 AXI 地址仍然是 byte address；进入 HIF 前会按 32-bit DRAM/HIF word 粒度去掉低 2 bit。具体例子见 <a href="#ddr4-axi-hif-address-map-example">AXI 256-bit 与 HIF / DDR 地址转换</a>。</p>
 <h3 id="ddr4_3">DDR4 基本命令</h3>
 <table>
 <thead>
@@ -1592,7 +2251,7 @@ R  channel: RDATA, RRESP, RLAST
   RD/WR column
 </code></pre></div>
 
-<h3 id="timing">Timing 约束</h3>
+<h3 id="timing_1">Timing 约束</h3>
 <p>controller 必须满足 DDR4 timing，否则即使 AXI protocol 完全正确，DDR4 侧仍然是错的。</p>
 <table>
 <thead>
@@ -1718,7 +2377,8 @@ AXI read observed:
 <li>如果有 timeout、scoreboard mismatch、UVM fatal/error，则生成 <code>FAILED</code>。</li>
 <li>如果所有检查通过，写 <code>PASSED</code> 和 <code>test.json</code>。</li>
 </ol>
-<h2 id="_13">一次典型测试流程</h2>
+<p><a id="ddr4-typical-test-flow"></a></p>
+<h2 id="_17">一次典型测试流程</h2>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>1. test_cfg randomize / select DDR4 config
 2. mss_initialize_subsystem
 3. APB VIP writes controller/PHY registers
@@ -1732,6 +2392,7 @@ AXI read observed:
 11. postprocess scans log and emits PASSED/FAILED
 </code></pre></div>
 
+<p><a id="ddr4-debug-method"></a></p>
 <h2 id="debug">Debug 思路</h2>
 <table>
 <thead>
@@ -1779,14 +2440,16 @@ AXI read observed:
 </tr>
 </tbody>
 </table>
-<h2 id="_14">面试回答要点</h2>
+<p><a id="ddr4-interview-answer-points"></a></p>
+<h2 id="_18">面试回答要点</h2>
 <p>中文：</p>
 <p>这个项目我会从 APB 和 AXI 两条路径讲。APB VIP 是控制路径，用来配置 DDR controller 和 PHY 的寄存器，包括 DDR4 模式、timing、地址映射、端口和 DFI/PHY 初始化。配置完成后通过 APB read polling 状态，确认 init/training done。然后 AXI4 VIP 作为数据路径，在一个或多个 AXI port 上发 write/read burst，通常先写入 pattern 再读回。</p>
 <p>关键点是，这不是单纯验证 APB/AXI protocol。APB/AXI 只是 stimulus 入口，真正被验证的是 DDR controller 能否把 AXI memory transaction 正确映射到 DDR4 的 rank、bank group、bank、row、column，并正确调度 ACT、RD、WR、PRE、REF 等命令，同时满足 DDR4 timing 和 refresh 要求。结果检查也分层：APB/AXI VIP checker 保证入口协议合法，read-hash scoreboard 检查数据完整性，AXI-HIF scoreboard 检查上层请求到内部 HIF 的转换，HIF-DFI scoreboard 检查 DDR 命令和 timing，最后 postprocess 扫 log 并根据 completed 字符串给出 PASS/FAIL。</p>
 <p>English:</p>
 <p>In this DDR controller verification project, APB and AXI VIPs are used as the main stimulus entry points. The APB VIP programs the controller and PHY registers, such as DDR mode, timing parameters, address mapping, port configuration, refresh settings, and DFI/PHY initialization. After polling the status registers and confirming that initialization and training are complete, the AXI4 VIP generates memory traffic, typically write bursts followed by read bursts to the DDR memory address space.</p>
 <p>The verification target is not just APB or AXI protocol compliance. Those protocols are only the front-door interfaces. The real goal is to verify that the DDR controller correctly maps AXI addresses to rank, bank group, bank, row and column, schedules DDR4 commands such as ACT, READ, WRITE, PRECHARGE and REFRESH, meets DDR4 timing constraints, and preserves data integrity. The checking is multi-layered: APB and AXI VIP checkers validate bus transactions, read-hash scoreboards compare written and read data, AXI-to-HIF and HIF-to-DFI scoreboards check internal conversion and DDR command behavior, and the postprocess script scans logs and the completion message to generate the final pass/fail result.</p>
-<h2 id="_15">常见追问</h2>
+<p><a id="ddr4-common-followups"></a></p>
+<h2 id="_19">常见追问</h2>
 <table>
 <thead>
 <tr>
@@ -1829,6 +2492,7 @@ AXI read observed:
 <li>Explained multi-layer checking with APB/AXI protocol checkers, read-hash scoreboard, AXI-HIF scoreboard, HIF-DFI scoreboard, DDR/DFI checkers and regression postprocess.</li>
 </ul>
 <hr>
+<p><a id="ddr4-vip-usage-qa"></a></p>
 <h2 id="q-vip">Q: VIP 具体结构和怎么使用的</h2>
 <h3 id="vip">VIP 整体架构</h3>
 <p>本工程使用 Synopsys DesignWare SVT VIP，针对 DWC_ddrctl_ddr54 做了定制封装，基于 UVM 框架。</p>
@@ -1966,7 +2630,7 @@ AXI read observed:
 </tr>
 </tbody>
 </table>
-<h3 id="_16">运行一个测试</h3>
+<h3 id="_20">运行一个测试</h3>
 <div class="codehilite" data-lang="Bash"><pre><span></span><code><span class="c1"># 编译</span>
 vcs<span class="w"> </span>-sverilog<span class="w"> </span>-f<span class="w"> </span>compile.f
 
@@ -1976,6 +2640,7 @@ vcs<span class="w"> </span>-sverilog<span class="w"> </span>-f<span class="w"> <
 
 <p>新增测试：继承 <code>dwc_ddrctl_pve_base_test</code>，重写 <code>run_phase()</code>，在 <code>dwc_ddrctl_pve_test_pkg.sv</code> 里 <code>include</code> 即可。</p>
 <hr>
+<p><a id="ddr4-config-qa"></a></p>
 <h2 id="q-config">Q: Config 需要配置什么</h2>
 <p>工程有 5 类 Config 对象形成层次：</p>
 <div class="codehilite" data-lang="Code"><pre><span></span><code>dwc_ddrctl_mss_cfg（顶层总配置）
@@ -2238,7 +2903,7 @@ vcs<span class="w"> </span>-sverilog<span class="w"> </span>-f<span class="w"> <
 </tr>
 </tbody>
 </table>
-<h3 id="_17">配置流向</h3>
+<h3 id="_21">配置流向</h3>
 <div class="codehilite" data-lang="Code"><pre><span></span><code>测试用例 (test)
   → 创建 + 随机化 dwc_ddrctl_mss_cfg
   → uvm_config_db::set() 向下传递
@@ -2252,10 +2917,11 @@ svt_apb_system_env / svt_axi_system_env
 </code></pre></div>
 
 <hr>
+<p><a id="ddr4-mss-env-qa"></a></p>
 <h2 id="q-mss_env">Q: mss_env 是什么</h2>
 <p><strong>MSS = Memory Sub-System（内存子系统）</strong></p>
 <p><code>dwc_ddrctl_mss_env</code> 是整个 UVM 验证环境的<strong>根节点 env</strong>，是 <code>uvm_test</code> 下面的第一层 <code>uvm_env</code>。</p>
-<h3 id="_18">它的定位：把所有子系统组装在一起</h3>
+<h3 id="_22">它的定位：把所有子系统组装在一起</h3>
 <div class="codehilite" data-lang="Code"><pre><span></span><code>dwc_ddrctl_mss_env
 ├── m_vip_env          ← 所有对外协议 VIP（APB / AXI / DFI）
 ├── m_mctl_env         ← DDR controller 内部监控（HIF agent、scoreboard）
@@ -2272,6 +2938,7 @@ svt_apb_system_env / svt_axi_system_env
 - <code>connect_phase</code>：把各组件之间的 TLM port、RAL adapter、vseqr 句柄接起来
 - 比喻：test 是项目经理，mss_env 是工地总包</p>
 <hr>
+<p><a id="ddr4-env-build-flow"></a></p>
 <h2 id="q-uvm">Q: UVM 验证环境搭建流程（如何搭建）</h2>
 <h3 id="ddr_uvm_pve_tb_topsv-module">第一步：物理连接层 <code>ddr_uvm_pve_tb_top</code>（SV module）</h3>
 <ol>
@@ -2332,9 +2999,10 @@ svt_apb_system_env / svt_axi_system_env
 </code></pre></div>
 
 <hr>
-<h2 id="q-callback">Q: Callback 用来做什么</h2>
-<h3 id="_19">问题背景</h3>
-<p>SVT VIP 的 monitor 是封闭黑盒，源码不能改。但用户需要在"monitor 观察到事务"这个时机做额外的事情。Callback 就是在 VIP monitor 的关键时间点"插入自己的代码"的标准扩展接口。</p>
+<p><a id="ddr4-axi-monitor-callback-scoreboard"></a></p>
+<h2 id="q-axi-monitor-callback-scoreboard">Q: AXI Monitor Callback 怎么接到 Scoreboard</h2>
+<h3 id="_23">问题背景</h3>
+<p>SVT VIP 的 monitor 是封闭黑盒，源码不能改。但项目需要在 AXI 的不同协议阶段拿到 transaction：完整 transaction 要给 read-hash scoreboard 做数据一致性检查，AR/AW command 刚 handshake 完成时又要给 AXI-HIF scoreboard 做 command 预测。Callback 就是在 VIP monitor 的关键时间点插入项目自定义逻辑的标准扩展接口。</p>
 <h3 id="apb-monitor-callback">APB Monitor Callback 做的事</h3>
 <p><code>dwc_ddrctl_apb_master_mon_cb</code> 重写 <code>output_port_cov()</code>：</p>
 <table>
@@ -2376,25 +3044,60 @@ svt_apb_system_env / svt_axi_system_env
 <td>触发 <code>m_ev_xact_write_cmd_started</code> 事件</td>
 </tr>
 <tr>
+<td><code>write_address_phase_ended()</code></td>
+<td>AWVALID+AWREADY</td>
+<td><code>m_ap_axi_wrcmd.write(item)</code>，把 write command 发给 AXI-HIF scoreboard；outstanding write 计数 +1</td>
+</tr>
+<tr>
+<td><code>read_address_phase_started()</code></td>
+<td>ARVALID 拉高</td>
+<td>触发 <code>m_ev_xact_read_cmd_started</code> 事件</td>
+</tr>
+<tr>
 <td><code>read_address_phase_ended()</code></td>
 <td>ARVALID+ARREADY</td>
-<td>outstanding 计数 +1，触发事件</td>
+<td><code>m_ap_axi_rdcmd.write(item)</code>，把 read command 发给 AXI-HIF scoreboard；outstanding read 计数 +1</td>
 </tr>
 <tr>
 <td><code>transaction_ended()</code></td>
-<td>B/R 最后一拍</td>
-<td>outstanding 计数 -1，向 analysis port 发布完整事务</td>
+<td>B response 完成或 read data 最后一拍完成</td>
+<td>outstanding 计数 -1，触发 <code>m_ev_read_xact_done</code> / <code>m_ev_write_xact_done</code></td>
 </tr>
 </tbody>
 </table>
-<p><code>transaction_ended()</code> 里向 scoreboard 发布事务是最关键的：</p>
-<div class="codehilite" data-lang="Code"><pre><span></span><code>AXI read 完成
-  → m_ap_axi_rdwr_order.write(item)
-  → axi_read_hash_sb.write()
-  → 比对 RDATA 和期望值 → PASS/FAIL
+<p>注意：完整 AXI transaction 不是这个 callback 的 <code>transaction_ended()</code> 自己发给 read-hash 的，而是 SVT AXI monitor 的 <code>item_observed_port</code> 在 transaction 完成后广播；callback 主要额外发布 AR/AW command-level transaction，并维护 event / outstanding counter。</p>
+<h3 id="_24">实际连接链路</h3>
+<p>完整 transaction 到 read-hash scoreboard：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">m_vip_env</span><span class="p">.</span><span class="n">m_axi_master_env</span><span class="p">.</span><span class="n">master</span><span class="p">[</span><span class="n">jj</span><span class="p">].</span><span class="n">monitor</span><span class="p">.</span><span class="n">item_observed_port</span>
+<span class="w">  </span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">m_mctl_env</span><span class="p">.</span><span class="n">m_axi_read_hash_sb</span><span class="p">[</span><span class="n">jj</span><span class="p">].</span><span class="n">m_stimulus_ap</span><span class="p">);</span>
 </code></pre></div>
 
-<h3 id="_20">一句话总结</h3>
+<p>这条链路用于 end-to-end data integrity：write 更新 sparse memory image，read 与 expected byte 数据比较。</p>
+<p>AR/AW command 到 AXI-HIF scoreboard：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">m_vip_env</span><span class="p">.</span><span class="n">m_axi_port_mon_cb</span><span class="p">[</span><span class="n">pid</span><span class="p">].</span><span class="n">m_ap_axi_rdcmd</span>
+<span class="w">  </span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">m_mctl_env</span><span class="p">.</span><span class="n">m_axi_hif_top_sb</span><span class="p">.</span><span class="n">m_ap_imp_axi_rdcmd_xact</span><span class="p">);</span>
+
+<span class="n">m_vip_env</span><span class="p">.</span><span class="n">m_axi_port_mon_cb</span><span class="p">[</span><span class="n">pid</span><span class="p">].</span><span class="n">m_ap_axi_wrcmd</span>
+<span class="w">  </span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">m_mctl_env</span><span class="p">.</span><span class="n">m_axi_hif_top_sb</span><span class="p">.</span><span class="n">m_ap_imp_axi_wrcmd_xact</span><span class="p">);</span>
+</code></pre></div>
+
+<p>这条链路用于 AXI-to-HIF command 预测：AR/AW 被 DUT 接受后，scoreboard 就能预测后续 HIF command，而不用等 read data 或 write response 全部回来。</p>
+<p>read/write ordering 辅助链路：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">m_vip_env</span><span class="p">.</span><span class="n">m_axi_port_mon_cb</span><span class="p">[</span><span class="n">jj</span><span class="p">].</span><span class="n">m_ap_axi_rdwr_order</span>
+<span class="w">  </span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">m_mctl_env</span><span class="p">.</span><span class="n">m_axi_read_hash_sb</span><span class="p">[</span><span class="n">jj</span><span class="p">].</span><span class="n">m_ap_imp_axi_rdwr_order</span><span class="p">);</span>
+</code></pre></div>
+
+<p>这条链路服务于 <code>rdwr_ordered_en</code>、同周期 read/write 和地址冲突场景，用 command 接收顺序帮助 read-hash scoreboard 决定 response 应该按什么顺序更新/比较 expected memory。</p>
+<h3 id="_25">触发条件在哪里</h3>
+<p><code>read_address_phase_ended()</code> 为什么在 AR handshake 成功后被调用？触发条件写在 SVT AXI VIP monitor 内部：monitor 采样到 <code>ARVALID &amp;&amp; ARREADY</code> 后调用 callback。项目 callback 文件里能看到方法注释和 sanity check：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="n">m_pcfg</span><span class="p">.</span><span class="n">master_if</span><span class="p">.</span><span class="n">axi_monitor_cb</span><span class="p">.</span><span class="n">arready</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">)</span><span class="w"> </span><span class="o">||</span>
+<span class="w">    </span><span class="p">(</span><span class="n">m_pcfg</span><span class="p">.</span><span class="n">master_if</span><span class="p">.</span><span class="n">axi_monitor_cb</span><span class="p">.</span><span class="n">arvalid</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">))</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="no">`uvm_fatal</span><span class="p">(...)</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>这个 <code>if</code> 不是触发条件本身，只是确认 VIP 确实在 AR handshake 完成的时机调用了用户 callback。AW 同理是 <code>AWVALID &amp;&amp; AWREADY</code>。</p>
+<h3 id="_26">一句话总结</h3>
 <table>
 <thead>
 <tr>
@@ -2409,10 +3112,11 @@ svt_apb_system_env / svt_axi_system_env
 </tr>
 <tr>
 <td>AXI port mon_cb</td>
-<td>monitor 看到事务 → 触发同步事件 + 把事务推给 scoreboard</td>
+<td>monitor 在 AR/AW/data/response 阶段通知 callback → callback 触发事件、维护 outstanding，并把 command transaction 分发给 AXI-HIF / read-hash ordering 逻辑</td>
 </tr>
 </tbody>
 </table>
+<p>面试口径：<strong>完整 transaction 检查走 monitor <code>item_observed_port</code>；更早的 AR/AW command 检查走自定义 callback 里的 analysis port。callback 的触发条件在 VIP monitor 内部，用户 callback 只定义被调用后的动作。</strong></p>
     </article>
   </main>
   <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>

@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -79,7 +81,34 @@
       <p><a href="../index.html">返回目录</a></p>
 <h1 id="projects-hr">Projects / HR</h1>
 <p>项目笔记分两层：<code>projects-and-behavioral.md</code> 放面试可直接讲的 STAR 和英文回答；单独的 <code>*-details.md</code> 放技术细节。</p>
-<h2 id="_1">主项目</h2>
+<h2 id="_1">项目复习路线</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>目标</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 先背项目边界</td>
+<td>先能说清“我做了什么/没做什么”，避免被追问时口径跑偏</td>
+<td><a href="uvm-project-interview-briefs.html#uvm-project-positioning">两个 UVM 项目总定位</a></td>
+</tr>
+<tr>
+<td>2. 再背项目故事</td>
+<td>每个项目准备 60-120 秒版本，先讲价值再讲细节</td>
+<td><a href="projects-and-behavioral.html#project-stories">项目故事库</a></td>
+</tr>
+<tr>
+<td>3. 最后按项目深挖</td>
+<td>只钻今天要复习的项目，不要在所有细节页里来回跳</td>
+<td><a href="uvm-project-interview-briefs.html#axi-dma-deep-dive-script">AXI DMA 深挖</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 复习地图</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">主项目</h2>
 <table>
 <thead>
 <tr>
@@ -90,9 +119,14 @@
 </thead>
 <tbody>
 <tr>
+<td>两个 UVM 验证项目面试简述</td>
+<td><a href="uvm-project-interview-briefs.html#uvm-project-interview-briefs">可背文稿</a></td>
+<td><a href="uvm-project-interview-briefs.html#axi-dma-interview-script">AXI DMA</a> / <a href="uvm-project-interview-briefs.html#axi-dma-deep-dive-script">AXI 深挖</a> / <a href="uvm-project-interview-briefs.html#ddr4-interview-script">DDR4 Controller</a> / <a href="uvm-project-interview-briefs.html#ddr4-deep-dive-script">DDR4 深挖</a> / <a href="uvm-project-interview-briefs.html#uvm-project-comparison">对比</a></td>
+</tr>
+<tr>
 <td>AXI DMA UVM 验证项目</td>
 <td><a href="projects-and-behavioral.html#star-axi-dma">STAR</a></td>
-<td><a href="axi-dma-uvm-details.html#axi-dma-project-parameters">参数</a> / <a href="axi-dma-uvm-details.html#axi-dma-ral-mem-scoreboard">RAL + memory + scoreboard</a> / <a href="axi-dma-uvm-details.html#axi-dma-innosilicon-followups">芯动追问</a></td>
+<td><a href="axi-dma-uvm-details.html#axi-dma-project-parameters">参数</a> / <a href="axi-dma-uvm-details.html#axi-dma-ral-mem-scoreboard">RAL + memory + scoreboard</a> / <a href="axi-dma-uvm-details.html#axi-dma-invalid-cfg-boundary">非法配置与 boundary</a> / <a href="axi-dma-uvm-details.html#axi-dma-innosilicon-followups">芯动追问</a></td>
 </tr>
 <tr>
 <td>INT8 NPU 流片项目</td>
@@ -107,7 +141,7 @@
 <tr>
 <td>DDR4 Controller APB + AXI VIP 验证项目</td>
 <td><a href="projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">STAR</a></td>
-<td><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-project-parameters">参数</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级场景</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">checker 分工</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-axi-read-hash-implementation">read-hash</a></td>
+<td><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">复习地图</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">FR1:2 + ECC 配置</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-html-diagram">HTML 图解</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-project-parameters">参数</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-timing-cinit-config">Timing</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">Checker</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-debug-method">Debug</a></td>
 </tr>
 <tr>
 <td>Ibex RV32IM UVM / 官方 DV Bring-up</td>
@@ -116,7 +150,7 @@
 </tr>
 </tbody>
 </table>
-<h2 id="_2">补充项目</h2>
+<h2 id="_3">补充项目</h2>
 <ul>
 <li><a href="projects-and-behavioral.html#star-apb-uart">APB-UART UVM 验证环境</a></li>
 <li><a href="projects-and-behavioral.html#star-async-fifo">Async FIFO UVM 验证</a></li>

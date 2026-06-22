@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -176,6 +178,18 @@
 <td><a href="knowledge-base/systemverilog-uvm.html#uvm-tlm">UVM TLM 通信</a></td>
 </tr>
 <tr>
+<td>Analysis Port</td>
+<td>UVM analysis port</td>
+<td>monitor 等 producer 非阻塞广播 transaction 的 TLM 端口，可一对多连接 scoreboard、coverage、logger</td>
+<td><a href="knowledge-base/systemverilog-uvm.html#uvm-analysis-port">Analysis Port</a></td>
+</tr>
+<tr>
+<td>Callback</td>
+<td>UVM / VIP callback</td>
+<td>注册到组件上的扩展钩子；组件在特定时机调用 callback 方法，用户无需修改原组件源码</td>
+<td><a href="knowledge-base/systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP Monitor Callback 到 Scoreboard</a></td>
+</tr>
+<tr>
 <td>Factory</td>
 <td>UVM Factory</td>
 <td>UVM 中用于对象创建和类型替换的机制</td>
@@ -263,7 +277,7 @@
 <td>valid-ready</td>
 <td>握手协议</td>
 <td><code>valid &amp;&amp; ready</code> 同周期为 1 时一次 transaction 完成</td>
-<td><a href="knowledge-base/systemverilog-uvm.html#sv-valid-ready-task-tb">valid-ready task TB</a></td>
+<td><a href="knowledge-base/asic-frontend.html#ready-valid-backpressure-pipeline">ready/valid 反压流水</a> / <a href="knowledge-base/systemverilog-uvm.html#sv-valid-ready-task-tb">valid-ready task TB</a></td>
 </tr>
 <tr>
 <td>Upcast</td>
@@ -297,10 +311,28 @@
 <td><a href="knowledge-base/protocols.html#apb">APB 协议</a></td>
 </tr>
 <tr>
+<td>Backpressure</td>
+<td>反压</td>
+<td>下游通过拉低 ready 或延迟 response 限制上游继续发送，防止 buffer/FIFO overflow</td>
+<td><a href="knowledge-base/asic-frontend.html#ready-valid-backpressure-pipeline">ready/valid 反压流水</a> / <a href="knowledge-base/protocols.html#axi-valid-ready">AXI valid/ready handshake</a></td>
+</tr>
+<tr>
 <td>AXI Burst</td>
 <td>AXI burst transfer</td>
 <td>一次 address handshake 后连续传多个 beat；AXI4 <code>LEN</code>/<code>ALEN</code> 字段通常表示 beats-1</td>
 <td><a href="projects-hr/axi-dma-uvm-details.html#axi-dma-project-parameters">AXI DMA 参数</a></td>
+</tr>
+<tr>
+<td>AXI Byte Address</td>
+<td>AXI byte addressing</td>
+<td>AXI <code>AWADDR/ARADDR</code> 以 byte 为单位编址，和 <code>WDATA/RDATA</code> 总线宽度是两回事；256-bit data bus 只表示每 beat 最多搬 32 bytes</td>
+<td><a href="knowledge-base/protocols.html#axi-byte-address-data-width">AXI byte address</a></td>
+</tr>
+<tr>
+<td>AXI 4KB Boundary</td>
+<td>AXI burst boundary rule</td>
+<td>AXI4 INCR burst 不能跨 4KB 边界；长 DMA transfer 可以跨，但 master 必须主动拆成多笔合法 burst</td>
+<td><a href="knowledge-base/protocols.html#axi-4kb-boundary-burst-split">AXI 4KB boundary</a></td>
 </tr>
 <tr>
 <td>AXI Outstanding</td>
@@ -336,7 +368,13 @@
 <td>DFI</td>
 <td>DDR PHY Interface</td>
 <td>DDR controller 和 DDR PHY 之间的标准接口；DFI VIP 监控这一层，DDR4 Memory VIP 通常看 PHY 后的 JEDEC pin-level 信号</td>
-<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+<td><a href="knowledge-base/protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+</tr>
+<tr>
+<td>FR / Frequency Ratio</td>
+<td>DFI frequency ratio</td>
+<td>DFI/controller clock 与 DDR CK 的频率比；FR1:2 时一个 controller cycle 聚合 2 个 DDR CK、4 个 DDR data edges</td>
+<td><a href="knowledge-base/protocols.html#dfi-ddr-width-fr2-ecc">DFI / DDR / AXI 位宽换算</a></td>
 </tr>
 <tr>
 <td>JEDEC</td>
@@ -349,6 +387,66 @@
 <td>DDR4 Verification IP</td>
 <td>DDR4 存储器模型/VIP，检查 JEDEC pin-level command、bank/rank state、DQ/DQS 和 timing violation</td>
 <td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+</tr>
+<tr>
+<td>DDR4 x72 x8</td>
+<td>DDR4 x72 organization using x8 devices</td>
+<td>8 颗 x8 组成 64-bit data，另 1 颗 x8 做 8-bit ECC；单 rank 共 9 颗 x8</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">FR1:2 + ECC 配置</a></td>
+</tr>
+<tr>
+<td>DDR PHY Abstraction</td>
+<td>DDR PHY 抽象</td>
+<td>在当前 DDR4 controller 仿真工程里，没有完整 PHY RTL；controller 的 DFI/PHY-facing 边界通过 TB wrapper/interface 接到 SVT DDR4 memory model</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-phy-memory-model-abstraction">DDR4 PHY 抽象</a></td>
+</tr>
+<tr>
+<td>HIF Address</td>
+<td>Host Interface word address</td>
+<td>DDR controller 内部 HIF 地址；当前 DDR4 项目里约等于 AXI byte address 去掉低 2 bit，因为 DRAM/HIF word 是 32-bit=4 bytes</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-hif-address-map-example">AXI/HIF 地址转换</a></td>
+</tr>
+<tr>
+<td>ECC</td>
+<td>Error-Correcting Code</td>
+<td>用冗余校验位检测/纠正数据 bit error；DDR controller 中常用于区分 correctable 和 uncorrectable error</td>
+<td><a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+</tr>
+<tr>
+<td>Hamming Code</td>
+<td>Hamming error-correcting code</td>
+<td>通过多个 parity check 生成 syndrome，定位并纠正单 bit 错误</td>
+<td><a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+</tr>
+<tr>
+<td>SECDED</td>
+<td>Single Error Correction, Double Error Detection</td>
+<td>单 bit 可纠正、双 bit 可检测；通常是 Hamming parity 加 overall parity</td>
+<td><a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+</tr>
+<tr>
+<td>Syndrome</td>
+<td>ECC syndrome</td>
+<td>重新计算 parity 后得到的错误定位码；非 0 时通常指向出错 bit 位置</td>
+<td><a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+</tr>
+<tr>
+<td>Byte Lane</td>
+<td>Byte lane</td>
+<td>数据通路里的 8-bit 分片；32-bit data bus 有 4 个 byte lanes，<code>WSTRB</code> 每 bit 对应一个 byte lane</td>
+<td><a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+</tr>
+<tr>
+<td>CINIT</td>
+<td>Controller initialization flow</td>
+<td>Synopsys DWC DDR controller 的初始化配置流，根据 defconfig/memory 参数计算 APB timing、mode register、refresh、DFI/PHY init 等寄存器值</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-timing-cinit-config">DDR4 Timing 配置</a></td>
+</tr>
+<tr>
+<td>DDR4 Timing Register</td>
+<td>DDR4 controller timing register</td>
+<td>controller 内部用于约束 ACT/RD/WR/PRE/REF、refresh 和 DFI latency 的 APB 寄存器，如 <code>DRAMSET1TMG*</code>、<code>RFSHSET1TMG*</code>、<code>DFITMG*</code></td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-timing-cinit-config">DDR4 Timing 配置</a></td>
 </tr>
 <tr>
 <td>NODIMM</td>

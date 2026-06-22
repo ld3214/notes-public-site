@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="../projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -83,10 +85,14 @@
 <ul>
 <li><a href="#protocol-overview">协议总览</a></li>
 <li><a href="#axi">AXI</a></li>
+<li><a href="#axi-byte-address-data-width">AXI byte address 和 data width</a></li>
+<li><a href="#axi-4kb-boundary-burst-split">AXI 4KB boundary 和 burst 拆分</a></li>
 <li><a href="#axi-valid-ready">AXI valid/ready handshake</a></li>
 <li><a href="#axi-outstanding">AXI Outstanding Transaction</a></li>
 <li><a href="#axi-interleaving">AXI Interleaving</a></li>
 <li><a href="#axil">AXI-Lite 与 CSR 编程</a></li>
+<li><a href="#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a></li>
+<li><a href="#dfi-ddr-width-fr2-ecc">DFI / DDR / AXI 位宽换算</a></li>
 <li><a href="#apb">APB</a></li>
 <li><a href="#protocol-interview-answers">面试回答速查（中文 + English）</a></li>
 </ul>
@@ -100,6 +106,7 @@
 <li>AHB</li>
 <li>APB</li>
 <li>PCIe</li>
+<li>DFI / DDR PHY Interface</li>
 <li>I2C</li>
 <li>SPI</li>
 <li>UART</li>
@@ -174,6 +181,14 @@
 <li>发送方不能等 READY 才拉高 VALID（会死锁）。</li>
 <li>接收方可以在 VALID 之前就拉高 READY（不违反协议）。</li>
 </ul>
+<p><strong>和 UVM/VIP monitor 的关系</strong></p>
+<p>VIP monitor 会在内部采样这些 handshake 条件，并把 pin-level 事件转换成 transaction 或 callback 事件。例如 AXI monitor 看到 <code>ARVALID &amp;&amp; ARREADY</code> 后，会认为 read address channel handshake 完成，然后调用类似 <code>read_address_phase_ended()</code> 的 callback；看到 <code>AWVALID &amp;&amp; AWREADY</code> 后，会调用 write address ended callback。触发条件写在 VIP monitor 内部，用户 callback 只是定义“被通知后做什么”。</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>ARVALID &amp;&amp; ARREADY
+  -&gt; monitor samples ARADDR/ARID/ARLEN
+  -&gt; read_address_phase_ended(callback)
+  -&gt; callback/monitor publishes transaction to scoreboard
+</code></pre></div>
+
 <p><strong>Read Transaction 流程</strong></p>
 <div class="codehilite" data-lang="Code"><pre><span></span><code>Master                     Slave
   AR channel: ARVALID + ARADDR/ARID/ARLEN  →
@@ -206,6 +221,50 @@
 <li><code>INCR</code>：地址递增，最常用。</li>
 <li><code>WRAP</code>：地址在边界内回绕，用于 cache line 对齐访问。</li>
 <li><strong>AXID</strong>：transaction ID，用于 outstanding 和 out-of-order 追踪。</li>
+</ul>
+<p><a id="axi-byte-address-data-width"></a></p>
+<h2 id="axi-byte-address-data-width">AXI byte address 和 data width</h2>
+<p>AXI 的 <code>AWADDR/ARADDR</code> 是 byte address，<code>WDATA/RDATA</code> 的总线宽度只是每个 beat 能搬多少 byte。两者不要混成一个概念。</p>
+<p>例如 256-bit AXI data bus 表示一个 beat 最多传 32 bytes；如果 <code>AWSIZE/ARSIZE=5</code>，这个 beat 的访问大小就是 <code>2^5=32 bytes</code>。但起始地址 <code>AWADDR/ARADDR</code> 仍然按 byte 编址，<code>0x0000</code> 的下一个 32-byte aligned beat 是 <code>0x0020</code>，不是 <code>0x0001</code>。</p>
+<p>在 DDR controller 里，AXI byte address 还可能先转换成内部 word address，再做 rank/bank/row/column 映射。当前 DDR4 项目是 32-bit DRAM/HIF word，所以 <code>HIF_addr = AXI_byte_addr &gt;&gt; 2</code>；这不表示 AXI 是 32-bit，只表示低 2 bit 是 4-byte word 内的 byte offset。项目例子见 <a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-hif-address-map-example">AXI 256-bit 与 HIF / DDR 地址转换</a>。</p>
+<p><a id="axi-4kb-boundary-burst-split"></a></p>
+<h2 id="axi-4kb-boundary-burst">AXI 4KB boundary 和 burst 拆分</h2>
+<p>AXI4 允许一次系统级 DMA transfer 跨过 4KB 地址边界，但<strong>单个 INCR burst 不能跨 4KB boundary</strong>。拆 burst 的主体是 AXI master，例如 DMA RTL 或 CPU master，不是 AXI bus、slave 或 interconnect 自动帮忙拆。</p>
+<p><strong>核心概念</strong></p>
+<ul>
+<li>4KB boundary 可以理解成地址低 12 bit 从 <code>12'hfff</code> 回到 <code>12'h000</code> 的边界，例如 <code>0x0000_0fff -&gt; 0x0000_1000</code>。</li>
+<li>Master 发出 <code>ARADDR/AWADDR</code> 和 <code>ARLEN/AWLEN</code> 前，要先算当前 burst 是否会跨 boundary。</li>
+<li>如果会跨，master 应缩短当前 burst，让最后一个 beat 停在 boundary 前；剩余数据用下一笔新的 AXI transaction 从 boundary 后继续。</li>
+<li>Slave/interconnect 通常不会把一个非法 burst 自动拆成合法 burst；如果 master 发了跨 4KB 的 INCR burst，协议 checker 会报错，系统也可能返回 error response。</li>
+</ul>
+<p><strong>项目例子：32-bit AXI data bus</strong></p>
+<p><code>boundary_transfer_test</code> 使用：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>src       = 0x0000_0ff0
+dst       = 0x0001_0ff0
+num_bytes = 96
+</code></pre></div>
+
+<p>32-bit data bus 每 beat 传 4 bytes。<code>0x1000 - 0x0ff0 = 16 bytes</code>，所以第一笔 burst 最多只能发 4 beats：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>burst 1:
+  ARADDR = 0x0000_0ff0
+  ARLEN  = 3              // 4 beats = 16 bytes
+  range  = 0x0ff0, 0x0ff4, 0x0ff8, 0x0ffc
+
+burst 2:
+  ARADDR = 0x0000_1000
+  ARLEN  = 19             // 20 beats = 80 bytes
+  range  = 0x1000 ... remaining 80 bytes
+</code></pre></div>
+
+<p>如果 master 直接发 <code>ARADDR=0x0ff0, ARLEN=23</code>，这 24 beats / 96 bytes 会覆盖 <code>0x0ff0</code> 到 <code>0x104f</code>，单个 burst 跨过 <code>0x1000</code>，这是 AXI4 INCR burst 的非法行为。</p>
+<p><strong>面试回答</strong></p>
+<p>中文：AXI 的 4KB boundary 规则限制的是单个 burst，不是限制整个 DMA transfer。长 transfer 可以跨 4KB，但 AXI master 必须在生成 <code>ARLEN/AWLEN</code> 时主动拆成多笔合法 transaction。比如从 <code>0x0ff0</code> 搬 96 bytes，32-bit data bus 下第一笔只能发 16 bytes 到 <code>0x1000</code> 前，剩下 80 bytes 从 <code>0x1000</code> 再发第二笔。这个拆分是 master RTL 的职责，不是 AXI bus 自动完成。</p>
+<p>English: The AXI 4KB boundary rule applies to a single burst, not to the whole DMA transfer. A transfer may cross a 4KB boundary, but the AXI master must split it into legal bursts before issuing AR/AW. For example, starting at <code>0x0ff0</code> with 96 bytes on a 32-bit data bus, the first burst can only cover 16 bytes up to the boundary, and the remaining 80 bytes must be issued as a second transaction from <code>0x1000</code>.</p>
+<p><strong>常见错误</strong></p>
+<ul>
+<li>把“DMA transfer 跨 boundary”误说成非法；真正非法的是<strong>单个 AXI INCR burst</strong>跨 4KB。</li>
+<li>以为 AXI bus 会自动拆 burst；实际应由 master RTL 或 VIP master sequence 产生合法 burst。</li>
+<li>忘记 <code>ARLEN/AWLEN</code> 是 beats-1，例如 4 beats 对应 <code>LEN=3</code>。</li>
 </ul>
 <p><strong>AXI3 vs AXI4 主要区别</strong></p>
 <table>
@@ -647,10 +706,207 @@ uvm_reg_predictor          → 调用 adapter.bus2reg() 更新 RAL mirror
 <li>把 AXI-Lite 当 APB 记：两者都是简单单 beat 传输，但 AXI-Lite 用 valid/ready 握手、五个通道，APB 用 PSEL/PENABLE 两 phase。</li>
 </ul>
 <hr>
+<p><a id="dfi-ddr-phy-interface"></a></p>
+<h2 id="dfi-ddr-phy-interface">DFI / DDR PHY Interface</h2>
+<p>标签：<code>#protocol</code> <code>#ddr</code> <code>#dfi</code> <code>#phy</code> <code>#dv</code> <code>#interview</code></p>
+<h2 id="dfi">DFI 是什么</h2>
+<p>DFI (DDR PHY Interface) 是 DDR controller 和 DDR PHY 之间的标准接口：controller 通过 DFI 发 DDR 命令、地址、写数据和低功耗/update 请求；PHY 通过 DFI 返回初始化状态、握手响应、告警和读数据。</p>
+<p>在 DDR4 controller 项目里，可以把 DFI 看成 <strong>AXI/HIF 到 JEDEC pin-level 之间的中间层</strong>：scoreboard 或 DFI VIP 会检查 controller 是否把上游访问正确转换为 DFI 命令和数据时序。</p>
+<h2 id="controller">信号方向总表（controller 视角）</h2>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>信号类别</th>
+<th>代表信号</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>命令/地址</td>
+<td><code>dfi_address</code>, <code>dfi_bank</code>, <code>dfi_bg</code>, <code>dfi_act_n</code>, <code>dfi_ras_n</code>, <code>dfi_cas_n</code>, <code>dfi_we_n</code>, <code>dfi_cs</code></td>
+<td>表达 ACT/RD/WR/PRE/MRS 等 DDR command 以及 rank/bank/row/col 选择</td>
+</tr>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>控制/片选辅助</td>
+<td><code>dfi_cke</code>, <code>dfi_odt</code>, <code>dfi_reset_n</code>, <code>dfi_parity_in</code>, <code>dfi_geardown_en</code> / <code>dfi_2n_mode</code></td>
+<td>控制 CKE、ODT、reset、command parity、gear-down/2N mode 等 DDR 侧行为</td>
+</tr>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>频率/初始化</td>
+<td><code>dfi_init_start</code>, <code>dfi_frequency</code>, <code>dfi_freq_ratio</code>, <code>dfi_dram_clk_disable</code></td>
+<td>触发 PHY init、选择频点/DFI ratio、控制 DRAM clock disable</td>
+</tr>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>更新/低功耗请求</td>
+<td><code>dfi_ctrlupd_req</code>, <code>dfi_phyupd_ack</code>, <code>dfi_phymstr_ack</code>, <code>dfi_lp_ctrl_req</code>, <code>dfi_lp_ctrl_wakeup</code>, <code>dfi_lp_data_req</code>, <code>dfi_lp_data_wakeup</code></td>
+<td>controller update、PHY update acknowledge、PHY master acknowledge、低功耗进入/唤醒握手</td>
+</tr>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>写数据路径</td>
+<td><code>dfi_wrdata</code>, <code>dfi_wrdata_mask</code>, <code>dfi_wrdata_en</code>, <code>dfi_wrdata_cs</code></td>
+<td>发写数据、byte mask/DBI mask、写数据有效和写数据对应 chip select</td>
+</tr>
+<tr>
+<td>Controller -&gt; PHY</td>
+<td>读请求路径</td>
+<td><code>dfi_rddata_en</code>, <code>dfi_rddata_cs</code></td>
+<td>告诉 PHY 之后会有读数据返回，并标识对应 rank/chip select</td>
+</tr>
+<tr>
+<td>PHY -&gt; Controller</td>
+<td>初始化/更新握手</td>
+<td><code>dfi_init_complete</code>, <code>dfi_ctrlupd_ack</code>, <code>dfi_phyupd_req</code>, <code>dfi_phyupd_type</code>, <code>dfi_phymstr_req</code>, <code>dfi_phymstr_cs_state</code>, <code>dfi_phymstr_state_sel</code>, <code>dfi_phymstr_type</code></td>
+<td>PHY 告诉 controller 初始化完成、响应 controller update，或主动请求 PHY update / PHY master 相关流程</td>
+</tr>
+<tr>
+<td>PHY -&gt; Controller</td>
+<td>低功耗握手</td>
+<td><code>dfi_lp_ctrl_ack</code>, <code>dfi_lp_data_ack</code></td>
+<td>PHY acknowledge controller/data 低功耗请求</td>
+</tr>
+<tr>
+<td>PHY -&gt; Controller</td>
+<td>告警</td>
+<td><code>dfi_alert_n</code></td>
+<td>DDR/PHY 侧 alert 反馈，常用于 parity/CRC/training/error 相关检查</td>
+</tr>
+<tr>
+<td>PHY -&gt; Controller</td>
+<td>读数据返回</td>
+<td><code>dfi_rddata</code>, <code>dfi_rddata_dbi</code>, <code>dfi_rddata_valid</code></td>
+<td>返回读数据、DBI 信息和每个 data beat 的有效标志</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_11">项目代码里对应的模块</h2>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>角色</th>
+<th>典型信号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dfi_ctrl.sv</code></td>
+<td>controller 侧 DFI 控制/命令生成</td>
+<td><code>dfi_address</code>, <code>dfi_bank</code>, <code>dfi_bg</code>, <code>dfi_cs</code>, <code>dfi_ras_n</code>, <code>dfi_cas_n</code>, <code>dfi_we_n</code>, <code>dfi_init_start</code>, <code>dfi_ctrlupd_req</code>, <code>dfi_lp_*</code></td>
+</tr>
+<tr>
+<td><code>dfi_data.sv</code></td>
+<td>controller 侧 DFI 数据通路生成</td>
+<td><code>dfi_wrdata</code>, <code>dfi_wrdata_mask</code>, <code>dfi_wrdata_en</code>, <code>dfi_rddata_en</code></td>
+</tr>
+<tr>
+<td><code>dfi_ic.sv</code> / <code>dfi_ic_cp.sv</code></td>
+<td>DFI interconnect/control path，拆到 P0/P1/P2/P3 phase</td>
+<td><code>dfi0_address_P*_out</code>, <code>dfi0_cs_P*_out</code>, <code>dfi0_init_complete_in</code>, <code>dfi0_alert_n_A*_in</code></td>
+</tr>
+<tr>
+<td><code>dfi_ic_dp_ddr.sv</code></td>
+<td>DFI interconnect/data path，拆写数据并合并读数据</td>
+<td><code>dfi_wrdata_P*_out</code>, <code>dfi_wrdata_en_P*_out</code>, <code>dfi_rddata_W*_in</code>, <code>dfi_rddata_valid_W*_in</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">简化时序理解</h2>
+<p>Write path：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AXI/HIF write -&gt; DDRC scheduler -&gt; DFI command/address
+                         -&gt; dfi_wrdata_en + dfi_wrdata + dfi_wrdata_mask
+                         -&gt; PHY -&gt; DDR4 DQ/DQS
+</code></pre></div>
+
+<p>Read path：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>AXI/HIF read -&gt; DDRC scheduler -&gt; DFI command/address + dfi_rddata_en
+                         -&gt; PHY receives DDR4 DQ/DQS
+                         -&gt; dfi_rddata_valid + dfi_rddata -&gt; controller
+</code></pre></div>
+
+<p><a id="dfi-ddr-width-fr2-ecc"></a></p>
+<h3 id="dfi-ddr-axi-fr12-ecc">DFI / DDR / AXI 位宽换算（FR1:2 + ECC）</h3>
+<p>位宽换算先分清 <strong>DDR data payload</strong> 和 <strong>ECC sideband</strong>。AXI 通常只搬 data payload；ECC 可以由 controller 生成后走 DDR/DFI 的 ECC lane，不一定出现在 AXI <code>WDATA/RDATA</code> 里。</p>
+<p>我的 DDR4 配置口径：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>位宽</th>
+<th>计算</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DDR data</td>
+<td>64 bit</td>
+<td>8 颗 x8 data device</td>
+</tr>
+<tr>
+<td>DDR ECC</td>
+<td>8 bit</td>
+<td>1 颗 x8 ECC device</td>
+</tr>
+<tr>
+<td>DDR total</td>
+<td>72 bit</td>
+<td>64 data + 8 ECC，共 9 颗 x8</td>
+</tr>
+<tr>
+<td>DFI data-only</td>
+<td>256 bit</td>
+<td><code>64 * FR2 * 2 edges = 64 * 2 * 2</code></td>
+</tr>
+<tr>
+<td>DFI ECC sideband</td>
+<td>32 bit</td>
+<td><code>8 * FR2 * 2 edges = 8 * 2 * 2</code></td>
+</tr>
+<tr>
+<td>DFI total including ECC</td>
+<td>288 bit</td>
+<td><code>72 * 2 * 2 = 288</code></td>
+</tr>
+<tr>
+<td>AXI data</td>
+<td>256 bit</td>
+<td>对应 64-bit DDR data payload 在 FR1:2 下的聚合宽度</td>
+</tr>
+</tbody>
+</table>
+<p>面试时要强调：<strong>9 颗 x8 是 DDR 颗粒组织，256-bit 是 AXI/DFI data-only 聚合宽度</strong>。两者不是同一层的“颗粒数乘法”，所以不会矛盾。</p>
+<h2 id="_13">面试回答</h2>
+<p>中文：DFI 是 DDR controller 和 DDR PHY 之间的标准接口。controller 通过 DFI 输出 command/address、CS/CKE/ODT/reset、写数据、写 mask、<code>dfi_wrdata_en</code>、<code>dfi_rddata_en</code>、初始化、频率、低功耗和 update 请求；PHY 通过 DFI 返回 <code>dfi_init_complete</code>、<code>dfi_ctrlupd_ack</code>、<code>dfi_phyupd_req</code>、低功耗 ack、<code>dfi_alert_n</code>、<code>dfi_rddata_valid</code> 和 <code>dfi_rddata</code>。所以 DFI 层不是 DDR4 颗粒的 pin-level 接口，而是 controller 到 PHY 的抽象边界；PHY 再把它转换成 JEDEC DDR4 的 CA/DQ/DQS 等物理信号。</p>
+<p>English: DFI is the standard interface between the DDR controller and the DDR PHY. From the controller side, it drives command/address, CS/CKE/ODT/reset, write data, write mask, write-data enable, read-data enable, initialization, frequency, low-power and update request signals. From the PHY side, the controller receives initialization complete, update acknowledgments or requests, low-power acknowledgments, alert, read-data valid, and read data. DFI is not the DDR4 pin-level interface itself; the PHY converts DFI transactions into JEDEC CA/DQ/DQS behavior.</p>
+<h2 id="_14">常见追问</h2>
+<ul>
+<li>DFI 和 DDR4 JEDEC pin-level 信号有什么区别？</li>
+<li>DFI 是 controller 和 PHY 之间的内部标准接口；DDR4 pin-level 是 PHY 和 DRAM 颗粒之间的 CA/DQ/DQS/CK/CS 等真实物理接口。</li>
+<li><code>dfi_rddata_en</code> 和 <code>dfi_rddata_valid</code> 的方向为什么不同？</li>
+<li><code>dfi_rddata_en</code> 是 controller 发给 PHY 的读数据期望窗口；<code>dfi_rddata_valid</code> 是 PHY 返回给 controller，表示当前 <code>dfi_rddata</code> 有效。</li>
+<li>DFI VIP 和 DDR4 Memory VIP 分工是什么？</li>
+<li>DFI VIP 监控 controller -&gt; PHY 这一层的 DFI 协议和时序；DDR4 Memory VIP 通常检查 PHY 后面的 JEDEC pin-level command、DQ/DQS 和 DRAM timing。</li>
+<li>为什么 9 颗 x8 颗粒时 AXI data width 还是 256-bit？</li>
+<li>9 颗 x8 是 DDR 侧 <code>64 data + 8 ECC</code> 的 x72 组织；AXI 256-bit 只对应 64-bit data payload 在 FR1:2、DDR 双沿下的聚合，ECC 另走 32-bit DFI sideband。</li>
+</ul>
+<h2 id="_15">易错点</h2>
+<ul>
+<li>把 DFI 说成直接连 DDR4 颗粒的接口；严格讲 DFI 连接 controller 和 PHY。</li>
+<li>只记 command/address，漏掉读写数据 enable、low-power/update/init 这些 sideband。</li>
+<li>混淆 <code>dfi_rddata_en</code> 和 <code>dfi_rddata_valid</code>：前者是 controller 请求读数据窗口，后者是 PHY 返回数据有效。</li>
+<li>把 AXI data width 当成 DDR 总线含 ECC 宽度；AXI 256-bit 通常是 data payload，DDR x72 的 8-bit ECC lane 是另一条 ECC sideband。</li>
+</ul>
+<hr>
 <p><a id="apb"></a></p>
 <h2 id="apb">APB</h2>
 <p>标签：<code>#protocol</code> <code>#apb</code> <code>#dv</code> <code>#asic</code> <code>#interview</code></p>
-<h2 id="_11">核心概念</h2>
+<h2 id="_16">核心概念</h2>
 <p>APB (Advanced Peripheral Bus) 是 AMBA 协议族中面向低功耗、低带宽外设的简单总线，设计为最小逻辑面积和最低功耗，不支持 burst、outstanding 或流水线。</p>
 <p><strong>主要信号</strong></p>
 <table>
@@ -759,9 +1015,9 @@ PWRITE _|____1(write)_____|____________|__
 <li>写：PWDATA 在 ACCESS phase 有效；读：PRDATA 在 PREADY=1 的 ACCESS phase 采样。</li>
 <li>PSLVERR：在 ACCESS phase 结束时（PREADY=1 同周期）有效，不能提前或延迟。</li>
 </ul>
-<h2 id="_12">面试回答</h2>
+<h2 id="_17">面试回答</h2>
 <p>APB is a simple, low-power peripheral bus designed for low-bandwidth peripherals. Each transfer has two phases: a SETUP phase where PSEL is asserted and the address and control signals are set up, and an ACCESS phase where PENABLE is raised. If the slave is ready, PREADY goes high and the transfer completes; otherwise the slave holds PREADY low to insert wait states. APB does not support burst, outstanding, or out-of-order transfers. It is typically connected to the main high-performance bus through an APB bridge. Compared to AXI, APB is much simpler: fewer signals, simpler state machine, and appropriate for peripherals like UART, GPIO, and timers that do not need high throughput.</p>
-<h2 id="_13">常见追问</h2>
+<h2 id="_18">常见追问</h2>
 <ul>
 <li>APB transfer 分为哪几个 phase？</li>
 <li>SETUP phase（PSEL=1，PENABLE=0，建立地址和控制）和 ACCESS phase（PENABLE=1，PREADY=1 时 transfer 完成，PREADY=0 时插入等待）。</li>
@@ -782,6 +1038,9 @@ PWRITE _|____1(write)_____|____________|__
 <h3 id="axi-interleaving">AXI interleaving</h3>
 <p>中文：AXI interleaving 指不同 transaction 的 data/response 在时间上交错出现。面试时重点是说明 ID tracking、same ID ordering、different ID 乱序/交错、backpressure 和 scoreboard 检查，而不是只背协议名词。</p>
 <p>English: AXI interleaving means data or responses from different transactions may be interleaved in time. Verification should check ID tracking, ordering rules, backpressure, and out-of-order scoreboard behavior.</p>
+<h3 id="dfi-ddr-phy-interface_1">DFI / DDR PHY Interface</h3>
+<p>中文：DFI 是 DDR controller 和 DDR PHY 之间的标准接口。controller 输出 command/address、CS/CKE/ODT/reset、写数据、写 mask、<code>dfi_wrdata_en</code>、<code>dfi_rddata_en</code>、初始化、频率、低功耗和 update 请求；PHY 返回 <code>dfi_init_complete</code>、ack/request、<code>dfi_alert_n</code>、<code>dfi_rddata_valid</code> 和 <code>dfi_rddata</code>。DFI 不是 DDR4 pin-level 接口本身，PHY 会再转换成 JEDEC CA/DQ/DQS 等信号。</p>
+<p>English: DFI is the standard interface between the DDR controller and the DDR PHY. The controller drives command/address, control, write data, write mask, data enables, initialization, frequency, low-power and update requests, while the PHY returns initialization complete, acknowledgments or requests, alert, read-data valid, and read data.</p>
     </article>
   </main>
   <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>

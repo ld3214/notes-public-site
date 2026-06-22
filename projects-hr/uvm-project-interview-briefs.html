@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>两个 UVM 验证项目面试简述 - ASIC/DV Notebook</title>
+  <link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+  <div class="progress-bar" id="progress-bar"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">DV</span>
+        <span><strong>ASIC/DV Notebook</strong><small>面试笔记</small></span>
+      </a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="深色 / 浅色">
+        <span class="icon-moon">🌙</span>
+        <span class="icon-sun">☀</span>
+      </button>
+    </div>
+    <div class="sidebar-inner">
+      <label class="search-box">
+        <div class="search-box-label"><span>搜索</span><kbd>/</kbd></div>
+        <input id="site-search" type="search" autocomplete="off" placeholder="搜索笔记…">
+      </label>
+      <div id="search-results" class="search-results" hidden></div>
+      <nav class="nav-list" aria-label="Notebook pages">
+        <div class="nav-section"><div class="nav-heading">Notebook</div>
+<a class="nav-link" href="../index.html" data-search="asic/dv notebook index.md"><span>ASIC/DV Notebook</span><small>index.md</small></a>
+<a class="nav-link" href="../README.html" data-search="asic/dv job notebook readme.md"><span>ASIC/DV Job Notebook</span><small>README.md</small></a>
+<a class="nav-link" href="../inbox.html" data-search="inbox inbox.md"><span>Inbox</span><small>inbox.md</small></a>
+<a class="nav-link" href="../glossary.html" data-search="glossary glossary.md"><span>Glossary</span><small>glossary.md</small></a>
+<a class="nav-link" href="../company-sites.html" data-search="投递公司 site 清单 company-sites.md"><span>投递公司 Site 清单</span><small>company-sites.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Actual Interviews</div>
+<a class="nav-link" href="../actual-interviews/index.html" data-search="实际被问到的问题 actual-interviews/readme.md"><span>实际被问到的问题</span><small>actual-interviews/README.md</small></a>
+<a class="nav-link" href="../actual-interviews/asic.html" data-search="asic 实际面试记录 actual-interviews/asic.md"><span>ASIC 实际面试记录</span><small>actual-interviews/asic.md</small></a>
+<a class="nav-link" href="../actual-interviews/questions.html" data-search="真实问题索引 actual-interviews/questions.md"><span>真实问题索引</span><small>actual-interviews/questions.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Knowledge Base</div>
+<a class="nav-link" href="../knowledge-base/index.html" data-search="knowledge base knowledge-base/readme.md"><span>Knowledge Base</span><small>knowledge-base/README.md</small></a>
+<a class="nav-link" href="../knowledge-base/asic-frontend.html" data-search="asic frontend 知识库 knowledge-base/asic-frontend.md"><span>ASIC Frontend 知识库</span><small>knowledge-base/asic-frontend.md</small></a>
+<a class="nav-link" href="../knowledge-base/design-verification.html" data-search="design verification 知识库 knowledge-base/design-verification.md"><span>Design Verification 知识库</span><small>knowledge-base/design-verification.md</small></a>
+<a class="nav-link" href="../knowledge-base/protocols.html" data-search="protocols 知识库 knowledge-base/protocols.md"><span>Protocols 知识库</span><small>knowledge-base/protocols.md</small></a>
+<a class="nav-link" href="../knowledge-base/systemverilog-uvm.html" data-search="systemverilog / uvm 知识库 knowledge-base/systemverilog-uvm.md"><span>SystemVerilog / UVM 知识库</span><small>knowledge-base/systemverilog-uvm.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Question Bank</div>
+<a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
+<a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
+<a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Projects / HR</div>
+<a class="nav-link" href="index.html" data-search="projects / hr projects-hr/readme.md"><span>Projects / HR</span><small>projects-hr/README.md</small></a>
+<a class="nav-link" href="axi-dma-uvm-details.html" data-search="axi dma uvm 验证项目 - 详细技术实现 projects-hr/axi-dma-uvm-details.md"><span>AXI DMA UVM 验证项目 - 详细技术实现</span><small>projects-hr/axi-dma-uvm-details.md</small></a>
+<a class="nav-link" href="ddr4-controller-apb-axi-vip-details.html" data-search="ddr4 controller apb + axi vip 验证项目 - 详细技术实现 projects-hr/ddr4-controller-apb-axi-vip-details.md"><span>DDR4 Controller APB + AXI VIP 验证项目 - 详细技术实现</span><small>projects-hr/ddr4-controller-apb-axi-vip-details.md</small></a>
+<a class="nav-link" href="ibex-rv32im-uvm-details.html" data-search="ibex rv32im uvm 验证项目 - 详细技术实现 projects-hr/ibex-rv32im-uvm-details.md"><span>Ibex RV32IM UVM 验证项目 - 详细技术实现</span><small>projects-hr/ibex-rv32im-uvm-details.md</small></a>
+<a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
+<a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
+<a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link active" href="uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
+</div>
+<div class="nav-section"><div class="nav-heading">Templates</div>
+<a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
+<a class="nav-link" href="../templates/project-story-template.html" data-search="项目故事标题 templates/project-story-template.md"><span>项目故事标题</span><small>templates/project-story-template.md</small></a>
+<a class="nav-link" href="../templates/topic-note-template.html" data-search="知识点标题 templates/topic-note-template.md"><span>知识点标题</span><small>templates/topic-note-template.md</small></a>
+</div>
+      </nav>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <main class="content">
+    <div class="content-header">
+      <button class="menu-toggle" id="menu-toggle" aria-label="打开菜单">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="page-meta">projects-hr/uvm-project-interview-briefs.md</div>
+    </div>
+    <article class="markdown-body" id="markdown-body">
+      <p><a href="index.html">返回 Projects / HR</a> / <a href="../index.html">返回目录</a></p>
+<p><a id="uvm-project-interview-briefs"></a></p>
+<h1 id="uvm">两个 UVM 验证项目面试简述</h1>
+<p>这页按简历中两个独立 UVM 验证平台整理：AXI DMA UVM 验证平台、DDR4 Controller APB + AXI VIP 验证平台。NPU 项目也有 UVM 验证，但它的面试主线是流片和 NPU 微架构，不放在这两个验证平台里混讲。</p>
+<h2 id="_1">页内目录</h2>
+<ul>
+<li><a href="#uvm-project-positioning">总定位</a></li>
+<li><a href="#axi-dma-interview-script">AXI DMA 面试文稿</a></li>
+<li><a href="#axi-dma-deep-dive-script">AXI DMA 深挖展开稿</a></li>
+<li><a href="#axi-dma-review-points">AXI DMA 复习要点</a></li>
+<li><a href="#ddr4-interview-script">DDR4 Controller 面试文稿</a></li>
+<li><a href="#ddr4-deep-dive-script">DDR4 Controller 深挖展开稿</a></li>
+<li><a href="#ddr4-review-points">DDR4 Controller 复习要点</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 Controller 详细复习地图</a></li>
+<li><a href="#uvm-project-comparison">两个项目对比</a></li>
+</ul>
+<p><a id="uvm-project-positioning"></a></p>
+<h2 id="_2">总定位</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>面试主线</th>
+<th>一句话差异</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="projects-and-behavioral.html#star-axi-dma">AXI DMA UVM</a></td>
+<td>自己从零搭 block-level UVM testbench</td>
+<td>展示会写 agent、RAL、BFM、scoreboard、sequence、coverage 和 debug</td>
+</tr>
+<tr>
+<td><a href="projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP</a></td>
+<td>基于工业级 VIP 环境理解系统级 controller 验证</td>
+<td>展示会使用商业 VIP、理解多层 checker、能把 APB/AXI 流量讲到 DDR controller 内部行为</td>
+</tr>
+</tbody>
+</table>
+<p>面试里先主动澄清两个项目边界：</p>
+<ul>
+<li>AXI DMA：AXI-Lite master agent 和 AXI memory slave BFM 是自己写的，重点是“我如何搭验证环境并闭环”。</li>
+<li>DDR4 Controller：APB/AXI/DFI/DDR4 侧使用 Synopsys SVT VIP 和已有环境，重点是“我如何理解和使用工业验证架构”。</li>
+<li>不要把 DMA 说成用了商业 AXI VIP；不要把 DDR4 说成自己手写 pin-level DDR4 driver。</li>
+</ul>
+<p><a id="axi-dma-interview-script"></a></p>
+<h2 id="axi-dma">AXI DMA 面试文稿</h2>
+<h3 id="30">30 秒开场</h3>
+<p>我做的是一个 AXI DMA 控制器的 block-level UVM 验证平台。DUT 通过 AXI-Lite 做 CSR 配置，通过 AXI4 master 访问 memory 完成 descriptor-based 数据搬运。验证环境是我自己搭的，包括 AXI-Lite master agent、AXI memory slave BFM、RAL model、virtual sequencer、shared byte-addressable memory model 和 scoreboard。测试覆盖 CSR 读写、single/multi descriptor、burst sweep、unaligned transfer、4KB boundary、backpressure、outstanding stress、SLVERR/DECERR error response、abort 和 reset during transfer。核心检查是 scoreboard 在 DMA start 时 snapshot source bytes，在 complete 时逐 byte 比较 destination memory，同时检查 status/error CSR 和 outstanding depth。</p>
+<h3 id="90">90 秒展开</h3>
+<p>这个项目我会从两条路径讲：配置路径和数据路径。配置路径是 AXI-Lite，test 里的 virtual sequence 不直接硬编码 pin-level transaction，而是通过 RAL frontdoor 写 <code>DMA_CONTROL</code>、<code>DMA_STATUS</code>、descriptor source/destination/byte count/config 等寄存器。env 里关闭 auto prediction，用 AXI-Lite monitor 接 <code>uvm_reg_predictor</code>，所以 RAL mirror 是根据真实总线 transaction 更新的。</p>
+<p>数据路径是 DUT 作为 AXI master 发 read/write request，testbench 这边的 memory agent 是 slave BFM，不是主动 master。它根据 DUT 的 AR/AW/W 握手从 shared memory model 返回 RDATA 或写入 destination bytes，同时可以插 ready delay、response delay，或者注入 SLVERR/DECERR。shared memory model 按 byte address 存储，所以 unaligned transfer 和 WSTRB 局部写都能准确检查。</p>
+<p>scoreboard 是我觉得最能体现验证深度的部分。它有 AXI-Lite 和 AXI memory 两个 analysis input：AXI-Lite 侧维护 CSR shadow 和 descriptor state，readback 时用 WSTRB-aware mirror 比较；memory 侧记录每个 completed burst 的 response 和 outstanding depth。DMA go 上升沿时，scoreboard 根据 enabled descriptor 从 source memory snapshot expected bytes；DMA complete 或 clear 时，逐 byte 比较 destination。error response 或 abort 场景下，它不会继续做普通 copy compare，而是 drop pending copy check，转去检查 <code>STATUS.error</code>、<code>ERROR_STATS.error_trig</code> 和 read/write error source，避免把 expected error path 误报成 data mismatch。</p>
+<p>最后 regression 覆盖了正常传输、边界和错误路径。简历口径可以说功能覆盖率 100%，代码覆盖率按最终报告口径约 94.5%；如果面试官细问 coverage closure，我会强调：我不是盲目追 100%，而是把 hole 分成缺测试、约束挡住、DUT bug、known issue 和 structural waiver。比如 AXI optional sideband、tie-off、固定 address low bits 不应该靠非法 stimulus 硬翻转。</p>
+<h3 id="_3">追问短答</h3>
+<p><strong>1. 你是怎么驱动 DUT 的？</strong></p>
+<p>AXI-Lite 侧是主动 master agent，通过 RAL frontdoor 写 CSR。AXI4 memory 侧不是主动发数据，而是 slave BFM 响应 DUT master 的 AR/AW/W 请求；DUT 发读，BFM 返回 RDATA；DUT 发写，BFM 更新 memory model。</p>
+<p><strong>2. RAL 为什么用 explicit predictor？</strong></p>
+<p>因为我希望 mirror 反映真实 bus 上发生过的 transaction，而不是 sequence 发起操作时就假设成功。env 中 <code>set_auto_predict(0)</code>，AXI-Lite monitor 的 analysis port 连接到 <code>uvm_reg_predictor</code>，再更新 RAL mirror。</p>
+<p><strong>3. unaligned transfer 怎么检查？</strong></p>
+<p>不能只做 32-bit word compare。memory model 是 byte-addressable，write path 按 WSTRB 更新 byte lane，scoreboard 按 source/destination byte address 逐 byte 比较，所以 offset 1/2/3 和 sub-word transfer 都能抓到。</p>
+<p><strong>4. outstanding 是谁产生的？</strong></p>
+<p>Outstanding 是 DUT 作为 AXI master 在 long transfer 中连续发起多个未完成 request，不是 testbench 直接发一个 outstanding 信号。test 通过大 transfer、小 <code>max_burst</code>、response/backpressure 配置制造压力，monitor 统计 request/response 后的 pending depth，scoreboard 采样 read/write depth coverage。</p>
+<p><strong>5. error response 为什么不继续比较 dst memory？</strong></p>
+<p>因为 SLVERR/DECERR 下 DMA 可能提前停止，destination memory 不一定完整。此时正确检查目标是 interrupt、status/error CSR 和 error source，而不是普通 copy match。</p>
+<p><strong>6. 这个项目最能证明什么能力？</strong></p>
+<p>能独立搭一个自检查 UVM 环境：agent/BFM、RAL、virtual sequence、scoreboard、functional coverage、error injection、regression debug 和 coverage closure 都有闭环。</p>
+<p><a id="axi-dma-deep-dive-script"></a></p>
+<h2 id="axi-dma_1">AXI DMA 深挖展开稿</h2>
+<h3 id="2">2 分钟完整讲法</h3>
+<p>这个项目我会按“为什么做、怎么搭、怎么查、怎么收敛”四层来介绍。</p>
+<p>首先，被测对象是一个基于 AXI 的 DMA engine。它通过 AXI-Lite CSR 接收软件配置，包括 control/status、source address、destination address、transfer length 和 descriptor config；真正搬运数据时通过 AXI memory interface 去读 source，再写 destination。验证目标不是只证明寄存器能读写，而是要证明在不同 descriptor、burst、alignment、backpressure、error response、abort/reset 场景下，DMA 都能把数据搬对，状态寄存器报对，错误路径收敛对。</p>
+<p>UVM 环境里我把 CSR 和 memory data path 分开建模：AXI-Lite master agent 负责寄存器访问，AXI memory slave BFM 负责响应 DMA 发出的 memory transaction。环境里还有 RAL model、register adapter、predictor、virtual sequencer、shared memory model 和 scoreboard。vseq 通过 RAL 写 CSR，同时预填 source memory；DMA 运行时，memory agent 和 AXI-Lite monitor 把 transaction 发给 scoreboard；scoreboard 根据 descriptor shadow 建立 expected copy，再用 byte-level memory model 做 destination compare。</p>
+<p>我最想强调的是 scoreboard 的设计。它不是看到一笔 AXI write 就简单比一笔，而是先从 CSR 写入中维护 descriptor mirror，go bit 拉起后 snapshot source bytes，建立 expected copy 队列。这样可以处理 unaligned address、fixed mode、multi descriptor、duplicate destination last-write-wins、backpressure 和 outstanding 压力下的边界。遇到 SLVERR/DECERR 或 abort 时，scoreboard 不继续用正常 copy 期望去误报，而是切换到错误期望，检查 status/error_stats/error_src/error_type 这些 CSR 语义是否正确。</p>
+<p>测试计划上，我分成 CSR 基础、单 descriptor、multi descriptor、burst sweep、unaligned/fixed/boundary、backpressure/outstanding、error response、invalid config、abort/reset 几类。最后 regression 里功能覆盖做到 100%，核心代码覆盖在 90% 以上。我对这个项目的理解不是“跑了几个 test”，而是从软件配置到 AXI 数据搬运再到错误状态报告都形成了可解释的闭环。</p>
+<h3 id="transfer">一笔 transfer 的完整流程</h3>
+<ol>
+<li>vseq 先通过 AXI-Lite/RAL 配置 descriptor。典型字段包括 <code>src_addr</code>、<code>dst_addr</code>、<code>num_bytes</code> 和 <code>desc_cfg.enable/read_mode/write_mode</code>。</li>
+<li>vseq 在 shared memory model 里预填 source 区域，比如 incrementing pattern 或随机 pattern，让后续 compare 有 golden data。</li>
+<li>vseq 写 control register，把 <code>go</code> bit 从 0 拉到 1。这个动作是 scoreboard 识别一次 DMA transaction 开始的关键触发点。</li>
+<li>scoreboard 从之前观察到的 CSR writes 中取 descriptor shadow，过滤 enable 为 0 的 descriptor，检查 zero-byte/invalid config，再对有效 descriptor 建 expected copy。</li>
+<li>RTL 发起 AXI read burst。memory slave BFM 根据配置制造 normal response、backpressure、SLVERR/DECERR 或 delay。</li>
+<li>RTL 拿到 read data 后发起 AXI write burst，把数据写入 destination。memory model 按 byte strobe 更新目的地址。</li>
+<li>DMA 完成后更新 status/done/error 等 CSR，必要时产生 interrupt。</li>
+<li>scoreboard 在 completion 语义出现后做 byte-level compare：不是只比 word，而是逐 byte 检查 destination 是否等于 snapshot 的 source。</li>
+<li>test 最后还会读 status/error register，确认软件可见状态和数据路径结果一致。</li>
+</ol>
+<p>面试时可以补一句：这个流程里最容易出 bug 的点是“控制面和数据面不同步”。所以我没有只依赖 final memory compare，而是同时检查 CSR mirror、AXI response、status/error CSR 和 outstanding 深度。</p>
+<h3 id="uvm_1">UVM 环境怎么讲清楚</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>你在面试中的讲法</th>
+<th>关键文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dma_env</code></td>
+<td>顶层 env，创建 AXI-Lite agent、AXI memory agent、scoreboard、virtual sequencer、RAL、adapter 和 predictor</td>
+<td><code>uvm/src/env/dma_env.svh</code></td>
+</tr>
+<tr>
+<td>AXI-Lite agent</td>
+<td>模拟软件侧 CSR 访问，既用于 vseq 写配置，也把 monitor transaction 送到 RAL predictor 和 scoreboard</td>
+<td><code>uvm/src/env/dma_env.svh</code></td>
+</tr>
+<tr>
+<td>AXI memory agent</td>
+<td>作为 memory slave/BFM，响应 DMA master 的 read/write，同时把 memory transaction 送给 scoreboard</td>
+<td><code>uvm/src/env/dma_env.svh</code></td>
+</tr>
+<tr>
+<td>RAL model</td>
+<td>把 control/status/descriptor/error registers 抽象成寄存器模型，sequence 用 RAL API 读写，predictor 用 monitor transaction 更新 mirror</td>
+<td><code>uvm/src/ral/dma_ral_pkg.svh</code></td>
+</tr>
+<tr>
+<td>shared memory model</td>
+<td>sparse byte-addressable memory，支持 byte/word read-write、strobe 和 range compare</td>
+<td><code>uvm/src/common/dma_memory_model.svh</code></td>
+</tr>
+<tr>
+<td>scoreboard</td>
+<td>项目核心 checker，结合 CSR descriptor shadow 和 memory data path 做 end-to-end compare</td>
+<td><code>uvm/src/env/dma_scoreboard.svh</code></td>
+</tr>
+<tr>
+<td>virtual sequencer</td>
+<td>同时持有 AXI-Lite sequencer、memory sequencer、RAL、memory model、IRQ vif，方便 vseq 做系统级场景</td>
+<td><code>uvm/src/env/dma_env.svh</code></td>
+</tr>
+</tbody>
+</table>
+<p>可以这样口述连接关系：AXI-Lite monitor 一路接 RAL predictor，保证寄存器 mirror 可用；另一路接 scoreboard，让 scoreboard 知道 descriptor 和 control bit 的变化。AXI memory monitor 接 scoreboard，让 scoreboard 看到 DMA 实际发出的 read/write 和 response。vseq 通过 virtual sequencer 同时操控 CSR、memory model 和 interrupt wait，这样一个 testcase 能覆盖从配置到完成的完整链路。</p>
+<h3 id="scoreboard">Scoreboard 细讲版</h3>
+<p>面试官如果追问 scoreboard，你可以按下面顺序讲：</p>
+<ol>
+<li><strong>CSR shadow</strong>：scoreboard 监听 AXI-Lite write，把 source、destination、num_bytes、desc_cfg、control 等寄存器维护成 shadow state。这样它知道软件“期望 DMA 做什么”。</li>
+<li><strong>go bit 触发</strong>：control register 的 <code>go</code> 从 0 到 1 时，scoreboard 认为一次 transfer 开始。它不会等 AXI data path 出现才临时猜意图。</li>
+<li><strong>expected copy 建模</strong>：对每个 enabled descriptor，scoreboard 从 source memory snapshot 出 expected bytes，并记录 destination range。这样后面 source 被改写也不会影响 golden expectation。</li>
+<li><strong>byte-level compare</strong>：destination 侧按 byte 比对，支持 unaligned address 和 byte strobe。这个比 word compare 更可靠，因为 DMA bug 常出在首尾 byte lane。</li>
+<li><strong>fixed mode 处理</strong>：如果 read/write mode 是 fixed，地址递增语义不同，scoreboard 用 beat 内 modulo 的方式建立 expected data，不用普通 incrementing 地址去误判。</li>
+<li><strong>duplicate destination</strong>：多个 descriptor 写同一 destination byte 时，真实 memory 语义是后写覆盖前写，所以 expected model 要体现 last-write-wins。</li>
+<li><strong>error/abort 路径</strong>：如果 memory response 是 SLVERR/DECERR，scoreboard 会放弃正常 copy compare，改为检查 error CSR 语义；abort 时清掉 pending expected copy，避免把用户主动终止当成数据错误。</li>
+<li><strong>outstanding coverage</strong>：scoreboard 观察 accept 后 outstanding depth，统计 read/write outstanding 是否达到 1、low、high、max，并 cross read/write 方向。</li>
+</ol>
+<p>一句话总结：这个 scoreboard 的价值是把“软件配置意图”和“硬件 AXI 行为”对齐，不只是被动看 data bus。</p>
+<h3 id="testplan">Testplan 怎么拆</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>覆盖目标</th>
+<th>代表测试</th>
+<th>面试展开点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSR 基础</td>
+<td>寄存器 reset、RW/RO 属性、mirror/predictor 是否正确</td>
+<td><code>csr_rw_test</code>、<code>csr_all_regs_test</code></td>
+<td>RAL + adapter + predictor 闭环</td>
+</tr>
+<tr>
+<td>基础搬运</td>
+<td>单 descriptor 正常 copy</td>
+<td><code>single_desc_transfer_test</code></td>
+<td>source preload、go、done、destination compare</td>
+</tr>
+<tr>
+<td>多 descriptor</td>
+<td>descriptor chain、enable 过滤、连续 copy</td>
+<td><code>multi_desc_transfer_test</code></td>
+<td>shadow state 和 expected copy 队列</td>
+</tr>
+<tr>
+<td>burst/边界</td>
+<td>不同 burst 长度、4KB/wrap boundary</td>
+<td><code>burst_sweep_transfer_test</code>、<code>boundary_transfer_test</code>、<code>wrap_boundary_transfer_test</code></td>
+<td>AXI burst 合法性和地址切分</td>
+</tr>
+<tr>
+<td>unaligned</td>
+<td>非对齐 source/destination/length</td>
+<td><code>unaligned_transfer_test</code>、<code>small_unaligned_transfer_test</code></td>
+<td>byte lane、WSTRB、首尾 beat</td>
+</tr>
+<tr>
+<td>fixed mode</td>
+<td>fixed read/write mode</td>
+<td><code>fixed_mode_transfer_test</code></td>
+<td>地址语义不同，scoreboard 建模不同</td>
+</tr>
+<tr>
+<td>backpressure</td>
+<td>READY 拉低、随机 delay</td>
+<td><code>backpressure_transfer_test</code></td>
+<td>channel handshake 稳定性</td>
+</tr>
+<tr>
+<td>outstanding</td>
+<td>read/write outstanding depth</td>
+<td><code>outstanding_stress_test</code>、<code>outstanding_read_max_test</code></td>
+<td>性能相关 corner，不只功能正确</td>
+</tr>
+<tr>
+<td>error response</td>
+<td>SLVERR/DECERR/read/write error</td>
+<td><code>error_response_test</code>、<code>decerr_response_test</code>、<code>write_error_response_test</code></td>
+<td>error CSR、drop expected copy</td>
+</tr>
+<tr>
+<td>invalid/abort/reset</td>
+<td>zero-byte、abort、reset during transfer</td>
+<td><code>invalid_cfg_test</code>、<code>abort_transfer_test</code>、<code>reset_during_transfer_test</code></td>
+<td>状态机异常路径</td>
+</tr>
+</tbody>
+</table>
+<h3 id="debug-1unaligned-byte-lane">Debug 故事长答 1：unaligned byte lane</h3>
+<p>可以这样讲：</p>
+<p>“我印象比较深的是 unaligned transfer。最开始如果只用 word-level compare，某些首尾 byte lane 的错误容易被掩盖，因为整个 word 里既有有效 byte，也有不属于本次 transfer 的 byte。后来我把 memory model 和 scoreboard 都收敛到 byte-addressable 模型，用 strobe 精确更新每个 byte，再对 destination range 做逐 byte compare。这样 source/destination address 不对齐、length 不是 bus width 整数倍、WSTRB 只开部分 byte 的场景都能检查出来。这个 bug 的价值是提醒我 DMA 验证不能只看 transaction 数量和 word data，还要看 byte lane ownership。”</p>
+<p>面试官可能追问“你怎么定位不是 scoreboard 自己错了？”<br>
+答法：先把 testcase 降到一个很小的 transfer，比如 3 到 5 个 byte，固定 source/destination pattern；再从 AXI write beat 的 address、data、strobe 和 memory model update log 对齐。只要能说明哪个 byte 应该被写、实际写了哪个 byte，就能区分 RTL 问题、BFM 问题还是 scoreboard 建模问题。</p>
+<h3 id="debug-2axi-error-response-propagation">Debug 故事长答 2：AXI error response propagation</h3>
+<p>可以这样讲：</p>
+<p>“另一个比较典型的是 error response。DMA 在 memory read 或 write 遇到 SLVERR/DECERR 时，不能继续按正常 copy 完成来检查；它应该把软件可见的 status/error register 更新正确，同时终止或清理内部 pending 状态。scoreboard 原来如果还保留 expected copy，可能会在 destination 没写完整时误报 data mismatch。后来我把 error response 当成一种合法的 negative scenario：memory agent 注入 SLVERR/DECERR，scoreboard 记录这是 expected error，然后 drop 掉 normal copy expectation，转而检查 <code>STATUS.error</code>、<code>ERROR_STATS.error_trig</code>、<code>error_type</code>、<code>error_src</code> 这些字段。这样 testcase 既能证明 RTL 确实报错，也不会被无意义的数据 compare 干扰。”</p>
+<p>面试官可能追问“读错和写错你怎么区分？”<br>
+答法：error source 要从发生错误的 AXI channel/transaction 类型区分，read response error 和 write response error 对软件含义不同。测试上会分别注入 read SLVERR/DECERR 和 write SLVERR/DECERR；scoreboard 根据 monitor transaction 里的方向和 response 类型检查对应 error_src/error_type。</p>
+<h3 id="debug-3abortreset">Debug 故事长答 3：abort/reset 清理</h3>
+<p>可以这样讲：</p>
+<p>“abort 和 reset 的难点在于它们不是普通完成。普通完成要求 destination byte 全部匹配，但 abort/reset 发生后，DMA 可能只搬了一部分数据，甚至已经发出的 AXI transaction 还在回包。所以 checker 不能用正常 completion 的标准去判断。我的处理是让 scoreboard 在 control abort 或 reset 语义出现时清掉 pending expected copies，同时检查后续状态是否回到可接受状态。这个思路本质上是在 scoreboard 里区分 normal completion、expected error termination 和 user-triggered termination 三类结局。”</p>
+<h3 id="coverage-closure">Coverage closure 讲法</h3>
+<p>不要只背数字，可以按 closure 动作说：</p>
+<ol>
+<li>功能覆盖先看 testplan 里的场景是否都 hit：descriptor、burst、alignment、mode、error、abort、reset、backpressure、outstanding。</li>
+<li>再看 coverage hole 是真实未测、不可达、还是工具/配置口径问题。</li>
+<li>对真实未测的 hole 增加 directed 或 constrained random sequence，例如 small unaligned、write DECERR、outstanding max。</li>
+<li>对不可达或设计约束导致不该 hit 的点写 waiver，并说明原因。</li>
+<li>最后用 regression 数据说明：功能覆盖 100%，核心代码覆盖 90% 以上；如果被问具体数字，再解释不同统计口径下 total/code-only 会不同。</li>
+</ol>
+<p>推荐口述：</p>
+<p>“我不会把 coverage closure 理解成单纯刷数字，而是把它和 testplan 对齐。比如 outstanding coverage 要能看到 read/write 深度达到 max，error coverage 要分别 hit SLVERR/DECERR、read/write path，alignment coverage 要覆盖首尾 byte lane。对于确实不可达的分支才做 waiver，其他 hole 尽量补 testcase。”</p>
+<h3 id="_4">高频追问攻防</h3>
+<p><strong>Q: 为什么需要 RAL？直接写 AXI-Lite 不行吗？</strong><br>
+A: 可以直接写，但 RAL 更适合系统级验证。它把 register address、field、reset value、access policy 抽象起来，sequence 可读性更好；配合 predictor 可以检查 mirror 和实际 bus transaction 是否一致。</p>
+<p><strong>Q: RAL predictor 为什么要关 auto predict？</strong><br>
+A: 因为寄存器 mirror 应该由实际 bus monitor transaction 更新，而不是 sequence 写完就假设成功。<code>set_auto_predict(0)</code> 后，predictor 基于 AXI-Lite monitor 的实际访问更新 mirror，更贴近硬件行为。</p>
+<p><strong>Q: 为什么 scoreboard 要监听 CSR？</strong><br>
+A: 因为 DMA 的数据行为由 CSR descriptor 决定。只看 AXI memory bus，只知道发生了 read/write，不知道这是不是软件要求的正确 source/destination/length。</p>
+<p><strong>Q: memory model 和 scoreboard 的边界是什么？</strong><br>
+A: memory model 负责保存 byte-level memory 状态和提供 read/write/compare API；scoreboard 负责解释 descriptor、建立 expected copy、判断什么时候 compare，以及判断 error/abort/status 语义。</p>
+<p><strong>Q: backpressure 主要测什么？</strong><br>
+A: 测 VALID/READY 握手下数据、地址和控制信号稳定性，也测 DMA 在 delay 情况下不会丢 beat、重复 beat 或提前完成。</p>
+<p><strong>Q: outstanding 测试为什么重要？</strong><br>
+A: DMA 往往为了性能允许多笔 outstanding。如果只测单笔 outstanding，可能覆盖不到内部队列满、ID/response 关联、read/write 并发压力下的 bug。</p>
+<p><strong>Q: invalid config 怎么判定？</strong><br>
+A: 例如 enabled descriptor 但 <code>num_bytes=0</code>，这不是正常 zero-length copy，而应该走 config error。scoreboard 需要检查 RTL 是否设置正确 error status，而不是静默完成。</p>
+<p><strong>Q: duplicate destination 怎么处理？</strong><br>
+A: 如果两个 descriptor 写到同一个 destination byte，真实 memory 语义是后写覆盖前写。因此 expected model 也要 last-write-wins，不能简单把两个 copy 都独立比较。</p>
+<p><strong>Q: reset during transfer 怎么验证？</strong><br>
+A: 在 transfer active 时触发 reset，检查 pending transaction/scoreboard expectation 清理、寄存器恢复、后续新 transfer 是否还能正常运行。</p>
+<p><strong>Q: 这个项目和普通 APB/寄存器验证最大区别是什么？</strong><br>
+A: 这里有明显的 data-plane correctness。寄存器只是配置入口，真正难点是 CSR 意图、AXI burst、memory byte state、错误状态之间的一致性。</p>
+<p><a id="axi-dma-review-points"></a></p>
+<h2 id="axi-dma_2">AXI DMA 复习要点</h2>
+<h3 id="_5">必须背熟</h3>
+<ul>
+<li>UVM 环境结构：<code>dma_base_test -&gt; dma_env -&gt; axil_agent / mem_agent / dma_scoreboard / dma_virtual_sequencer</code>。</li>
+<li>RAL 链路：<code>rg.write/read -&gt; dma_reg_adapter -&gt; dma_axil_item -&gt; AXI-Lite driver -&gt; DUT CSR</code>。</li>
+<li>Predictor 链路：<code>AXI-Lite monitor -&gt; uvm_reg_predictor -&gt; RAL mirror</code>。</li>
+<li>Memory 链路：<code>vseq preload source -&gt; DUT AXI read/write -&gt; slave BFM updates shared memory -&gt; scoreboard compares destination</code>。</li>
+<li>Scoreboard 三条检查：CSR readback、DMA copy byte compare、error/outstanding semantic check。</li>
+<li>error/abort 口径：error path 检查 CSR/interrupt，abort path drop pending copy，不用普通 data compare。</li>
+</ul>
+<h3 id="_6">源码定位</h3>
+<ul>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\uvm\src\env\dma_env.svh</code>：env build/connect，RAL predictor 和 analysis port 连接。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\uvm\src\env\dma_scoreboard.svh</code>：CSR shadow、expected copy、error/outstanding coverage。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\uvm\src\common\dma_memory_model.svh</code>：byte-addressable memory model。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\uvm\src\ral\dma_ral_pkg.svh</code>：DMA control/status/error/descriptor RAL。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\uvm\src\sequences\dma_vseqs.svh</code>：CSR helper、descriptor programming、single/burst/unaligned/error/abort sequences。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\axi_dma_uvm_verification\docs\bug_record.md</code>：descriptor、unaligned、AXI error、abort debug 故事。</li>
+</ul>
+<h3 id="_7">复习链接</h3>
+<ul>
+<li><a href="axi-dma-uvm-details.html#axi-dma-ral-mem-scoreboard">AXI DMA 详细技术实现</a></li>
+<li><a href="axi-dma-uvm-details.html#axi-dma-innosilicon-followups">芯动科技追问</a></li>
+<li><a href="../knowledge-base/systemverilog-uvm.html#uvm-ral">UVM RAL</a></li>
+<li><a href="../knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a></li>
+<li><a href="../knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a></li>
+<li><a href="../knowledge-base/protocols.html#axi-outstanding">AXI outstanding</a></li>
+<li><a href="../knowledge-base/design-verification.html#functional-coverage">Functional Coverage</a></li>
+</ul>
+<h3 id="_8">风险提醒</h3>
+<ul>
+<li>覆盖率数字面试前再对最终报告：简历写功能覆盖率 100%、总代码覆盖率 94.5%；notes 中某次 Questa merged snapshot 是 total 91.98%、code-only filtered 88.44%。现场不要同时报两套数字。</li>
+<li><code>multi_desc_transfer_test</code> 里 desc1 更偏 CSR/RAL readback 覆盖，不要夸成两个独立 DMA channel 并行搬运。</li>
+<li>DMA 项目是自写轻量 BFM，不要说成用了 Synopsys AXI VIP。</li>
+</ul>
+<p><a id="ddr4-interview-script"></a></p>
+<h2 id="ddr4-controller">DDR4 Controller 面试文稿</h2>
+<h3 id="30_1">30 秒开场</h3>
+<p>我做的是 DDR4 Controller 的 APB + AXI VIP UVM 验证平台整理和使用。这个项目不是手写 DDR4 pin-level driver，而是基于 Synopsys DWC DDR54 工业验证环境，用 APB VIP 配置 controller/PHY 寄存器，用 AXI4 VIP 在多个 AXI port 上产生 DDR memory write/read traffic。真正验证目标不是 APB/AXI 协议本身，而是 DDR controller 能否把 AXI 请求正确映射到 DDR4 rank/bank/row/column，正确调度 ACT/RD/WR/PRE/REF，满足 DDR4 timing，并通过 read-hash、AXI-HIF、HIF-DFI、DFI/DDR checker 形成多层检查链路。</p>
+<h3 id="90_1">90 秒展开</h3>
+<p>这个项目我会先讲 APB 和 AXI 的分工。APB 是控制路径，初始化时通过 APB VIP 或 RAL 写 DDR controller 和 PHY 寄存器，包括 DDR4 模式、timing 参数、地址映射、端口配置、refresh、DFI/PHY init 等，然后通过 APB read polling 等 init done 或 training done。DDR 没 ready 前，不应该启动普通 AXI memory traffic。</p>
+<p>AXI 是数据路径。工程里 <code>dwc_ddrctl_axi_system_cfg</code> 会根据 DUT 生成参数配置 AXI VIP，比如当前简历口径是 4 个 active AXI4 master port，每口 256-bit data、37-bit address、8-bit ID、8-bit LEN、QoS 4 bit；4 个 port 时每口 outstanding limit 按 SVT 最大值配置。AXI sequence 会产生 directed、random、QoS、exclusive、unaligned、streaming、poison/ECC、low-power 等场景，典型 flow 是先 write pattern，再 read back。</p>
+<p>关键是结果检查不是单一 readback。APB/AXI VIP checker 先保证入口协议合法；AXI read-hash scoreboard 维护 byte-level expected memory image，比较写入和读回数据；AXI-HIF scoreboard 检查 AXI transaction 进入 controller 后地址、长度、方向、port、QoS/priority 是否转换正确；HIF-DFI scoreboard 和 DFI/DDR monitor 检查 DDR command/timing，比如 ACT/RD/WR/PRE/REF、page hit/miss、refresh、ECC/RMW、low-power 状态。最后 <code>runtest.pm</code> / postprocess 扫 log，没有 UVM error/fatal、scoreboard mismatch、timeout，并看到完成字符串，才算 pass。</p>
+<p>我在面试里会强调：这个项目证明我不只是会说 APB/AXI，还能把 VIP stimulus、controller 内部转换、DDR4 协议行为和多层 checker 连成一条完整验证链。</p>
+<h3 id="_9">追问短答</h3>
+<p><strong>1. 你自己写 DDR4 driver 吗？</strong></p>
+<p>普通 DDR4 controller 验证不手写 pin-level DDR4 driver。APB VIP 负责配置，AXI VIP 负责产生 memory traffic，DDR/DFI/Memory VIP 负责内存侧模型和协议检查。我的重点是理解和使用这套 UVM/VIP/checker 链路。</p>
+<p><strong>2. APB 和 AXI 分别干什么？</strong></p>
+<p>APB 是 CSR/control path，用来写 timing、address map、port、ECC、low-power、DFI/PHY init 等寄存器并 polling status。AXI 是 data path，用来模拟 SoC master 访问 DDR memory address space。</p>
+<p><strong>3. AXI protocol pass 为什么不等于 DDR controller pass？</strong></p>
+<p>AXI OKAY 只说明入口五通道握手和 response 合法，不保证地址映射、bank/row command、DFI timing 或读写数据一定正确。所以还要 read-hash、AXI-HIF、HIF-DFI 和 DDR/DFI checker。</p>
+<p><strong>4. read-hash scoreboard 抓什么 bug？</strong></p>
+<p>它抓 end-to-end data integrity。write transaction 更新 expected memory image，read transaction 回来后按 byte address 比较 RDATA。它能抓地址映射错、WSTRB/mask 错、read/write data beat 顺序错、跨 port 数据串扰等问题。</p>
+<p><strong>5. AXI-HIF 和 HIF-DFI scoreboard 有什么区别？</strong></p>
+<p>AXI-HIF 看上层 AXI request 进入 controller 后有没有转成正确 HIF 请求，包括地址、方向、长度、port、priority。HIF-DFI 看 controller 是否把 HIF 请求调度成正确 DDR/DFI command 和 timing。</p>
+<p><strong>6. VIP callback 用来做什么？</strong></p>
+<p>商业 VIP monitor 通常不能直接改源码。通过 callback，可以在 monitor 观察到 transaction 的时机插入自定义逻辑，例如 APB trace/RAL mirror 更新、AXI transaction 发布到 scoreboard、coverage 采样等。</p>
+<p><a id="ddr4-deep-dive-script"></a></p>
+<h2 id="ddr4-controller_1">DDR4 Controller 深挖展开稿</h2>
+<h3 id="2_1">2 分钟完整讲法</h3>
+<p>这个项目我会先澄清边界：我不是从零手写一个 DDR4 协议 VIP，而是在 Synopsys DWC DDR54 控制器验证环境上，基于 APB VIP 和 AXI VIP 搭建/理解 controller-level 验证。APB 侧负责配置 DDR controller 和 PHY 相关寄存器，AXI 侧负责模拟 SoC master 发起 memory read/write traffic，环境内部再通过 DFI、HIF、DDR memory model 和 scoreboard 检查 controller 行为。</p>
+<p>验证流程上，testbench 顶层先实例化 AXI/APB/DDR/clock-reset 等接口，并通过 <code>uvm_config_db</code> 传给 env。env 里有 APB system env、AXI system env、DFI env 和 memory subsystem env。test 启动后先做 MSS/DDR init，通过 APB 写 controller/PHY 配置，包括 timing、address mapping、port、refresh、DFI/PHY init 相关寄存器，并 polling init/training done；初始化完成后，AXI master sequence 在多个 port 上发 directed write/read。数据路径上，AXI write 进入 controller，经 HIF/DFI 转成 DDR command/data；read path 则从 DDR memory model 返回，再回到 AXI read data channel。</p>
+<p>checker 是分层的。AXI read-hash 主要做 AXI 侧 data integrity，把写入的 byte 记录到 expected memory，再在 read response 时检查数据、response、exclusive/user 等信息。AXI-HIF scoreboard 检查 AXI transaction 到 controller internal HIF transaction 的映射是否正确。HIF-DFI scoreboard 再检查 controller internal request 到 DFI/DDR command 的转换。这样一旦失败，可以根据报错层级判断问题在 AXI 接口、地址映射/仲裁、controller 内部转换，还是 DFI/DDR command 层。</p>
+<p>测试场景上，我会讲 multi-port arbitration、QoS/priority、exclusive access、unaligned/narrow transfer、ECC poison/recovery、low-power、APB timeout、refresh/init 等。这个项目的亮点不是“我写了一个简单读写 test”，而是我能解释 APB control plane、AXI data plane、DFI/DDR physical-facing plane 之间怎么被 VIP 和 scoreboard 串起来，并且能按层定位 bug。</p>
+<h3 id="_10">面试时先把边界说清楚</h3>
+<p>建议主动说：</p>
+<p>“这个项目是 controller-level UVM/VIP 验证。APB 和 AXI 是我主要操作和观察的接口；DFI/DDR memory model 是环境内部用来检查 controller 到 PHY/DRAM 方向行为的层。我的重点是理解和使用 VIP 环境、配置寄存器、构造 AXI traffic、分析 scoreboard/checker 报错，而不是声称自己从零实现了 DDR4 DRAM 协议模型。”</p>
+<p>这句话很重要，因为它能避免面试官抓住“DDR4 协议是不是你自己写的”这个点追问。你要把能力落在 controller verification，而不是夸大成 PHY 或 DRAM device verification。</p>
+<h3 id="directed-axi-writeread">一笔 directed AXI write/read 怎么跑</h3>
+<ol>
+<li>顶层 testbench 实例化 APB/AXI/DDR/DFI/clock-reset/probe interfaces，并把 virtual interface 放进 <code>uvm_config_db</code>。</li>
+<li>env build 出 APB VIP、AXI VIP、DFI env、memory subsystem env 和各级 checker。</li>
+<li>test 先启动 controller initialization sequence，通过 APB 写 controller/PHY 配置，包括 timing、address mapping、port、refresh、DFI/PHY init 相关寄存器。</li>
+<li>APB sequence 读 status register 或 polling done bit，确认 controller 已经完成初始化/训练，进入可接收 AXI traffic 的状态。</li>
+<li>AXI directed sequence 在多个 AXI port 上发 write burst。AXI VIP 产生 AW/W/B channel transaction，controller 接收后转换到内部 HIF，再到 DFI/DDR command/data。</li>
+<li>AXI read-hash 或相关 scoreboard 记录 write data 到 expected memory。这里通常要考虑 byte enable、burst length、address boundary、ID、port/channel 等信息。</li>
+<li>sequence 再发 read burst。controller 从 DDR memory model 或内部数据路径返回 read data，经 AXI R channel 回到 master。</li>
+<li>AXI read-hash 在 read response 到来时，把返回 data 和 expected memory 对比，同时检查 response、ordering、exclusive/user 等约束。</li>
+<li>如果 AXI 层通过，但 HIF/DFI 层报错，则说明 AXI 外部表现可能还没暴露问题，但 controller internal translation 或 DDR command 时序有风险。</li>
+</ol>
+<h3 id="apbaxidfiddr">APB、AXI、DFI、DDR 每层怎么讲</h3>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>作用</th>
+<th>面试讲法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APB control plane</td>
+<td>配置 controller/PHY 寄存器</td>
+<td>软件侧初始化入口，负责 timing、address map、port、refresh、DFI/PHY init</td>
+</tr>
+<tr>
+<td>AXI data plane</td>
+<td>SoC master 访问 DDR 的接口</td>
+<td>产生多 port read/write burst，覆盖 ID、LEN、SIZE、BURST、QoS、exclusive、unaligned</td>
+</tr>
+<tr>
+<td>HIF/internal layer</td>
+<td>controller 内部 transaction 层</td>
+<td>用于检查 AXI 到 controller 内部请求的映射、仲裁和地址转换</td>
+</tr>
+<tr>
+<td>DFI layer</td>
+<td>controller 到 PHY 的接口</td>
+<td>检查 command/data/control 是否按 DDR/DFI 语义发出</td>
+</tr>
+<tr>
+<td>DDR memory model</td>
+<td>DRAM 行为/存储模型</td>
+<td>提供最终 memory 行为，用于 read data 返回和协议检查</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：APB 决定 controller 怎么工作，AXI 提供 traffic，HIF/DFI/DDR checker 证明 controller 把 traffic 正确转换到内存侧。</p>
+<h3 id="uvmvip">UVM/VIP 环境逐层解释</h3>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>作用</th>
+<th>关键文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TB top</td>
+<td>实例化 SVT AXI/APB interface、DDR interface、clock/reset/probe，并通过 config_db 下发 vif</td>
+<td><code>ddr54/sim/testbench/modules/ddr_uvm_pve_tb_top.sv</code></td>
+</tr>
+<tr>
+<td><code>dwc_ddrctl_vip_env</code></td>
+<td>创建 APB system env、AXI system env、DFI env、memory subsystem env，并挂 monitor callbacks</td>
+<td><code>ddr54/sim/testbench/env/dwc_ddrctl_vip_env.sv</code></td>
+</tr>
+<tr>
+<td><code>dwc_ddrctl_mss_env</code></td>
+<td>memory subsystem root env，连接 APB predictor、AXI read-hash、AXI-HIF/HIF-DFI scoreboard、coverage、ECC/retry manager</td>
+<td><code>ddr54/sim/testbench/env/dwc_ddrctl_mss_env.sv</code></td>
+</tr>
+<tr>
+<td>AXI system cfg</td>
+<td>配置 active master、port 数、数据/地址/ID 宽度、outstanding、coverage/protocol check</td>
+<td><code>ddr54/sim/testbench/cfg/dwc_ddrctl_axi_system_cfg.sv</code></td>
+</tr>
+<tr>
+<td>APB cfg</td>
+<td>配置 APB master/slave、32-bit paddr/pdata、APB4、slave address ranges</td>
+<td><code>ddr54/sim/testbench/cfg/dwc_ddrctl_apb_cfg.sv</code></td>
+</tr>
+<tr>
+<td>AXI read-hash</td>
+<td>记录 AXI write expected memory，并在 read response 比对数据/response/user/exclusive</td>
+<td><code>ddr54/sim/testbench/env/sb/dwc_ddrctl_axi_read_hash.sv</code></td>
+</tr>
+<tr>
+<td>directed test</td>
+<td>初始化 MSS 后，在多个 AXI port 启动 directed write/read sequence</td>
+<td><code>ddr54/sim/testbench/tests/test_dwc_ddrctl_axi_directed.sv</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="vip">VIP 配置可以讲哪些具体点</h3>
+<p>APB 侧可以说：</p>
+<ol>
+<li>APB master 是 active，用来模拟软件/firmware 写 controller register。</li>
+<li>APB slave/monitor 可以 passive，用于观察和预测寄存器行为。</li>
+<li>地址和数据宽度是 32-bit，APB4 是否打开由配置控制。</li>
+<li>slave address ranges 要和 controller memory map 对齐，否则 APB transaction 会打到错误区域。</li>
+</ol>
+<p>AXI 侧可以说：</p>
+<ol>
+<li>环境里有多个 AXI port，当前配置可以按 <code>UMCTL2_A_NPORTS=4</code> 理解。</li>
+<li>AXI data width 是 256-bit，address width 是 37-bit，ID width 是 8-bit。</li>
+<li>最大 burst length 可到 256，outstanding 上限也配置到较高值，用来覆盖压力场景。</li>
+<li>AXI VIP 需要打开 protocol check、coverage、user signal、exclusive 等选项，这样不仅能发 transaction，也能检查 protocol violation。</li>
+</ol>
+<p>DDR 配置可以说：</p>
+<ol>
+<li>项目里有 DDR4/NODIMM 相关 defconfig，例如 DDR4、x8 device、single rank、single channel、3200MT/s 这类参数。</li>
+<li>simulation 为了速度可能 skip 某些 training，但仍保留 init/training done 的软件可见流程。</li>
+<li>ECC support 可能在 design/config 中存在，但具体 testcase 是否 enable ECC mode 要看测试配置，面试中不要把“支持 ECC”和“当前所有测试都打开 ECC”混成一句。</li>
+</ol>
+<h3 id="checker">Checker 分工细讲</h3>
+<table>
+<thead>
+<tr>
+<th>Checker</th>
+<th>主要输入</th>
+<th>检查什么</th>
+<th>报错后怎么定位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>APB predictor/checker</td>
+<td>APB monitor transaction</td>
+<td>register mirror、配置写入、status polling</td>
+<td>如果 init 不过，先看 APB 配置和值是否正确</td>
+</tr>
+<tr>
+<td>AXI protocol checker</td>
+<td>AXI VIP monitor</td>
+<td>VALID/READY、burst、ID、LEN/SIZE、exclusive、response</td>
+<td>如果这里报错，优先怀疑 AXI stimulus 或 controller AXI interface</td>
+</tr>
+<tr>
+<td>AXI read-hash</td>
+<td>AXI write/read transaction</td>
+<td>写入数据和读回数据一致性，byte enable 和 response</td>
+<td>数据 mismatch 先看 address map、byte lane、write/read order</td>
+</tr>
+<tr>
+<td>AXI-HIF scoreboard</td>
+<td>AXI transaction、HIF transaction</td>
+<td>AXI 请求到 controller internal request 的映射</td>
+<td>AXI 外部合法但内部映射错，问题多在 controller front-end</td>
+</tr>
+<tr>
+<td>HIF-DFI scoreboard</td>
+<td>HIF transaction、DFI monitor</td>
+<td>internal request 到 DFI command/data 的转换</td>
+<td>问题多在 scheduler、timing、DFI command/data path</td>
+</tr>
+<tr>
+<td>Functional coverage</td>
+<td>APB/AXI/DFI/DDR monitors</td>
+<td>scenario hit 情况</td>
+<td>用来判断 QoS、port、burst、ECC、low-power 等场景是否覆盖</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">典型场景怎么展开</h3>
+<p><strong>Multi-port arbitration</strong><br>
+可以说：多个 AXI port 同时发 traffic，观察不同 port 的 request 是否都能被服务，response 是否回到正确 ID/port，是否出现 starvation。这个场景主要验证 controller front-end arbitration 和 ordering。</p>
+<p><strong>QoS / priority</strong><br>
+可以说：AXI 的 QoS/user/priority 配置会影响调度策略。验证时构造不同 QoS 的 transaction，观察高优先级请求在压力下是否有预期服务倾向，同时不能破坏 AXI ordering 和 data integrity。</p>
+<p><strong>Exclusive access</strong><br>
+可以说：exclusive 场景重点看 exclusive read/write pair 的 response 和 memory update 语义是否正确。checker 需要区分普通 OKAY 和 exclusive success/fail 的 response。</p>
+<p><strong>Unaligned / narrow transfer</strong><br>
+可以说：虽然 DDR controller 最终面向宽数据通路，但 AXI 输入可能有 unaligned 或 narrow write。难点是 byte enable、地址映射和 read modify/write 语义。AXI read-hash 做 byte-level expected memory 很关键。</p>
+<p><strong>ECC poison / recovery</strong><br>
+可以说：ECC 相关场景要区分配置是否 enable、错误注入是 single-bit 还是 multi-bit、预期是 correctable 还是 uncorrectable。验证重点是 syndrome/status/reporting/retry 或 error handling，而不是简单说“读写一致”。</p>
+<p><strong>Low power</strong><br>
+可以说：低功耗场景关注 controller 进入/退出 self-refresh/power-down 后，AXI traffic 是否被正确 stall/resume，APB status 是否反映状态，退出后数据一致性是否保持。</p>
+<p><strong>APB timeout / illegal config</strong><br>
+可以说：配置路径也要做 negative test，比如 APB 访问非法地址、timeout、错误时序或非法配置。预期不是系统 silent fail，而是有可观察的错误响应或状态。</p>
+<h3 id="debug">Debug 定位路径</h3>
+<p>如果面试官问“一个 DDR4 test fail 你怎么 debug”，按层回答最稳：</p>
+<ol>
+<li><strong>先看 fail 类型</strong>：是 APB init fail、AXI protocol violation、data mismatch、AXI-HIF mismatch、HIF-DFI mismatch，还是 final postprocess coverage/error。</li>
+<li><strong>APB init fail</strong>：检查 register sequence、address map、polling bit、timing/config 参数，确认 controller 是否真的进入正常工作状态。</li>
+<li><strong>AXI protocol fail</strong>：看 AW/W/B/AR/R channel 的 VALID/READY、LEN/SIZE/BURST、ID、LAST、response，区分是 stimulus 非法还是 DUT 返回非法。</li>
+<li><strong>Data mismatch</strong>：先缩小到单 port、短 burst、固定 pattern，再检查 write address/data/strobe 是否进入 expected memory，read address 是否映射到同一 physical location。</li>
+<li><strong>AXI-HIF mismatch</strong>：说明 AXI 外部 transaction 到 internal request 的转换有问题，重点看 address decoding、port mapping、burst split、ordering。</li>
+<li><strong>HIF-DFI mismatch</strong>：重点看 scheduler、bank/row/column command、DFI command/data timing、refresh/low-power 干扰。</li>
+<li><strong>ECC/low-power fail</strong>：先确认 testcase 是否真的 enable 对应 feature，再看 status/syndrome/retry/power state transition。</li>
+</ol>
+<p>面试口述版本：</p>
+<p>“我不会一上来就翻全部 waveform，而是先按 checker 报错层级定位。APB 失败看配置，AXI protocol 失败看接口握手，AXI read-hash mismatch 看 address/data/strobe，AXI-HIF mismatch 看 controller front-end mapping，HIF-DFI mismatch 看内部调度到 PHY-facing command 的转换。”</p>
+<h3 id="debug-axi-read-data-mismatch">Debug 故事模板：AXI read data mismatch</h3>
+<p>可以这样讲：</p>
+<p>“如果遇到 AXI read data mismatch，我会先把随机性关掉，固定一个 port、一个 ID、一个短 burst 和固定 data pattern。第一步确认 AXI write 有没有真正被 controller accept，B response 是否 OKAY；第二步看 read-hash expected memory 有没有按 WSTRB 写入正确 byte；第三步检查 read 的 address 和 write 的 address 在 controller address mapping 后是否指向同一个 DDR location；第四步再往 HIF/DFI 层看是否 command split 或 bank/column mapping 出错。这样能把问题从 AXI stimulus、scoreboard model、address map、controller 内部转换几类里分出来。”</p>
+<h3 id="debug-inittraining">Debug 故事模板：init/training 卡住</h3>
+<p>可以这样讲：</p>
+<p>“如果 test 卡在 init 或 training done polling，我会先看 APB 配置 sequence 是否按要求写了 clock/reset/timing/DFI/PHY init 相关寄存器；再看 polling 的 status bit 是没变还是变成 error；然后检查 simulation config 里是否 skip training、DDR type/NODIMM 参数和 PHY/VIP 参数是否一致。DDR controller 验证里很多 fail 不是 AXI traffic 本身，而是前置配置不一致导致 controller 根本没进入可访问状态。”</p>
+<h3 id="_12">高频追问攻防</h3>
+<p><strong>Q: APB VIP 和 AXI VIP 在这个项目里分别做什么？</strong><br>
+A: APB VIP 模拟软件配置 controller/PHY register，是 control plane；AXI VIP 模拟 SoC master 发 DDR read/write，是 data plane。APB 决定 controller 工作模式，AXI 验证实际数据访问。</p>
+<p><strong>Q: 为什么不直接从 AXI 读写就行，还要关心 APB？</strong><br>
+A: DDR controller 的 timing、address mapping、port、refresh、DFI/PHY init 都由寄存器决定。APB 配错时 AXI 行为没有意义，所以必须先验证配置和初始化。</p>
+<p><strong>Q: AXI read-hash 的核心思想是什么？</strong><br>
+A: 它把 AXI write transaction 转成 expected memory，再在 AXI read response 时查 expected data 做比较。这样可以在 controller 外部接口层检查 data integrity。</p>
+<p><strong>Q: AXI-HIF 和 HIF-DFI scoreboard 有什么区别？</strong><br>
+A: AXI-HIF 看外部 AXI 请求是否正确变成 controller internal request；HIF-DFI 看 internal request 是否正确变成 PHY-facing DFI command/data。一个偏 front-end mapping，一个偏 memory-side command/timing。</p>
+<p><strong>Q: multi-port 场景主要测什么？</strong><br>
+A: 测 port arbitration、ID/response routing、ordering、starvation 和 data integrity。多个 port 同时发 traffic 时更容易暴露调度和返回路径 bug。</p>
+<p><strong>Q: QoS 是不是只看高优先级先回来？</strong><br>
+A: 不是绝对简单排序。QoS 通常影响调度倾向，但仍要满足协议、ordering 和 fairness。验证时要结合设计规格看预期，而不是机械要求所有高 QoS 都先完成。</p>
+<p><strong>Q: unaligned transfer 在 DDR controller 里为什么难？</strong><br>
+A: AXI 侧可能是 byte-level/narrow/unaligned，内部 DDR 数据通路更宽。地址映射、byte enable、burst split、read-modify-write 都可能出问题。</p>
+<p><strong>Q: ECC 场景怎么避免说太空？</strong><br>
+A: 先说配置是否 enable，再说注入类型、预期 status/syndrome/correctable/uncorrectable 行为，最后说 checker 如何观察。不要只说“我测了 ECC”。</p>
+<p><strong>Q: DDR4 NODIMM 是什么含义？</strong><br>
+A: 在这个环境里是 non-DIMM/discrete DDR4 device 配置路径，不是 UDIMM/RDIMM wrapper。面试时可以说它影响 memory model/VIP 组织和配置参数。</p>
+<p><strong>Q: 如果 AXI protocol checker 报错，你第一反应是什么？</strong><br>
+A: 先看报错 channel 和规则，比如 AWLEN/AWSIZE、WLAST、VALID/READY 稳定性、ID/response ordering。再区分是 sequence 发了非法 transaction，还是 DUT 返回/驱动违反协议。</p>
+<p><strong>Q: 这个项目怎么体现你不是只会跑脚本？</strong><br>
+A: 我能解释 APB 初始化、AXI traffic、scoreboard 分层、data mismatch 定位、coverage 场景和 DDR controller 配置之间的关系；这说明我理解验证环境，而不是只会执行 regression。</p>
+<h3 id="_13">常见说错点</h3>
+<ol>
+<li>不要说“我自己写了完整 DDR4 PHY/VIP”。更准确的是 controller-level UVM/VIP 验证。</li>
+<li>不要把 APB 和 AXI 混成同一条数据路径。APB 是配置路径，AXI 是数据访问路径。</li>
+<li>不要把 AXI read-hash 说成 DDR memory model。read-hash 是 AXI 层 expected data checker。</li>
+<li>不要说 QoS 一定严格决定返回顺序，除非规格明确。</li>
+<li>不要把 ECC support、ECC enabled testcase、ECC error injection 三件事混在一起。</li>
+<li>不要只说“跑 directed test 通过了”，要说通过哪些 checker、覆盖了哪些场景、失败时怎么分层定位。</li>
+</ol>
+<p><a id="ddr4-review-points"></a></p>
+<h2 id="ddr4-controller_2">DDR4 Controller 复习要点</h2>
+<h3 id="_14">必须背熟</h3>
+<ul>
+<li>总线分工：APB 配置和 polling，AXI 产生 memory traffic，DFI/DDR 侧负责 controller 到内存模型的协议行为。</li>
+<li>环境层次：<code>ddr_uvm_pve_tb_top -&gt; dwc_ddrctl_mss_env -&gt; dwc_ddrctl_vip_env -&gt; svt_apb_system_env / svt_axi_system_env / dfi/mem env</code>。</li>
+<li>VIP env：<code>dwc_ddrctl_vip_env</code> 创建 APB/AXI SVT VIP，并在 connect phase 给 monitor 挂 callback。</li>
+<li>AXI config：<code>dwc_ddrctl_axi_system_cfg</code> 从 DUT 参数读取 port 数、data/address/id width、AXI3/AXI4 type、outstanding、coverage/checker 开关。</li>
+<li>APB config：<code>dwc_ddrctl_apb_cfg</code> 配 master active、slave passive、32-bit address/data、APB4 enable、slave address range。</li>
+<li>多层检查：APB/AXI protocol checker、read-hash、AXI-HIF、HIF-DFI、DFI/DDR monitor、postprocess。</li>
+</ul>
+<h3 id="_15">源码定位</h3>
+<ul>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\README.md</code>：整理包阅读顺序。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\modules\ddr_uvm_pve_tb_top.sv</code>：实例化 APB/AXI/DDR/clock/reset interface，并通过 <code>uvm_config_db</code> 传入 UVM。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\env\dwc_ddrctl_vip_env.sv</code>：创建 <code>svt_apb_system_env</code>、<code>svt_axi_system_env</code>，挂 APB/AXI monitor callback。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\env\dwc_ddrctl_mss_env.sv</code>：把 APB predictor、AXI read-hash、AXI-HIF、HIF-DFI、DFI/DDR monitor、coverage 连接起来。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\cfg\dwc_ddrctl_axi_system_cfg.sv</code>：AXI VIP system/port config。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\cfg\dwc_ddrctl_apb_cfg.sv</code>：APB VIP config。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\env\sb\dwc_ddrctl_axi_read_hash.sv</code>：AXI read-hash scoreboard。</li>
+<li><code>C:\Users\28724\Desktop\cv_project\DDR4_APB_AXI_UVM_files\ddr54\sim\testbench\tests\test_dwc_ddrctl_axi_directed.sv</code>：典型 APB init 后全 AXI port directed write/read sequence。</li>
+</ul>
+<h3 id="_16">复习链接</h3>
+<ul>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">DDR4 Controller 详细技术实现</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 Controller 复习地图</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">NODIMM 配置</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级测试场景</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">VIP/checker 分工</a></li>
+<li><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-axi-read-hash-implementation">read-hash 实现</a></li>
+<li><a href="../knowledge-base/design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a></li>
+<li><a href="../knowledge-base/protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a></li>
+</ul>
+<h3 id="_17">风险提醒</h3>
+<ul>
+<li>不要说“我写了 DDR4 command driver”。更准确是：我使用 APB/AXI/DFI/DDR4 VIP 和已有 controller environment，重点理解 stimulus、config、checker、scoreboard 和 regression flow。</li>
+<li>ECC 要说清楚“support enabled”和“当前 test 是否真正打开 ECC mode”不是一回事。</li>
+<li>NODIMM 不是 UDIMM/RDIMM wrapper；NODIMM 走 discrete DDR4 device VIP/agent。</li>
+<li>简历写 91.3% 代码覆盖率，面试前最好准备一句解释：这是最终 regression/coverage report 的口径；源码 notes 中可展开 coverage closure 方法，而不是只背数字。</li>
+</ul>
+<p><a id="uvm-project-comparison"></a></p>
+<h2 id="_18">两个项目对比</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>AXI DMA UVM</th>
+<th>DDR4 Controller APB + AXI VIP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>项目性质</td>
+<td>自建 block-level UVM env</td>
+<td>工业级 system-level VIP env 整理和使用</td>
+</tr>
+<tr>
+<td>DUT</td>
+<td>AXI DMA controller</td>
+<td>DDR4 controller / DWC DDR54</td>
+</tr>
+<tr>
+<td>控制路径</td>
+<td>AXI-Lite CSR + RAL</td>
+<td>APB CSR + RAL/reg2apb</td>
+</tr>
+<tr>
+<td>数据路径</td>
+<td>DUT AXI master -&gt; memory slave BFM</td>
+<td>AXI VIP master -&gt; DDR controller -&gt; HIF/DFI/DDR</td>
+</tr>
+<tr>
+<td>VIP/BFM</td>
+<td>自写 AXI-Lite agent 和 AXI memory slave BFM</td>
+<td>Synopsys SVT APB/AXI/DFI/DDR VIP</td>
+</tr>
+<tr>
+<td>核心 scoreboard</td>
+<td>CSR shadow + byte memory copy compare + outstanding/error semantic check</td>
+<td>read-hash + AXI-HIF + HIF-DFI + DDR/DFI checker</td>
+</tr>
+<tr>
+<td>最强亮点</td>
+<td>能独立搭 UVM、写 BFM、写 checker、debug RTL/testbench</td>
+<td>能看懂工业验证平台、正确使用 VIP、解释 controller 多层检查</td>
+</tr>
+<tr>
+<td>面试风险</td>
+<td>覆盖率数字、desc1/channel、是否用了 VIP</td>
+<td>是否手写 DDR4 driver、APB/AXI pass 和 controller pass 的区别</td>
+</tr>
+</tbody>
+</table>
+<p>面试选择顺序建议：</p>
+<ol>
+<li>如果岗位偏 UVM 基础、agent/scoreboard/RAL：优先讲 AXI DMA。</li>
+<li>如果岗位偏 SoC/IP 集成、VIP、memory subsystem、AXI/DDR：优先讲 DDR4 Controller。</li>
+<li>如果面试官问“两个 UVM 项目有什么不同”，直接用“一个是自建 block-level env，一个是工业 VIP system-level env”开头。</li>
+</ol>
+    </article>
+  </main>
+  <nav class="toc-panel" id="toc-panel" aria-label="页面目录" hidden>
+    <div class="toc-heading">目录</div>
+    <div id="toc-links" class="toc-links"></div>
+  </nav>
+  <button class="back-to-top" id="back-to-top" aria-label="返回顶部" hidden>↑</button>
+  <script>window.NOTEBOOK_ROOT = "../";</script>
+  <script src="../assets/search-data.js"></script>
+  <script src="../assets/search.js"></script>
+</body>
+</html>

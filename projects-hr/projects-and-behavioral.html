@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link active" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -135,7 +137,7 @@
 <td>DWC DDR54 / APB VIP / AXI4 VIP / DDR4 controller / HIF-DFI scoreboard</td>
 <td>能用 APB 配置 DDR controller 寄存器、用 AXI4 产生 DDR memory traffic，并解释 DDR4 controller 的多层检查链路</td>
 <td><a href="#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a></td>
-<td><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">详细技术实现</a></td>
+<td><a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">复习地图</a> / <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-html-diagram">HTML 图解</a></td>
 </tr>
 <tr>
 <td>Ibex RV32IM UVM / 官方 DV Bring-up 项目</td>
@@ -1092,7 +1094,7 @@
 <li>整理了 APB + AXI VIP 验证 DDR4 controller 的可视化说明页，便于面试时从 stimulus、DDR4 协议、scoreboard 三层解释项目。</li>
 </ul>
 <blockquote>
-<p><strong>详细技术实现笔记</strong>: <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">ddr4-controller-apb-axi-vip-details.md</a> — 包含 APB/AXI VIP 使用方式、DDR4 command/timing 解释、scoreboard/checker 链路、debug 方法和 HTML 图解。</p>
+<p><strong>详细技术实现笔记</strong>: <a href="ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">ddr4-controller-apb-axi-vip-details.md</a> — 先看复习地图和 HTML 图解，再按 APB/AXI VIP 使用方式、DDR4 command/timing、scoreboard/checker 链路和 debug 方法深挖。</p>
 </blockquote>
 <h3 id="2_2">面试版 2 分钟回答（中文）</h3>
 <p>这个项目是一个 DDR controller 的验证环境。我理解的主线是：普通 DDR4 数据通路验证并不是直接手写 DDR4 command driver，而是通过 controller 的上层接口来产生激励。APB VIP 负责做寄存器配置，比如 DDR4 模式、timing、地址映射、端口使能和 DFI/PHY 初始化；配置完成后通过 APB read polling init done 或 training done。DDR ready 之后，再用 AXI4 VIP 在各个 AXI port 上发 write/read burst，比如先向某个 DDR memory address 写入 pattern，再从同一地址读回来。</p>

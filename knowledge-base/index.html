@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="../projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -102,7 +104,7 @@
 </tr>
 <tr>
 <td><a href="protocols.html#protocol-overview">Protocols</a></td>
-<td>AXI、AXI-Lite、APB 等协议</td>
+<td>AXI、AXI-Lite、APB、DFI/DDR PHY Interface 等协议</td>
 </tr>
 </tbody>
 </table>
@@ -117,7 +119,7 @@
 <tbody>
 <tr>
 <td>ASIC / RTL</td>
-<td><a href="asic-frontend.html#timing-sta">时序与 STA</a>, <a href="asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a>, <a href="asic-frontend.html#sync-fifo">同步 FIFO</a>, <a href="asic-frontend.html#one-hot">one-hot</a></td>
+<td><a href="asic-frontend.html#timing-sta">时序与 STA</a>, <a href="asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a>, <a href="asic-frontend.html#synthesis-report-logic-depth">综合报告和逻辑深度</a>, <a href="asic-frontend.html#sync-fifo">同步 FIFO</a>, <a href="asic-frontend.html#ready-valid-backpressure-pipeline">ready/valid 反压流水</a>, <a href="asic-frontend.html#one-hot">one-hot</a></td>
 </tr>
 <tr>
 <td>Architecture</td>
@@ -137,7 +139,7 @@
 </tr>
 <tr>
 <td>UVM 核心</td>
-<td><a href="systemverilog-uvm.html#uvm-overview">UVM 总览</a>, <a href="systemverilog-uvm.html#uvm-tlm">TLM</a>, <a href="systemverilog-uvm.html#uvm-factory">Factory</a>, <a href="systemverilog-uvm.html#uvm-phases">Phase</a>, <a href="systemverilog-uvm.html#book-uvm-interview-checklist">UVM 高频问法清单</a></td>
+<td><a href="systemverilog-uvm.html#uvm-overview">UVM 总览</a>, <a href="systemverilog-uvm.html#uvm-tlm">TLM</a>, <a href="systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP monitor callback</a>, <a href="systemverilog-uvm.html#uvm-factory">Factory</a>, <a href="systemverilog-uvm.html#uvm-phases">Phase</a>, <a href="systemverilog-uvm.html#book-uvm-interview-checklist">UVM 高频问法清单</a></td>
 </tr>
 <tr>
 <td>SV Coding</td>
@@ -149,11 +151,43 @@
 </tr>
 <tr>
 <td>Protocol</td>
-<td><a href="protocols.html#axi">AXI</a>, <a href="protocols.html#axi-valid-ready">valid/ready</a>, <a href="protocols.html#axi-outstanding">outstanding</a>, <a href="protocols.html#axi-interleaving">interleaving</a>, <a href="protocols.html#axil">AXI-Lite</a>, <a href="protocols.html#apb">APB</a></td>
+<td><a href="protocols.html#axi">AXI</a>, <a href="protocols.html#axi-byte-address-data-width">AXI byte address</a>, <a href="protocols.html#axi-4kb-boundary-burst-split">4KB boundary</a>, <a href="protocols.html#axi-valid-ready">valid/ready</a>, <a href="protocols.html#axi-outstanding">outstanding</a>, <a href="protocols.html#axi-interleaving">interleaving</a>, <a href="protocols.html#axil">AXI-Lite</a>, <a href="protocols.html#apb">APB</a>, <a href="protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a>, <a href="protocols.html#dfi-ddr-width-fr2-ecc">DFI / DDR / AXI 位宽换算</a></td>
 </tr>
 </tbody>
 </table>
-<h2 id="_3">使用规则</h2>
+<h2 id="_3">项目反查知识点</h2>
+<table>
+<thead>
+<tr>
+<th>项目问题</th>
+<th>复习知识点</th>
+<th>项目页</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DDR4 APB + AXI VIP 项目怎么讲</td>
+<td><a href="design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a>, <a href="systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP monitor callback</a>, <a href="systemverilog-uvm.html#uvm-ral">UVM RAL</a></td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 复习地图</a></td>
+</tr>
+<tr>
+<td>DDR4 地址和协议层次怎么讲</td>
+<td><a href="protocols.html#axi-byte-address-data-width">AXI byte address</a>, <a href="protocols.html#apb">APB</a>, <a href="protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a>, <a href="protocols.html#dfi-ddr-width-fr2-ecc">DFI / DDR / AXI 位宽换算</a></td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-hif-address-map-example">AXI/HIF 地址转换</a> / <a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">FR1:2 + ECC 配置</a></td>
+</tr>
+<tr>
+<td>DDR4 ECC 和低功耗怎么讲</td>
+<td><a href="asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a>, <a href="asic-frontend.html#power-clocking-upf">低功耗、Clocking 与 UPF</a></td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级测试场景</a></td>
+</tr>
+<tr>
+<td>AXI DMA 项目怎么讲</td>
+<td><a href="systemverilog-uvm.html#uvm-axi-dma-vseq-flow">AXI DMA vseq 调用链</a>, <a href="systemverilog-uvm.html#uvm-advanced-patterns">UVM 高级技巧</a>, <a href="design-verification.html#functional-coverage">Functional Coverage</a></td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-project-parameters">AXI DMA 详细页</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">使用规则</h2>
 <ul>
 <li>系统复习从本页进入。</li>
 <li>真实面试问法看 <a href="../actual-interviews/questions.html#actual-question-table">真实问题表</a>。</li>

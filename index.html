@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -100,12 +102,24 @@
 <td><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">2026 数字 IC 公司卷整理</a></td>
 </tr>
 <tr>
+<td>刷在线八股 / OJ</td>
+<td><a href="question-bank/online-resources.html#online-bagu-practice-sites">在线八股和刷题网站</a></td>
+</tr>
+<tr>
 <td>系统补知识</td>
 <td><a href="knowledge-base/index.html">知识库导航</a></td>
 </tr>
 <tr>
 <td>准备项目讲述</td>
 <td><a href="projects-hr/projects-and-behavioral.html#project-stories">项目故事库</a></td>
+</tr>
+<tr>
+<td>准备两个 UVM 项目</td>
+<td><a href="projects-hr/uvm-project-interview-briefs.html#uvm-project-interview-briefs">AXI DMA / DDR4 面试简述</a> / <a href="projects-hr/uvm-project-interview-briefs.html#axi-dma-deep-dive-script">AXI 深挖</a> / <a href="projects-hr/uvm-project-interview-briefs.html#ddr4-deep-dive-script">DDR4 深挖</a></td>
+</tr>
+<tr>
+<td>DDR4 项目复习</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 复习地图</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">FR1:2 + ECC 配置</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-html-diagram">HTML 图解</a> / <a href="question-bank/question-bank.html#qb-ddr4-project">DDR4 题组</a></td>
 </tr>
 <tr>
 <td>准备投递公司</td>
@@ -117,15 +131,42 @@
 </tr>
 </tbody>
 </table>
-<h2 id="_2">复习路线</h2>
+<h2 id="_2">复习模式</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>做法</th>
+<th>入口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 分钟</td>
+<td>只看地图和口径，保证能说清边界</td>
+<td><a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 复习地图</a> / <a href="projects-hr/uvm-project-interview-briefs.html#uvm-project-positioning">两个 UVM 项目总定位</a></td>
+</tr>
+<tr>
+<td>30 分钟</td>
+<td>背项目开场，再过一遍 checker/debug 链路</td>
+<td><a href="projects-hr/uvm-project-interview-briefs.html#ddr4-interview-script">DDR4 面试文稿</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-debug-method">Debug 思路</a></td>
+</tr>
+<tr>
+<td>60 分钟</td>
+<td>按题库闭卷口述，再回详细页补薄弱点</td>
+<td><a href="question-bank/question-bank.html#qb-ddr4-project">DDR4 题组</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 详细页</a></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">复习路线</h2>
 <ol>
 <li><strong>真实问题优先</strong>：先看 <a href="actual-interviews/questions.html#actual-p0">P0 复盘项</a>，把被问过的问题讲顺。</li>
-<li><strong>项目表达</strong>：准备 <a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM</a>、<a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU</a>、<a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V</a> 三个主项目。</li>
-<li><strong>UVM/DV 高频</strong>：重点看 <a href="knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-ral">RAL</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a>、<a href="knowledge-base/design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a>、<a href="knowledge-base/design-verification.html#functional-coverage">Coverage</a>。</li>
-<li><strong>协议和 RTL 手撕</strong>：看 <a href="knowledge-base/protocols.html#axi-outstanding">AXI outstanding/interleaving</a>、<a href="knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a>、<a href="knowledge-base/asic-frontend.html#find-first-one">find first one</a>、<a href="knowledge-base/asic-frontend.html#one-hot">one-hot</a>。</li>
+<li><strong>项目表达</strong>：准备 <a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM</a>、<a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 Controller</a>、<a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU</a>、<a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V</a> 四个主项目。</li>
+<li><strong>UVM/DV 高频</strong>：重点看 <a href="knowledge-base/systemverilog-uvm.html#uvm-virtual-sequence">Virtual Sequence</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-ral">RAL</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-scoreboard">Scoreboard</a>、<a href="knowledge-base/systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP monitor callback</a>、<a href="knowledge-base/design-verification.html#vip-checker-scoreboard">VIP checker vs Scoreboard</a>、<a href="knowledge-base/design-verification.html#functional-coverage">Coverage</a>。</li>
+<li><strong>协议和 RTL 手撕</strong>：看 <a href="knowledge-base/protocols.html#axi-outstanding">AXI outstanding/interleaving</a>、<a href="knowledge-base/protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a>、<a href="knowledge-base/asic-frontend.html#ready-valid-backpressure-pipeline">ready/valid 反压流水</a>、<a href="knowledge-base/asic-frontend.html#sync-fifo">同步 FIFO</a>、<a href="knowledge-base/asic-frontend.html#find-first-one">find first one</a>、<a href="knowledge-base/asic-frontend.html#one-hot">one-hot</a>。</li>
 <li><strong>书籍整理速刷</strong>：看 <a href="knowledge-base/asic-frontend.html#book-dv-logic-architecture">数字逻辑与体系结构</a>、<a href="knowledge-base/design-verification.html#book-dv-fundamentals">验证基础</a>、<a href="knowledge-base/systemverilog-uvm.html#book-sv-verilog-checklist">SV/Verilog 语法清单</a>、<a href="knowledge-base/systemverilog-uvm.html#book-uvm-interview-checklist">UVM 高频问法</a>。</li>
 </ol>
-<h2 id="_3">主目录</h2>
+<h2 id="_4">主目录</h2>
 <table>
 <thead>
 <tr>
@@ -172,16 +213,17 @@
 </tr>
 </tbody>
 </table>
-<h2 id="_4">知识库</h2>
+<h2 id="_5">知识库</h2>
 <ul>
-<li><a href="knowledge-base/asic-frontend.html#asic-overview">ASIC Frontend</a></li>
+<li><a href="knowledge-base/asic-frontend.html#asic-overview">ASIC Frontend</a> / <a href="knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></li>
 <li><a href="knowledge-base/design-verification.html#dv-overview">Design Verification</a></li>
 <li><a href="knowledge-base/systemverilog-uvm.html#sv-overview">SystemVerilog / UVM</a></li>
-<li><a href="knowledge-base/protocols.html#protocol-overview">Protocols</a></li>
+<li><a href="knowledge-base/protocols.html#protocol-overview">Protocols</a> / <a href="knowledge-base/protocols.html#axi-byte-address-data-width">AXI byte address</a> / <a href="knowledge-base/protocols.html#axi-4kb-boundary-burst-split">AXI 4KB boundary</a> / <a href="knowledge-base/protocols.html#dfi-ddr-phy-interface">DFI</a> / <a href="knowledge-base/protocols.html#dfi-ddr-width-fr2-ecc">DFI 位宽换算</a></li>
 <li><a href="knowledge-base/index.html#高频复习入口">Cracking Digital VLSI Verification Interview 书籍整理入口</a></li>
 </ul>
-<h2 id="_5">题库</h2>
+<h2 id="_6">题库</h2>
 <ul>
+<li><a href="question-bank/online-resources.html#online-bagu-practice-sites">在线八股和刷题网站</a></li>
 <li><a href="question-bank/question-bank.html#qb-written-exams-2026-csdn">笔试题：2026 数字 IC 公司卷整理</a></li>
 <li><a href="question-bank/question-bank.html#qb-asic-frontend">ASIC Frontend</a></li>
 <li><a href="question-bank/question-bank.html#qb-design-verification">Design Verification</a></li>
@@ -189,18 +231,19 @@
 <li><a href="question-bank/question-bank.html#qb-protocols">Protocols</a></li>
 <li><a href="question-bank/dv-online-digest.html#common-directions">DV 网上面经知识点汇总</a></li>
 </ul>
-<h2 id="_6">项目</h2>
+<h2 id="_7">项目</h2>
 <ul>
 <li><a href="projects-hr/projects-and-behavioral.html#star-axi-dma">AXI DMA UVM 验证项目</a> / <a href="projects-hr/axi-dma-uvm-details.html">详细技术实现</a></li>
+<li><a href="projects-hr/uvm-project-interview-briefs.html#uvm-project-interview-briefs">AXI DMA / DDR4 两个 UVM 验证项目面试简述</a> / <a href="projects-hr/uvm-project-interview-briefs.html#axi-dma-deep-dive-script">AXI 深挖</a> / <a href="projects-hr/uvm-project-interview-briefs.html#ddr4-deep-dive-script">DDR4 深挖</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a> / <a href="projects-hr/int8-npu-tapeout-details.html">详细技术实现</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-ooo-riscv">OoO RISC-V 处理器项目</a> / <a href="projects-hr/ooo-riscv-details.html">详细技术实现</a></li>
-<li><a href="projects-hr/projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">详细技术实现</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-nodimm-test-config">NODIMM 配置</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">高级场景</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">checker 分工</a></li>
+<li><a href="projects-hr/projects-and-behavioral.html#star-ddr4-controller-apb-axi-vip">DDR4 Controller APB + AXI VIP 验证项目</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">复习地图</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">FR1:2 + ECC 配置</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-html-diagram">HTML 图解</a> / <a href="projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-debug-method">Debug</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-ibex-rv32im-uvm">Ibex RV32IM UVM / 官方 DV Bring-up 项目</a> / <a href="projects-hr/ibex-rv32im-uvm-details.html">详细技术实现</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-apb-uart">APB-UART UVM 验证环境</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-async-fifo">Async FIFO UVM 验证</a></li>
 <li><a href="projects-hr/projects-and-behavioral.html#star-tvip-axi">TVIP-AXI Crossbar 验证</a></li>
 </ul>
-<h2 id="_7">模板</h2>
+<h2 id="_8">模板</h2>
 <ul>
 <li><a href="templates/topic-note-template.html">知识点模板</a></li>
 <li><a href="templates/interview-question-template.html">面试题模板</a></li>

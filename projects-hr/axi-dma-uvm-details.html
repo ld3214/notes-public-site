@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -130,6 +132,7 @@
 <li><a href="#axi-dma-ral-model">寄存器模型 RAL 具体实现</a></li>
 <li><a href="#axi-dma-memory-model">Memory model 具体实现</a></li>
 <li><a href="#axi-dma-scoreboard-checks">Scoreboard 如何检查</a></li>
+<li><a href="#axi-dma-invalid-cfg-boundary">非法配置、错误响应和 4KB boundary</a></li>
 <li><a href="#关键技术实现">关键技术实现</a></li>
 <li><a href="#测试用例实现">测试用例实现</a></li>
 <li><a href="#regression-debug-与-coverage-closure-实战">Regression Debug 与 Coverage Closure 实战</a></li>
@@ -620,7 +623,43 @@ mem_agent.mon.ap  → sb.mem_ap
 </tr>
 </tbody>
 </table>
-<h4 id="5-outstanding">5. Outstanding 怎么统计和检查</h4>
+<p><a id="axi-dma-invalid-cfg-boundary"></a></p>
+<h4 id="5-4kb-boundary">5. 非法配置、错误响应和 4KB boundary</h4>
+<p>这个项目里要把三件事分清：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>配置/触发方式</th>
+<th>检查点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>非法配置 <code>invalid_cfg_test</code></td>
+<td>descriptor enable=1 且 <code>num_bytes=0</code></td>
+<td>DUT 在 CFG 阶段报 configuration error；<code>STATUS.done=1</code>、<code>STATUS.error=1</code>、<code>ERROR_STATS.error_trig=1</code>、<code>ERROR_STATS.error_type=config</code></td>
+</tr>
+<tr>
+<td>AXI read/write error response</td>
+<td>test 配 <code>cfg.default_read_resp</code> 或 <code>cfg.default_write_resp</code> 为 <code>AXI_SLVERR/AXI_DECERR</code></td>
+<td>这不是按地址 range 判非法，而是 memory slave BFM 在 R/B channel 返回错误响应；scoreboard 允许 expected error 并检查 <code>ERROR_STATS.error_src</code></td>
+</tr>
+<tr>
+<td>4KB boundary split</td>
+<td><code>boundary_transfer_test</code> 配 <code>src=0x0000_0ff0</code>、<code>dst=0x0001_0ff0</code>、<code>num_bytes=96</code></td>
+<td>验证 DMA 作为 AXI master 自己把长 transfer 拆成不跨 4KB 的多笔 burst</td>
+</tr>
+</tbody>
+</table>
+<p>面试口径：</p>
+<ul>
+<li><code>invalid_cfg_test</code> 的非法点是 enabled zero-byte descriptor，不是非法地址。</li>
+<li><code>error_response_test/decerr_response_test</code> 模拟的是 AXI slave 返回 <code>SLVERR/DECERR</code>，当前工程没有一张 bad address range 表。</li>
+<li><code>boundary_transfer_test</code> 的重点是 AXI4 单个 INCR burst 不能跨 4KB。DMA transfer 可以跨，但 master RTL 必须主动拆 burst；不是 AXI bus 自动帮 master 拆。</li>
+</ul>
+<p>32-bit data bus 下，<code>0x1000 - 0x0ff0 = 16 bytes = 4 beats</code>，所以第一笔 burst 到 boundary 前结束，剩余 80 bytes 从 <code>0x1000</code> 再发第二笔。协议细节见 <a href="../knowledge-base/protocols.html#axi-4kb-boundary-burst-split">AXI 4KB boundary 和 burst 拆分</a>。</p>
+<h4 id="6-outstanding">6. Outstanding 怎么统计和检查</h4>
 <p>AXI memory monitor 在 AR/AW accept 时维护 outstanding counter：</p>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">rd_outstanding</span><span class="o">++</span><span class="p">;</span>
 <span class="n">tr</span><span class="p">.</span><span class="n">outstanding_after_accept</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rd_outstanding</span><span class="p">;</span>
@@ -809,7 +848,7 @@ mem_agent.mon.ap  → sb.mem_ap
 <span class="kd">endclass</span>
 </code></pre></div>
 
-<h3 id="5-outstanding_1">5. Outstanding压力测试</h3>
+<h3 id="5-outstanding">5. Outstanding压力测试</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">outstanding_stress_test</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">dma_base_test</span><span class="p">;</span>
 <span class="w">    </span><span class="k">task</span><span class="w"> </span><span class="n">body</span><span class="p">();</span>
 <span class="w">        </span><span class="c1">// 配置最大response delay</span>

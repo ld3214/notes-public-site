@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="../projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -86,6 +88,7 @@
 <li><a href="#cdc-rdc">CDC/RDC</a></li>
 <li><a href="#synthesis-lint">综合与 Lint</a></li>
 <li><a href="#asic-interview-topics">ASIC 面试专项知识点</a></li>
+<li><a href="#hamming-secded-ecc">Hamming / SECDED ECC</a></li>
 <li><a href="#memory-hvt">Memory compiler 设置 HVT</a></li>
 <li><a href="#scan-chain">Scan chain</a></li>
 <li><a href="#synthesis-report-logic-depth">综合报告和逻辑深度</a></li>
@@ -96,6 +99,7 @@
 <li><a href="#power-clocking-upf">低功耗、Clocking 与 UPF</a></li>
 <li><a href="#find-first-one">手撕 find first one</a></li>
 <li><a href="#sync-fifo">手撕同步 FIFO</a></li>
+<li><a href="#ready-valid-backpressure-pipeline">手撕 ready/valid 反压流水</a></li>
 <li><a href="#one-hot">手撕 one-hot 检测</a></li>
 <li><a href="#asic-interview-answers">面试回答速查（中文 + English）</a></li>
 </ul>
@@ -128,7 +132,7 @@
 <li>DFT scan chain 要准备 60 秒回答。</li>
 <li>综合报告、critical path、logic depth 要会分析。</li>
 <li>AXI outstanding/interleaving 是高频深入点。</li>
-<li>RTL 手撕题要准备 priority encoder、sync FIFO、one-hot detector。</li>
+<li>RTL 手撕题要准备 priority encoder、sync FIFO、ready/valid 反压流水、one-hot detector。</li>
 <li>OoO 需要从 rename、ROB、RS、LSQ、commit 讲成体系。</li>
 <li>Cache 要能讲清 hit/miss、tag/index/offset、write policy、AMAT 和 coherence 基础。</li>
 </ul>
@@ -1196,12 +1200,216 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <li>讲 interrupt/exception 时混淆外部异步事件和指令自身导致的同步异常。</li>
 </ul>
 <hr>
+<p><a id="hamming-secded-ecc"></a></p>
+<h2 id="hamming-secded-ecc">Hamming / SECDED ECC</h2>
+<p>标签：<code>#ecc</code> <code>#hamming-code</code> <code>#digital-logic</code> <code>#ddr</code> <code>#interview</code></p>
+<h3 id="_50">一句话定义</h3>
+<p>Hamming code 用多个 parity check 生成 syndrome 来定位单 bit 错误；SECDED 在 Hamming code 外再加 overall parity，从而做到 single-bit correction 和 double-bit detection。</p>
+<h3 id="_51">校验位数量公式</h3>
+<p>对 <code>m</code> bit data，若只做单 bit 纠错，需要 <code>r</code> 个 Hamming parity bits，满足：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>2^r &gt;= m + r + 1
+</code></pre></div>
+
+<p>含义：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>m</code></td>
+<td>data bit 数</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>Hamming parity bit 数</td>
+</tr>
+<tr>
+<td><code>m + r</code></td>
+<td>编码后的 data + parity 总位数</td>
+</tr>
+<tr>
+<td><code>+1</code></td>
+<td>syndrome 为 0 的 no-error 状态</td>
+</tr>
+<tr>
+<td><code>2^r</code></td>
+<td><code>r</code> bit syndrome 能表达的状态数</td>
+</tr>
+</tbody>
+</table>
+<p>对 <code>32-bit data</code>：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>r = 5: 2^5 = 32 &lt; 32 + 5 + 1 = 38，不够
+r = 6: 2^6 = 64 &gt;= 32 + 6 + 1 = 39，够
+</code></pre></div>
+
+<p>所以 32-bit data 做单 bit correction，最少需要 <code>6</code> 个 Hamming parity bits。若要做 SECDED，还要加 <code>1</code> 个 overall parity bit：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>32-bit data SECDED minimum = 6 Hamming parity + 1 overall parity = 7 ECC bits
+</code></pre></div>
+
+<h3 id="parity-bit">Parity bit 放置和计算</h3>
+<p>Hamming parity bit 通常放在 2 的幂位置：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>position: 1, 2, 4, 8, 16, 32
+parity :  p1 p2 p4 p8 p16 p32
+</code></pre></div>
+
+<p>其他位置放 data bit。每个 <code>p(2^i)</code> 检查所有 position 编号中第 <code>i</code> 位为 1 的 codeword bit。</p>
+<p>公式：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>p(2^i) = XOR all c[j] where ((j &gt;&gt; i) &amp; 1) == 1
+</code></pre></div>
+
+<p>例如：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>p1  checks positions 1, 3, 5, 7, 9, 11, ...
+p2  checks positions 2, 3, 6, 7, 10, 11, ...
+p4  checks positions 4, 5, 6, 7, 12, 13, 14, 15, ...
+p8  checks positions 8-15, 24-31, ...
+p16 checks positions 16-31, ...
+p32 checks positions 32-38
+</code></pre></div>
+
+<p>如果使用偶校验，每组 XOR 结果应为 0。</p>
+<h3 id="syndrome">Syndrome 和纠错</h3>
+<p>读出 data + ECC 后，重新计算每组 parity check：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>s_i = XOR all checked bits for parity group i
+syndrome = s0 * 1 + s1 * 2 + s2 * 4 + s3 * 8 + s4 * 16 + s5 * 32
+</code></pre></div>
+
+<p>也就是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>syndrome = {s5, s4, s3, s2, s1, s0}
+</code></pre></div>
+
+<p>若 <code>syndrome = 13</code>，表示 codeword 第 13 bit 出错，翻转 <code>c13</code> 即可纠正。若 <code>syndrome = 0</code>，Hamming check 没有定位到单 bit 错误。</p>
+<h3 id="overall-parity">Overall parity 为什么需要</h3>
+<p>普通 Hamming syndrome 可以定位单 bit 错误，但不能可靠地区分 single-bit error 和 double-bit error。SECDED 增加 overall parity：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>p0 = XOR(all data bits + all Hamming parity bits)
+</code></pre></div>
+
+<p>读出时同时看 <code>syndrome</code> 和 overall parity check：</p>
+<table>
+<thead>
+<tr>
+<th>syndrome</th>
+<th>overall parity check</th>
+<th>含义</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td><code>0</code></td>
+<td>无错误</td>
+<td>直接使用</td>
+</tr>
+<tr>
+<td>非 <code>0</code></td>
+<td><code>1</code></td>
+<td>单 bit 错误</td>
+<td>按 syndrome 定位并翻转</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>1</code></td>
+<td>overall parity bit 自己错</td>
+<td>可纠正或记录</td>
+</tr>
+<tr>
+<td>非 <code>0</code></td>
+<td><code>0</code></td>
+<td>双 bit 错误</td>
+<td>检测到，但不能纠正</td>
+</tr>
+</tbody>
+</table>
+<p>所以多出来的 overall parity bit 不是为了定位单 bit，而是为了把 single-bit correctable 和 double-bit detectable 区分开。</p>
+<h3 id="lane">Lane 是什么</h3>
+<p>Lane 是一条固定宽度的数据通道或物理/逻辑分片。总线、DDR、DFI、AXI data path 里常按 byte lane 组织：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>1 byte lane = 8 bit
+</code></pre></div>
+
+<p>例如：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>32-bit data = 4 个 byte lane
+8-bit ECC  = 1 个 ECC lane
+total      = 40 bit
+</code></pre></div>
+
+<p>AXI 里的 <code>WSTRB</code> 也体现了 byte lane 思想：32-bit data bus 有 4 个 byte lanes，<code>WSTRB[3:0]</code> 每一位选择一个 byte lane 是否有效。</p>
+<h3 id="32-bit-data-8-bit-ecc">为什么 32-bit data 常见 8-bit ECC</h3>
+<p>严格从 SECDED 最小位数看：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>32-bit data -&gt; 6 Hamming parity + 1 overall parity = 7 ECC bits
+</code></pre></div>
+
+<p>但 DDR controller / DFI / SRAM wrapper / memory controller 工程里常把 ECC sideband 做成完整 byte lane：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>32 data + 8 ECC = 40-bit datapath
+</code></pre></div>
+
+<p>这里要分清两个“多出来”：</p>
+<table>
+<thead>
+<tr>
+<th>比较对象</th>
+<th>多出来的 bit</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>相比只做 Hamming 单 bit correction 的 6 bit</td>
+<td>第 7 bit</td>
+<td>overall parity，用于 SECDED 的 double-bit detection</td>
+</tr>
+<tr>
+<td>相比理论最小 SECDED 的 7 bit</td>
+<td>第 8 bit</td>
+<td>工程上按 x8 / byte lane 对齐，或给 IP ECC matrix/sideband 实现保留完整 8-bit ECC lane</td>
+</tr>
+</tbody>
+</table>
+<p>因此不要说“数学上 32-bit data 必须 8-bit ECC”。更准确的说法是：数学最小 SECDED 是 7 bit，但工程里常用 8-bit ECC lane，让 data path、DFI/DDR lane、mask/RMW 和 IP 生成配置更规整。</p>
+<h3 id="ddr4">和 DDR4 项目的对应</h3>
+<p>在 DDR4 controller 项目里，RTL 常量显示：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>MEMC_DRAM_DATA_WIDTH  = 32
+MEMC_DRAM_ECC_WIDTH   = 8
+MEMC_DRAM_TOTAL_WIDTH = 40
+</code></pre></div>
+
+<p>这可以理解成 <code>4 data byte lanes + 1 ECC byte lane</code>。写入时 controller 生成 ECC，一起写入 memory；读出时重新计算 ECC，与 stored ECC 生成 syndrome。Correctable error 需要纠正后继续参与 readback compare；uncorrectable error 则应通过 status/interrupt/response 或 scoreboard skip 策略体现。</p>
+<h3 id="_52">面试回答</h3>
+<p>中文：</p>
+<blockquote>
+<p>32-bit data 如果用 Hamming code 做单 bit 纠错，需要的 parity bit 数满足 <code>2^r &gt;= m+r+1</code>。代入 <code>m=32</code>，<code>r=5</code> 不够，<code>r=6</code> 够，所以 6 bit 可以生成 syndrome 来定位单 bit 错误。如果要做 SECDED，还要加 1 个 overall parity bit，用来区分 single-bit correctable 和 double-bit detectable，所以理论最小是 7 bit ECC。实际 DDR controller 常配置成 <code>32 data + 8 ECC</code>，是因为硬件数据通路通常按 byte lane 组织，8 bit 刚好是一个 ECC lane；多出来的第 8 bit 是工程实现和 lane 对齐，不是 Hamming 数学最小值要求。</p>
+</blockquote>
+<p>English:</p>
+<blockquote>
+<p>For 32-bit data, the number of Hamming parity bits must satisfy <code>2^r &gt;= m + r + 1</code>. With <code>m = 32</code>, five parity bits are not enough, while six bits are enough to locate any single-bit error through the syndrome. To implement SECDED, we add one overall parity bit, so the theoretical minimum is seven ECC bits. In a DDR controller, however, the ECC sideband is often implemented as an 8-bit byte lane, giving a <code>32 + 8 = 40-bit</code> datapath. The eighth bit is mainly for byte-lane alignment and IP implementation regularity, not because the minimum Hamming formula requires eight bits.</p>
+</blockquote>
+<h3 id="_53">常见追问</h3>
+<ul>
+<li><code>syndrome</code> 是什么？</li>
+<li>每组 parity check 的失败结果拼成的二进制数；非 0 时通常指向出错的 codeword bit 位置。</li>
+<li>SECDED 里的 overall parity 干什么？</li>
+<li>区分单 bit 错和双 bit 错；没有它时 Hamming syndrome 可能把双 bit 错误误当成可纠正单 bit 错误。</li>
+<li>32-bit data 为什么不是 7-bit ECC 而是 8-bit ECC？</li>
+<li>7 bit 是理论最小 SECDED；8 bit 是工程上按 byte lane/x8 ECC sideband 对齐。</li>
+<li>Lane 和 bit width 是什么关系？</li>
+<li>Lane 是数据通道分片；byte lane 通常是 8 bit，32-bit data bus 就是 4 个 byte lanes。</li>
+</ul>
+<h3 id="_54">易错点</h3>
+<ul>
+<li>把 Gray code 当 ECC；Gray code 减少跨域采样风险，不负责纠错。</li>
+<li>说 32-bit data 数学上必须 8-bit ECC；准确说是最少 7-bit SECDED，工程常用 8-bit lane。</li>
+<li>只会说“ECC 能纠错”，但说不出 syndrome、overall parity、correctable/uncorrectable 的判断表。</li>
+</ul>
+<hr>
 <p><a id="power-clocking-upf"></a></p>
 <h2 id="clocking-upf">低功耗、Clocking 与 UPF</h2>
 <p>标签：<code>#low-power</code> <code>#clocking</code> <code>#upf</code> <code>#interview</code></p>
-<h3 id="_50">一句话定义</h3>
+<h3 id="_55">一句话定义</h3>
 <p>低功耗设计是在功能正确之外，通过 clock gating、power gating、multi-voltage、DVFS 和 UPF 描述来控制动态功耗与静态漏电，同时确保跨电源域、跨时钟域和复位行为仍然安全。</p>
-<h3 id="_51">功耗组成</h3>
+<h3 id="_56">功耗组成</h3>
 <table>
 <thead>
 <tr>
@@ -1232,7 +1440,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 </tr>
 </tbody>
 </table>
-<h3 id="_52">常见低功耗技术</h3>
+<h3 id="_57">常见低功耗技术</h3>
 <table>
 <thead>
 <tr>
@@ -1276,10 +1484,10 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <li>跨 clock domain 的信号仍按 CDC 处理，不能因为两个 clock 有来源关系就默认安全。</li>
 <li>Clock skew、jitter、uncertainty 都会影响 setup/hold margin。</li>
 </ul>
-<h3 id="_53">面试回答</h3>
+<h3 id="_58">面试回答</h3>
 <p>中文：CMOS 功耗主要分动态功耗和静态漏电。动态功耗和 <code>C * V^2 * f * activity</code> 相关，所以常用 clock gating、降低切换率和 DVFS；静态漏电和工艺、温度、阈值电压相关，所以常用 power gating、HVT cell 或 memory sleep。低功耗验证不能只看功能，还要检查 isolation、retention、level shifter、power sequence、reset sequence 和 UPF power state table 是否正确。</p>
 <p>English: CMOS power mainly consists of dynamic power and leakage power. Dynamic power depends on capacitance, voltage, frequency, and switching activity, so techniques such as clock gating, activity reduction, and DVFS are effective. Leakage power depends on process, temperature, and threshold voltage, so power gating, HVT cells, and memory sleep modes are commonly used. In verification, low-power intent must be checked through isolation, retention, level shifters, power sequencing, reset behavior, and UPF power states.</p>
-<h3 id="_54">常见追问</h3>
+<h3 id="_59">常见追问</h3>
 <ul>
 <li>Clock gating 为什么不能用普通组合逻辑直接 AND clock？</li>
 <li>普通组合逻辑可能产生毛刺，导致额外 clock edge；工程中用 ICG cell 或综合识别的 clock enable。</li>
@@ -1288,7 +1496,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <li>DVFS 切换时要验证什么？</li>
 <li>电压/频率切换 handshake、PLL lock、clock stable、reset/idle 状态、跨域通信暂停与恢复。</li>
 </ul>
-<h3 id="_55">易错点</h3>
+<h3 id="_60">易错点</h3>
 <ul>
 <li>只说 <code>P = C V^2 f</code>，忘记 activity factor 和 leakage。</li>
 <li>把 clock gating 当成关电源；它只减少 clock 翻转，不消除 leakage。</li>
@@ -1298,7 +1506,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <hr>
 <p><a id="find-first-one"></a></p>
 <h2 id="5-find-first-one">5. 手撕题：find first one</h2>
-<h3 id="_56">思路</h3>
+<h3 id="_61">思路</h3>
 <p>这是 priority encoder。通常从 LSB 到 MSB 或从 MSB 到 LSB 扫描，遇到第一个 1 输出 index，并给 valid 标志。</p>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">find_first_one</span><span class="w"> </span><span class="p">#(</span>
 <span class="w">  </span><span class="k">parameter</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">W</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span><span class="p">,</span>
@@ -1324,7 +1532,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <p>注意：如果 W 不是 2 的幂，<code>IW</code> 仍可表示最大 index；面试时要说明无 1 时 valid=0，index 无意义或置 0。</p>
 <p><a id="sync-fifo"></a></p>
 <h2 id="6-fifo">6. 手撕题：同步 FIFO</h2>
-<h3 id="_57">关键点</h3>
+<h3 id="_62">关键点</h3>
 <ul>
 <li>同一个 clock 下读写。</li>
 <li>用 memory array 存数据。</li>
@@ -1380,9 +1588,87 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 </code></pre></div>
 
 <p>面试时要主动说明：这个版本是 async-read 风格的简单 FIFO；如果目标 memory 是 sync-read SRAM，<code>rd_data</code> 需要寄存，empty/read latency 要重新定义。</p>
-<p><a id="one-hot"></a></p>
-<h2 id="7-one-hot">7. 手撕题：one-hot 检测</h2>
+<p><a id="ready-valid-backpressure-pipeline"></a></p>
+<h2 id="7-readyvalid">7. 手撕题：ready/valid 反压流水</h2>
+<h3 id="_63">一句话定义</h3>
+<p>ready/valid 反压流水级用 <code>data_reg + valid_reg</code> 保存一拍数据，<code>ready_out</code> 在本级为空或下游本周期能接收时拉高，从而把下游 backpressure 反馈给上游，同时支持同周期出队和入队。</p>
+<h3 id="_64">关键点</h3>
+<ul>
+<li>一次传输只在 <code>valid &amp;&amp; ready</code> 同周期完成。</li>
+<li><code>valid_reg=0</code> 表示本级为空，必须 <code>ready_out=1</code>，否则上游会被无意义阻塞。</li>
+<li><code>valid_reg=1</code> 且 <code>ready_in=1</code> 表示本级数据本周期会被下游接走，因此也可以 <code>ready_out=1</code> 接收上游新数据。</li>
+<li>常用公式是 <code>ready_out = !valid_reg || ready_in</code>；写成 <code>!valid_reg || (valid_reg &amp;&amp; ready_in)</code> 也等价。</li>
+<li>当 <code>valid_in &amp;&amp; ready_out</code> 与 <code>valid_out &amp;&amp; ready_in</code> 同周期发生时，本级用新 <code>din</code> 覆盖旧 <code>data_reg</code>，<code>valid_reg</code> 保持为 1，流水线不会插 bubble。</li>
+<li><code>dout</code> 只在 <code>valid_out=1</code> 时有意义；一般不要求 invalid 时清零，除非接口 spec 明确规定。</li>
+</ul>
 <h3 id="rtl">RTL 写法</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">module</span><span class="w"> </span><span class="n">pipeline_stage</span><span class="w"> </span><span class="p">#(</span>
+<span class="w">  </span><span class="k">parameter</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span>
+<span class="p">)</span><span class="w"> </span><span class="p">(</span>
+<span class="w">  </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">clk</span><span class="p">,</span>
+<span class="w">  </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">rst_n</span><span class="p">,</span>
+
+<span class="w">  </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">din</span><span class="p">,</span>
+<span class="w">  </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">valid_in</span><span class="p">,</span>
+<span class="w">  </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w">             </span><span class="n">ready_out</span><span class="p">,</span>
+
+<span class="w">  </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">dout</span><span class="p">,</span>
+<span class="w">  </span><span class="k">output</span><span class="w"> </span><span class="kt">logic</span><span class="w">             </span><span class="n">valid_out</span><span class="p">,</span>
+<span class="w">  </span><span class="k">input</span><span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">ready_in</span>
+<span class="p">);</span>
+<span class="w">  </span><span class="kt">logic</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mi">1</span><span class="o">:</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="n">data_reg</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">logic</span><span class="w">             </span><span class="n">valid_reg</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">assign</span><span class="w"> </span><span class="n">ready_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">!</span><span class="n">valid_reg</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">ready_in</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">always_ff</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="w"> </span><span class="k">or</span><span class="w"> </span><span class="k">negedge</span><span class="w"> </span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">      </span><span class="n">valid_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_in</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ready_out</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">      </span><span class="n">data_reg</span><span class="w">  </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">din</span><span class="p">;</span>
+<span class="w">      </span><span class="n">valid_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">end</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">valid_reg</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">ready_in</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">      </span><span class="n">valid_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mb">1&#39;b0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">  </span><span class="k">end</span>
+
+<span class="w">  </span><span class="k">assign</span><span class="w"> </span><span class="n">dout</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">data_reg</span><span class="p">;</span>
+<span class="w">  </span><span class="k">assign</span><span class="w"> </span><span class="n">valid_out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">valid_reg</span><span class="p">;</span>
+<span class="k">endmodule</span>
+</code></pre></div>
+
+<h3 id="sva">简单 SVA</h3>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 下游反压时，本级必须保持 valid 和 data 稳定。</span>
+<span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">disable</span><span class="w"> </span><span class="k">iff</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span>
+<span class="w">  </span><span class="n">valid_out</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">ready_in</span><span class="w"> </span><span class="o">|=&gt;</span><span class="w"> </span><span class="n">valid_out</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">$</span><span class="n">stable</span><span class="p">(</span><span class="n">dout</span><span class="p">)</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<h3 id="_65">面试回答</h3>
+<p>中文：这个 stage 本质是一个带 valid bit 的一拍 buffer。<code>ready_out</code> 不能只等于 <code>ready_in</code>，因为本级为空时即使下游暂时不 ready，也应该能先接收上游数据；本级满时只有下游 ready、旧数据会被接走，才允许继续接收新数据。所以反压公式是 <code>ready_out = !valid_reg || ready_in</code>。时序块里，如果 <code>valid_in &amp;&amp; ready_out</code>，就锁存新数据并置 valid；否则如果 <code>valid_reg &amp;&amp; ready_in</code>，说明旧数据已经被下游消费，清掉 valid。这样在满载时可以同周期 pop/push，不会多插一拍 bubble。</p>
+<p>English: This stage is a one-entry pipeline buffer with a valid bit. The upstream ready should be high when the stage is empty, or when the downstream is ready to consume the current entry. Therefore <code>ready_out = !valid_reg || ready_in</code>. On an input handshake, the stage captures <code>din</code> and sets <code>valid_reg</code>; if there is only an output handshake, it clears <code>valid_reg</code>. When input and output handshakes happen in the same cycle, the old data is consumed and the new data is captured, so the pipeline keeps full throughput without adding a bubble.</p>
+<h3 id="_66">常见追问</h3>
+<ul>
+<li>为什么 <code>ready_out</code> 不是直接等于 <code>ready_in</code>？</li>
+<li>因为本级为空时可以先缓存一拍数据，不必等下游 ready。</li>
+<li>下游拉低 <code>ready_in</code> 时要保证什么？</li>
+<li><code>valid_out</code> 和 <code>dout</code> 必须保持稳定，直到 <code>ready_in</code> 拉高并完成 handshake。</li>
+<li>同周期 <code>ready_in=1</code>、<code>valid_in=1</code> 会发生什么？</li>
+<li>旧数据向下游传输，新数据被锁存到本级，<code>valid_reg</code> 仍为 1。</li>
+<li>长 ready 链 timing 太差怎么办？</li>
+<li>可以插 skid buffer、register slice 或切 ready path，代价是额外 latency/面积。</li>
+</ul>
+<h3 id="_67">易错点</h3>
+<ul>
+<li><code>ready_out</code> 只接 <code>ready_in</code>，导致空 buffer 也被下游反压卡住。</li>
+<li>full 且 downstream ready 时先清 valid、下一拍再收新数据，造成无谓 bubble。</li>
+<li>下游不 ready 时仍更新 <code>data_reg</code>，破坏 stalled data 稳定性。</li>
+<li>把 <code>dout</code> 在 invalid 时强制清零，又让 consumer 不看 <code>valid_out</code> 直接采样数据。</li>
+<li>source 等 ready 才拉 valid、sink 等 valid 才拉 ready，形成协议级死锁风险。</li>
+</ul>
+<p><a id="one-hot"></a></p>
+<h2 id="8-one-hot">8. 手撕题：one-hot 检测</h2>
+<h3 id="rtl_1">RTL 写法</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">assign</span><span class="w"> </span><span class="n">is_onehot</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="m">&#39;0</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">((</span><span class="n">x</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">&#39;0</span><span class="p">);</span>
 <span class="k">assign</span><span class="w"> </span><span class="n">is_onehot0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">((</span><span class="n">x</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mb">1&#39;b1</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="m">&#39;0</span><span class="p">);</span>
 </code></pre></div>
@@ -1392,7 +1678,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <span class="k">assign</span><span class="w"> </span><span class="n">is_onehot0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">$</span><span class="n">onehot0</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
 </code></pre></div>
 
-<h3 id="sva">SVA 写法</h3>
+<h3 id="sva_1">SVA 写法</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="k">assert</span><span class="w"> </span><span class="k">property</span><span class="w"> </span><span class="p">(@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">disable</span><span class="w"> </span><span class="k">iff</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rst_n</span><span class="p">)</span><span class="w"> </span><span class="p">$</span><span class="n">onehot</span><span class="p">(</span><span class="n">state</span><span class="p">));</span>
 </code></pre></div>
 
@@ -1405,7 +1691,7 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <h3 id="scan-chain">Scan chain</h3>
 <p>中文：Scan chain 是一种 DFT 技术，把普通触发器替换成 scan flop，并在 test mode 下串成链。测试时通过 scan_enable 进入 shift mode，把 ATPG pattern 从 scan_in 移入，再 capture DUT response，最后从 scan_out 移出。它的核心价值是提高内部寄存器的可控性和可观察性，用于检测 stuck-at、transition fault 等制造缺陷。</p>
 <p>English: A scan chain converts sequential elements into controllable and observable scan flops in test mode. Test patterns are shifted in through scan_in under scan_enable, captured responses are shifted, then shifted out through scan_out. This helps ATPG detect manufacturing faults.</p>
-<h3 id="_58">综合报告和逻辑深度</h3>
+<h3 id="_68">综合报告和逻辑深度</h3>
 <p>中文：看综合报告我会先看 WNS/TNS 和 violating path，再看 critical path 的起点终点、logic depth、fanout、cell delay、net delay 和约束是否合理。逻辑深度越深，一个周期内组合延迟越大，频率越难提高。常见优化包括加 pipeline、拆复杂 mux、提前计算、降低 fanout、重构 datapath 或 retiming。</p>
 <p>English: When reading a synthesis report, I first check WNS/TNS and the critical paths, then inspect whether the issue comes from long logic depth, fanout, cell delay, net delay, memory access, or constraints. If the path has too many combinational levels, I would consider pipelining, restructuring the datapath, reducing mux depth, or retiming.</p>
 <h3 id="ooo">OoO</h3>
@@ -1414,12 +1700,15 @@ Core 1:  while(B==0); print(A)   // SC 保证一定打印 1
 <h3 id="cache_2">Cache</h3>
 <p>中文：Cache 是 CPU 和 memory 之间的小容量高速存储，利用 temporal locality 和 spatial locality 降低平均访存延迟。地址通常拆成 tag、index、offset：index 选 set，tag 判断命中，offset 选 line 内数据。Direct-mapped 简单但 conflict miss 多，set-associative 是常见折中。Write-through 简单但带宽压力大；write-back 性能更好但需要 dirty bit 和 eviction 写回。多核系统还要考虑 coherence，例如 MESI 通过 invalidation/writeback 保证同一 cache line 的副本一致。</p>
 <p>English: A cache is a small fast memory between the CPU and main memory. It exploits temporal and spatial locality to reduce average memory access time. The address is split into tag, index, and offset. Set associativity reduces conflict misses compared with direct mapping. Write-through is simpler but uses more bandwidth, while write-back requires dirty tracking and eviction handling. In multicore systems, coherence protocols such as MESI keep copies of the same cache line consistent.</p>
-<h3 id="_59">数字逻辑与体系结构高频框架</h3>
+<h3 id="_69">数字逻辑与体系结构高频框架</h3>
 <p>中文：数字逻辑基础可以按编码、组合逻辑、时序逻辑、FSM 和 ASIC flow 来讲；体系结构可以按 ISA、pipeline、cache、virtual memory、interrupt 和 OoO 来讲。面试里最好把概念和场景连起来，例如 Gray code 对应 async FIFO pointer，setup/hold 对应 STA 修复，pipeline hazard 对应 forwarding/stall/flush，cache locality 对应 hit/miss 和 AMAT。</p>
 <p>English: Digital logic basics can be organized into encoding, combinational logic, sequential logic, FSMs, and the ASIC flow. Architecture topics can be organized into ISA, pipeline, cache, virtual memory, interrupts, and out-of-order execution. Strong interview answers connect each concept to a concrete design or verification use case.</p>
 <h3 id="upf">低功耗与 UPF</h3>
 <p>中文：动态功耗和电容、电压平方、频率、翻转率相关，常用 clock gating、DVFS、降低 activity；静态漏电和工艺、温度、阈值电压相关，常用 power gating、HVT 和 memory sleep。UPF 描述 power domain、isolation、retention、level shifter 和 power state table，低功耗验证要覆盖 power sequence、reset sequence 和跨电源域信号。</p>
 <p>English: Dynamic power depends on capacitance, voltage squared, frequency, and activity, while leakage depends on process, temperature, and threshold voltage. UPF captures power domains, isolation, retention, level shifters, and power states. Low-power verification must check sequencing and cross-domain behavior.</p>
+<h3 id="rtlreadyvalid">手撕 RTL：ready/valid 反压流水</h3>
+<p>中文：ready/valid 反压流水级可以看成一拍带 valid bit 的 buffer。<code>ready_out = !valid_reg || ready_in</code>，意思是本级为空可以接收数据，本级满时只有下游 ready 才能继续接收。输入握手时锁存 <code>din</code> 并置 <code>valid_reg</code>，只有输出握手且没有新输入时才清 valid；如果输入和输出同周期发生，就用新数据覆盖旧数据，valid 保持为 1，流水线不断拍。</p>
+<p>English: A ready/valid pipeline stage is a one-entry buffer with a valid bit. <code>ready_out = !valid_reg || ready_in</code>: the stage can accept data when it is empty, or when the downstream is consuming the current entry. An input handshake captures new data, an output-only handshake clears the valid bit, and simultaneous input/output handshakes replace the old entry with the new one without inserting a bubble.</p>
 <h3 id="rtlfind-first-one-fifo-one-hot">手撕 RTL：find first one / FIFO / one-hot</h3>
 <p>中文：find first one 本质是 priority encoder，要说明扫描方向、valid 和无 1 情况；同步 FIFO 要说明 mem、读写指针、full/empty、count 或额外 bit、同周期读写规则；one-hot 可以用 <code>(x != 0) &amp;&amp; ((x &amp; (x - 1)) == 0)</code>，或者 SystemVerilog 的 <code>$onehot()</code>。</p>
 <p>English: Find-first-one is a priority encoder with a valid flag. A synchronous FIFO needs memory, read/write pointers, full/empty logic, and clear same-cycle read/write behavior. One-hot can be checked with <code>(x != 0) &amp;&amp; ((x &amp; (x - 1)) == 0)</code> or <code>$onehot()</code>.</p>

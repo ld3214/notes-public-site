@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="../question-bank/index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="../question-bank/dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="../question-bank/online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link" href="../question-bank/question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="../projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -94,6 +96,7 @@
 <li><a href="#uvm-config-db"><code>uvm_config_db</code> 用法</a></li>
 <li><a href="#uvm-tlm">UVM TLM 通信</a></li>
 <li><a href="#uvm-analysis-port">Analysis Port</a></li>
+<li><a href="#uvm-vip-monitor-callback-scoreboard">VIP Monitor Callback 到 Scoreboard</a></li>
 <li><a href="#uvm-factory">UVM Factory 机制</a></li>
 <li><a href="#uvm-phases">UVM Phase 机制</a></li>
 <li><a href="#uvm-virtual-sequence">Virtual Sequence / Virtual Sequencer / Sequence API</a></li>
@@ -1226,6 +1229,7 @@
 <li><a href="#uvm-sequence-driver-flow">Sequence item / sequence / sequencer / driver</a></li>
 <li><a href="#uvm-component-hierarchy">Monitor / agent / env / test</a></li>
 <li><a href="#uvm-tlm">TLM communication / analysis port</a></li>
+<li><a href="#uvm-vip-monitor-callback-scoreboard">VIP monitor callback</a></li>
 <li><a href="#uvm-scoreboard">Scoreboard</a></li>
 <li><a href="#uvm-factory">Factory</a></li>
 <li><a href="#uvm-config-db">Config DB</a></li>
@@ -1746,10 +1750,162 @@
 <li>FIFO 没有在 <code>connect_phase</code> 正确连接到 <code>analysis_export</code>。</li>
 </ul>
 <hr>
+<p><a id="uvm-vip-monitor-callback-scoreboard"></a></p>
+<h2 id="vip-monitor-callback-scoreboard">VIP Monitor Callback 到 Scoreboard</h2>
+<p>标签：<code>#uvm</code> <code>#callback</code> <code>#vip</code> <code>#analysis-port</code> <code>#scoreboard</code> <code>#axi</code> <code>#interview</code></p>
+<h3 id="_40">一句话定义</h3>
+<p>VIP monitor callback 是 VIP 预留给用户的协议事件钩子。用户继承 VIP 的 callback 基类，重写指定方法，并把 callback 对象注册到某个 monitor 上；之后 monitor 在内部检测到协议事件时，会调用这些重写后的方法。</p>
+<h3 id="callback-analysis-port">Callback 和 Analysis Port 的分工</h3>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>谁触发</th>
+<th>典型用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Callback</td>
+<td>VIP monitor / 自己写的 monitor 在特定协议时刻调用</td>
+<td>在 AR/AW handshake、data phase、transaction end 等时刻插入动作</td>
+</tr>
+<tr>
+<td>Analysis port</td>
+<td>producer 调用 <code>analysis_port.write(txn)</code> 广播</td>
+<td>把 transaction 发给 scoreboard、coverage、logger</td>
+</tr>
+<tr>
+<td>Scoreboard <code>write()</code></td>
+<td>analysis imp 收到 transaction 后自动调用</td>
+<td>解析 transaction，更新 expected model 或做比较</td>
+</tr>
+</tbody>
+</table>
+<p>关键点：<strong>scoreboard 不主动去 monitor 里读 transaction</strong>。常见链路是：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>VIP monitor 检测 bus
+  -&gt; callback 在关键阶段被调用
+  -&gt; callback 或 monitor 调 analysis_port.write(txn)
+  -&gt; scoreboard analysis_imp.write(txn)
+  -&gt; check / compare
+</code></pre></div>
+
+<h3 id="callback">如何重写 Callback</h3>
+<p>重写 callback 的三步：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="c1">// 1. 继承 VIP 提供的 callback 基类</span>
+<span class="kd">class</span><span class="w"> </span><span class="nc">my_axi_mon_cb</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">svt_axi_port_monitor_callback</span><span class="p">;</span>
+<span class="w">  </span><span class="no">`uvm_object_utils</span><span class="p">(</span><span class="n">my_axi_mon_cb</span><span class="p">)</span>
+
+<span class="w">  </span><span class="c1">// 2. 重写 VIP 已定义好的方法，函数名和参数必须匹配</span>
+<span class="w">  </span><span class="k">virtual</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">read_address_phase_ended</span><span class="p">(</span>
+<span class="w">    </span><span class="n">svt_axi_port_monitor</span><span class="w"> </span><span class="n">axi_monitor</span><span class="p">,</span>
+<span class="w">    </span><span class="n">svt_axi_transaction</span><span class="w">  </span><span class="n">item</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="w">    </span><span class="no">`uvm_info</span><span class="p">(</span><span class="s">&quot;AXI_CB&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;AR handshake completed&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">UVM_LOW</span><span class="p">)</span>
+<span class="w">    </span><span class="n">rdcmd_ap</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+<span class="w">  </span><span class="k">endfunction</span>
+<span class="kd">endclass</span>
+
+<span class="c1">// 3. 在 connect_phase 把 callback 对象注册到具体 monitor</span>
+<span class="n">svt_callbacks</span><span class="p">#(</span><span class="n">svt_axi_port_monitor</span><span class="p">,</span><span class="w"> </span><span class="n">svt_axi_port_monitor_callback</span><span class="p">)</span><span class="o">::</span><span class="n">add</span><span class="p">(</span>
+<span class="w">  </span><span class="n">axi_env</span><span class="p">.</span><span class="n">master</span><span class="p">[</span><span class="n">pid</span><span class="p">].</span><span class="n">monitor</span><span class="p">,</span>
+<span class="w">  </span><span class="n">my_cb</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span>
+<span class="p">);</span>
+</code></pre></div>
+
+<p>注册 callback 的意思是：把 <code>my_cb[pid]</code> 加入 <code>axi_env.master[pid].monitor</code> 的 callback pool。之后 port <code>pid</code> 的 monitor 看到对应协议事件，就会通知这个 callback 对象。</p>
+<h3 id="_41">触发条件写在哪里</h3>
+<p>触发条件通常写在 VIP monitor 内部，而不是写在用户 callback 里。以 AXI 为例，真实 SVT VIP 代码可能是加密库或预编译库，但概念上类似：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="p">@(</span><span class="n">axi_monitor_cb</span><span class="p">);</span>
+
+<span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arvalid</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">arready</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">  </span><span class="c1">// sample ARADDR/ARID/ARLEN...</span>
+<span class="w">  </span><span class="c1">// build or update svt_axi_transaction item</span>
+<span class="w">  </span><span class="c1">// call registered callbacks</span>
+<span class="w">  </span><span class="n">read_address_phase_ended</span><span class="p">(</span><span class="k">this</span><span class="p">,</span><span class="w"> </span><span class="n">item</span><span class="p">);</span>
+<span class="k">end</span>
+</code></pre></div>
+
+<p>所以：</p>
+<ul>
+<li><code>read_address_phase_ended()</code> 会在 <code>ARVALID &amp;&amp; ARREADY</code> 后被调用。</li>
+<li><code>write_address_phase_ended()</code> 会在 <code>AWVALID &amp;&amp; AWREADY</code> 后被调用。</li>
+<li><code>transaction_ended()</code> 通常在 read 最后一拍或 write response 完成后被调用。</li>
+<li>用户 callback 里的 <code>if (arvalid == 0 || arready == 0) fatal</code> 只是 sanity check，不是触发条件本身。</li>
+</ul>
+<p>如果 VIP 源码不可见，可以从三处确认触发点：VIP user guide/class reference、callback 方法注释、以及 callback 内加 <code>uvm_info</code> 后看仿真 log/waveform。</p>
+<h3 id="axi-vip-scoreboard">AXI VIP 到 Scoreboard 的典型连接</h3>
+<p>完整 transaction 通常由 VIP monitor 的 analysis port 广播：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="n">axi_env</span><span class="p">.</span><span class="n">master</span><span class="p">[</span><span class="n">pid</span><span class="p">].</span><span class="n">monitor</span><span class="p">.</span><span class="n">item_observed_port</span><span class="p">.</span><span class="n">connect</span><span class="p">(</span><span class="n">sb</span><span class="p">.</span><span class="n">axi_imp</span><span class="p">);</span>
+</code></pre></div>
+
+<p>scoreboard 端实现：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">my_axi_sb</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_scoreboard</span><span class="p">;</span>
+<span class="w">  </span><span class="n">uvm_analysis_imp</span><span class="w"> </span><span class="p">#(</span><span class="n">svt_axi_transaction</span><span class="p">,</span><span class="w"> </span><span class="n">my_axi_sb</span><span class="p">)</span><span class="w"> </span><span class="n">axi_imp</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="kt">string</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">uvm_component</span><span class="w"> </span><span class="n">parent</span><span class="p">);</span>
+<span class="w">    </span><span class="k">super</span><span class="p">.</span><span class="k">new</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">parent</span><span class="p">);</span>
+<span class="w">    </span><span class="n">axi_imp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="p">(</span><span class="s">&quot;axi_imp&quot;</span><span class="p">,</span><span class="w"> </span><span class="k">this</span><span class="p">);</span>
+<span class="w">  </span><span class="k">endfunction</span>
+
+<span class="w">  </span><span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">write</span><span class="p">(</span><span class="n">svt_axi_transaction</span><span class="w"> </span><span class="n">tr</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// full AXI transaction check</span>
+<span class="w">  </span><span class="k">endfunction</span>
+<span class="kd">endclass</span>
+</code></pre></div>
+
+<p>如果一个 scoreboard 要接多个来源，要用不同后缀的 analysis imp，避免多个 <code>write()</code> 冲突：</p>
+<div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="no">`uvm_analysis_imp_decl</span><span class="p">(</span><span class="n">_axi_rdcmd</span><span class="p">)</span>
+<span class="no">`uvm_analysis_imp_decl</span><span class="p">(</span><span class="n">_axi_wrcmd</span><span class="p">)</span>
+
+<span class="n">uvm_analysis_imp_axi_rdcmd</span><span class="w"> </span><span class="p">#(</span><span class="n">svt_axi_transaction</span><span class="p">,</span><span class="w"> </span><span class="n">my_sb</span><span class="p">)</span><span class="w"> </span><span class="n">rdcmd_imp</span><span class="p">;</span>
+<span class="n">uvm_analysis_imp_axi_wrcmd</span><span class="w"> </span><span class="p">#(</span><span class="n">svt_axi_transaction</span><span class="p">,</span><span class="w"> </span><span class="n">my_sb</span><span class="p">)</span><span class="w"> </span><span class="n">wrcmd_imp</span><span class="p">;</span>
+
+<span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">write_axi_rdcmd</span><span class="p">(</span><span class="n">svt_axi_transaction</span><span class="w"> </span><span class="n">tr</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// AR command accepted</span>
+<span class="k">endfunction</span>
+
+<span class="k">function</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">write_axi_wrcmd</span><span class="p">(</span><span class="n">svt_axi_transaction</span><span class="w"> </span><span class="n">tr</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// AW command accepted</span>
+<span class="k">endfunction</span>
+</code></pre></div>
+
+<h3 id="scoreboard-write">多个 Scoreboard 的 <code>write()</code> 是否可以不同</h3>
+<p>可以。同一个 analysis port 可以连接多个 subscriber，每个 scoreboard 都有自己的 <code>write()</code>，功能可以完全不同：</p>
+<div class="codehilite" data-lang="Text"><pre><span></span><code>axi_monitor.item_observed_port
+  -&gt; read_hash_sb.write(txn)       // 数据一致性
+  -&gt; axi_hif_sb.write(txn)         // AXI 到 HIF 转换
+  -&gt; coverage_collector.write(txn) // functional coverage
+</code></pre></div>
+
+<p>注意 transaction 通常是 object handle。多个 subscriber 可能看到同一个对象引用，因此 consumer 不应随意修改；如果要保存或改写，先 <code>clone()</code> 或 <code>copy()</code>。</p>
+<h3 id="_42">面试回答</h3>
+<p>中文：VIP monitor callback 是 VIP 给用户预留的扩展点。我们继承 VIP 的 callback 基类，重写像 <code>read_address_phase_ended()</code>、<code>write_address_phase_ended()</code>、<code>transaction_ended()</code> 这类方法，然后在 <code>connect_phase</code> 把 callback 对象注册到具体 monitor。触发条件不在用户 callback 里，而在 VIP monitor 内部，比如 AXI monitor 看到 <code>ARVALID &amp;&amp; ARREADY</code> 后调用 read address ended callback。callback 里可以触发 event、维护 outstanding counter，或者通过 analysis port 把 command transaction 发给 scoreboard。完整 transaction 通常也可以直接从 monitor 的 <code>item_observed_port</code> 接到 scoreboard。</p>
+<p>English: A VIP monitor callback is an extension hook provided by the VIP. I derive a user callback class from the VIP callback base class, override methods such as <code>read_address_phase_ended</code> or <code>transaction_ended</code>, and register the callback object with a specific monitor in <code>connect_phase</code>. The trigger condition is implemented inside the VIP monitor; for example, when the AXI monitor observes <code>ARVALID &amp;&amp; ARREADY</code>, it invokes the read-address-ended callback. In the callback, I can trigger events, track outstanding counts, or publish command-level transactions through analysis ports. Full observed transactions can also be connected from the monitor analysis port to scoreboards.</p>
+<h3 id="_43">常见追问</h3>
+<ul>
+<li>为什么 callback 不自己 <code>wait(arvalid &amp;&amp; arready)</code>？</li>
+<li>callback 不是独立 monitor 线程，它只是被 monitor 调用的 hook；采样和触发条件由 monitor 内部负责。</li>
+<li>如果不注册 callback 会怎样？</li>
+<li>重写的方法只是普通函数，不会被 VIP 自动调用。</li>
+<li>callback 和 monitor analysis port 哪个更适合接 scoreboard？</li>
+<li>完整 transaction 检查通常接 monitor analysis port；如果需要 AR/AW handshake 刚完成时的 command-level 信息，可以在 callback 里单独发 analysis port。</li>
+<li>可以有多个 callback 挂同一个 monitor 吗？</li>
+<li>可以，UVM/SVT callback pool 会遍历已注册对象；但要注意执行顺序和副作用。</li>
+</ul>
+<h3 id="_44">易错点</h3>
+<ul>
+<li>以为触发条件写在用户 callback 里；实际写在 VIP monitor 或自定义 monitor 里。</li>
+<li>只写了 callback class，忘了在 <code>connect_phase</code> 注册。</li>
+<li>随便新增一个 callback 函数名，VIP 不会自动调用；必须重写基类已定义的方法。</li>
+<li>在 callback 或 analysis <code>write()</code> 里做耗时等待，容易违反 function 语义或隐藏 race。</li>
+<li>多个 subscriber 共用 transaction handle 时修改对象，影响其他 scoreboard/coverage。</li>
+</ul>
+<hr>
 <p><a id="uvm-factory"></a></p>
 <h2 id="uvm-factory">UVM Factory 机制</h2>
 <p>标签：<code>#uvm</code> <code>#factory</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_40">一句话定义</h3>
+<h3 id="_45">一句话定义</h3>
 <p>UVM factory 是一个对象创建和替换机制：代码中通过 factory 创建 component/object，test 可以在不修改原始 testbench 代码的情况下，把某个类型替换成另一个派生类型。</p>
 <h3 id="factory">为什么需要 Factory</h3>
 <p>在 DV 中，经常需要复用同一个 environment，但不同 test 想替换某些行为：</p>
@@ -1759,7 +1915,7 @@
 <li>把某个 monitor/scoreboard 换成增强版本。</li>
 </ul>
 <p>如果到处直接调用 <code>new()</code>，类型在代码里写死，就很难替换。Factory 的价值是把“创建什么类型”的决定延后到 test 配置阶段。</p>
-<h3 id="_41">基本使用</h3>
+<h3 id="_46">基本使用</h3>
 <div class="codehilite" data-lang="SystemVerilog"><pre><span></span><code><span class="kd">class</span><span class="w"> </span><span class="nc">my_driver</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="nc">uvm_driver</span><span class="w"> </span><span class="p">#(</span><span class="n">my_item</span><span class="p">);</span>
 <span class="w">  </span><span class="no">`uvm_component_utils</span><span class="p">(</span><span class="n">my_driver</span><span class="p">)</span>
 
@@ -1819,9 +1975,9 @@
 </tbody>
 </table>
 <p>Override 必须发生在目标对象被 <code>create()</code> 之前，通常放在 test 的 <code>build_phase</code> 里，并且在 <code>super.build_phase()</code> 或 env 创建之前安排好。</p>
-<h3 id="_42">面试回答</h3>
+<h3 id="_47">面试回答</h3>
 <p>UVM factory allows components and objects to be created through a registered type system instead of hard-coded constructors. The main benefit is override: a test can replace a base driver, monitor, sequence item, or other component with a derived implementation without changing the reusable environment. To make it work, classes must be registered with the factory macros and created using <code>type_id::create()</code> rather than <code>new()</code>.</p>
-<h3 id="_43">常见追问</h3>
+<h3 id="_48">常见追问</h3>
 <ul>
 <li>Factory 和 polymorphism 的关系是什么？</li>
 <li>Factory 提供创建时的类型替换，polymorphism 保证替换后的派生类仍能通过基类 handle 使用。</li>
@@ -1832,7 +1988,7 @@
 <li>Component 和 object 的 factory create 有什么区别？</li>
 <li>Component 有 UVM hierarchy，需要 <code>name</code> 和 <code>parent</code>；object 没有 hierarchy，通常只传 <code>name</code>。</li>
 </ul>
-<h3 id="_44">易错点</h3>
+<h3 id="_49">易错点</h3>
 <ul>
 <li>忘记写 factory registration macro。</li>
 <li>类名注册了，但创建时仍然使用 <code>new()</code>。</li>
@@ -1844,7 +2000,7 @@
 <p><a id="uvm-phases"></a></p>
 <h2 id="uvm-phase">UVM Phase 机制</h2>
 <p>标签：<code>#uvm</code> <code>#phase</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_45">一句话定义</h3>
+<h3 id="_50">一句话定义</h3>
 <p>UVM phase 机制把 testbench 的生命周期拆成固定阶段，让所有 component 按统一顺序完成创建、连接、仿真运行、结果检查和报告。</p>
 <h3 id="phase">常见 Phase 顺序</h3>
 <table>
@@ -1939,9 +2095,9 @@
 <span class="k">endtask</span>
 </code></pre></div>
 
-<h3 id="_46">面试回答</h3>
+<h3 id="_51">面试回答</h3>
 <p>UVM phases provide a standard lifecycle for the verification environment. In <code>build_phase</code>, components are created and configured. In <code>connect_phase</code>, TLM connections are made. In <code>run_phase</code>, time-consuming behavior such as sequences, drivers, monitors, and scoreboards runs. After simulation, extract, check, and report phases are used to collect and validate results. The objection mechanism controls when the run phase is allowed to finish.</p>
-<h3 id="_47">常见追问</h3>
+<h3 id="_52">常见追问</h3>
 <ul>
 <li>为什么 <code>build_phase</code> 里创建 component，而不是 constructor 里？</li>
 <li>因为 build phase 可以利用 factory override 和 config DB，而且符合 UVM 的统一搭建流程。</li>
@@ -1952,7 +2108,7 @@
 <li>如果忘记 drop objection 会怎样？</li>
 <li>仿真可能一直不结束，直到 timeout。</li>
 </ul>
-<h3 id="_48">易错点</h3>
+<h3 id="_53">易错点</h3>
 <ul>
 <li>在 function phase 里写会消耗时间的代码，例如 <code>#10</code>。</li>
 <li>在对象已经创建之后才设置 factory override。</li>
@@ -1964,7 +2120,7 @@
 <p><a id="uvm-virtual-sequence"></a></p>
 <h2 id="virtual-sequence-virtual-sequencer-sequence-api">Virtual Sequence / Virtual Sequencer / Sequence API</h2>
 <p>标签：<code>#uvm</code> <code>#sequence</code> <code>#virtual-sequence</code> <code>#sequencer</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_49">一句话定义</h3>
+<h3 id="_54">一句话定义</h3>
 <p>Virtual sequence 用来协调多个 agent 上的 sequence，virtual sequencer 通常不直接连 driver，而是保存多个 sub-sequencer handle 和共享配置，让一个系统级 sequence 能统一控制多接口 stimulus。</p>
 <h3 id="sequence-vs-virtual-sequence">普通 Sequence vs Virtual Sequence</h3>
 <table>
@@ -2135,10 +2291,10 @@ driver.item_done()
 </code></pre></div>
 
 <p>它大致等价于 create、start_item、randomize、finish_item 的组合。但面试和项目里更推荐显式写法，因为更清楚、容易 debug，也方便插入 inline constraint、打印和错误处理。</p>
-<h3 id="_50">面试回答</h3>
+<h3 id="_55">面试回答</h3>
 <p>中文：Virtual sequence 用来描述系统级场景，它不直接驱动某个接口，而是协调多个 agent 上的普通 sequence。Virtual sequencer 通常放在 env 里，保存 APB/AXI 等 sub-sequencer handle、RAL model 和共享 config。普通 sequence 的 <code>start()</code> 用来启动 sequence，<code>body()</code> 是 sequence 主体；如果要发送 transaction item，就在普通 sequence 的 <code>body()</code> 里用 <code>start_item()</code> 等待 sequencer grant，randomize item，再用 <code>finish_item()</code> 发送给 driver。Driver 端通过 <code>get_next_item()</code> 拿 item，驱动完后调用 <code>item_done()</code>。所以 virtual sequence 解决“多接口协调”，<code>start_item/finish_item</code> 解决“单接口 item 发送”。</p>
 <p>English: A virtual sequence describes a system-level scenario by coordinating multiple lower-level sequences on different agent sequencers. A virtual sequencer usually holds handles to sub-sequencers, the RAL model, and shared configuration. <code>start()</code> launches a sequence, and <code>body()</code> is where the sequence behavior is written. For a normal transaction sequence, <code>start_item()</code> waits for sequencer grant, the item is randomized, and <code>finish_item()</code> sends it to the driver. The driver receives it with <code>get_next_item()</code> and completes it with <code>item_done()</code>.</p>
-<h3 id="_51">常见追问</h3>
+<h3 id="_56">常见追问</h3>
 <ul>
 <li>Virtual sequence 一定要 virtual sequencer 吗？</li>
 <li>不一定。有些环境会直接把 sub-sequencer handle/config 传给 virtual sequence。但大型 env 里 virtual sequencer 能集中管理 handles，结构更清晰。</li>
@@ -2151,7 +2307,7 @@ driver.item_done()
 <li>Virtual sequence 里能不能直接 <code>start_item()</code>？</li>
 <li>通常不这么做。Virtual sequence 一般不绑定具体 item/driver，而是启动 sub-sequence；普通 interface sequence 才直接产生 item。</li>
 </ul>
-<h3 id="_52">易错点</h3>
+<h3 id="_57">易错点</h3>
 <ul>
 <li>把 virtual sequencer 当成会驱动 pin 的 sequencer。</li>
 <li>在 virtual sequence 里硬编码 env 层级路径，导致复用性差。</li>
@@ -2163,7 +2319,7 @@ driver.item_done()
 <p><a id="uvm-sequencer-handles"></a></p>
 <h2 id="m_sequencer-p_sequencer"><code>m_sequencer</code> 和 <code>p_sequencer</code> 的区别</h2>
 <p>标签：<code>#uvm</code> <code>#sequencer</code> <code>#sequence</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_53">一句话定义</h3>
+<h3 id="_58">一句话定义</h3>
 <p><code>m_sequencer</code> 是 UVM sequence 内置的通用 sequencer handle；<code>p_sequencer</code> 是用户通过宏声明出来的强类型 sequencer handle，用来访问自定义 sequencer 的成员。</p>
 <h3 id="m_sequencer"><code>m_sequencer</code></h3>
 <p><code>m_sequencer</code> 来自 <code>uvm_sequence_base</code>，当 sequence 被 <code>start(sequencer)</code> 启动时，UVM 会自动设置它。</p>
@@ -2188,7 +2344,7 @@ driver.item_done()
 </code></pre></div>
 
 <p>这个宏的本质是把 <code>m_sequencer</code> cast 成你指定的 sequencer 类型。如果 sequence 启动在错误类型的 sequencer 上，cast 会失败，通常会报 UVM fatal。</p>
-<h3 id="_54">对比表</h3>
+<h3 id="_59">对比表</h3>
 <table>
 <thead>
 <tr>
@@ -2237,9 +2393,9 @@ driver.item_done()
 <li>可以通过 <code>uvm_config_db</code>、sequence field、constructor/config object 传入信息的场景。</li>
 </ul>
 <p>过度使用 <code>p_sequencer</code> 会让 sequence 和某个 sequencer 类型强绑定，降低复用性。</p>
-<h3 id="_55">面试回答</h3>
+<h3 id="_60">面试回答</h3>
 <p><code>m_sequencer</code> is the built-in generic sequencer handle inside a UVM sequence. It is set automatically when the sequence is started. <code>p_sequencer</code> is a typed handle declared by <code>uvm_declare_p_sequencer</code>, and it is basically a cast from <code>m_sequencer</code> to a user-defined sequencer type. The benefit is that the sequence can access custom sequencer fields, but the downside is tighter coupling and possible cast failure if the sequence runs on the wrong sequencer.</p>
-<h3 id="_56">常见追问</h3>
+<h3 id="_61">常见追问</h3>
 <ul>
 <li>为什么很多代码里不推荐随便用 <code>p_sequencer</code>？</li>
 <li>因为它让 sequence 依赖具体 sequencer 类型，复用性变差。</li>
@@ -2250,7 +2406,7 @@ driver.item_done()
 <li>不用 <code>p_sequencer</code> 怎么传配置？</li>
 <li>可以把 config object 作为 sequence 字段传入，或用 <code>uvm_config_db</code>/resource/config handle 管理。</li>
 </ul>
-<h3 id="_57">易错点</h3>
+<h3 id="_62">易错点</h3>
 <ul>
 <li>以为 <code>p_sequencer</code> 是 UVM 自动存在的变量。</li>
 <li>忘记写 <code>`uvm_declare_p_sequencer(my_sequencer)</code>。</li>
@@ -2261,9 +2417,9 @@ driver.item_done()
 <p><a id="uvm-axi-dma-vseq-flow"></a></p>
 <h2 id="axi-dma-sequence-vsequence-virtual-sequencer">AXI DMA 项目：sequence / vsequence / virtual sequencer 调用链</h2>
 <p>标签：<code>#uvm</code> <code>#sequence</code> <code>#virtual-sequence</code> <code>#sequencer</code> <code>#ral</code> <code>#axi-dma</code> <code>#project</code></p>
-<h3 id="_58">一句话定义</h3>
+<h3 id="_63">一句话定义</h3>
 <p>这个 AXI DMA 项目用 test 创建并启动 virtual sequence，virtual sequence 挂在 env 里的 <code>dma_virtual_sequencer</code> 上；virtual sequencer 保存 AXI-Lite sequencer、AXI memory sequencer、memory model、RAL model 和 IRQ interface 的 handle，vseq 通过 <code>p_sequencer</code> 统一访问这些资源。</p>
-<h3 id="_59">项目里的调用链</h3>
+<h3 id="_64">项目里的调用链</h3>
 <div class="codehilite" data-lang="Text"><pre><span></span><code>dma_*_test.run_phase()
   ├─ phase.raise_objection()
   ├─ seq = xxx_vseq::type_id::create(&quot;seq&quot;)
@@ -2378,10 +2534,10 @@ driver.item_done()
 <li><code>vseqr</code> 在 <code>connect_phase</code> 保存这些 handle，自己不 new sub-sequencer。</li>
 <li>vseq 被 <code>start(env.vseqr)</code> 后，通过 <code>p_sequencer.xxx</code> 使用这些 handle。</li>
 </ul>
-<h3 id="_60">面试回答</h3>
+<h3 id="_65">面试回答</h3>
 <p>中文：这个项目的 test 在 <code>run_phase</code> 里 create 具体 virtual sequence，然后 <code>seq.start(env.vseqr)</code> 把它启动到 env 的 virtual sequencer 上。<code>dma_base_vseq</code> 用 <code>`uvm_declare_p_sequencer(dma_virtual_sequencer)</code>，所以 start 之后 vseq 可以通过 <code>p_sequencer</code> 访问 virtual sequencer 中保存的 <code>axil_sqr</code>、<code>mem_sqr</code>、<code>mem</code>、<code>ral</code> 和 <code>irq_vif</code>。CSR 访问不是手写 AXI-Lite sequence，而是 vseq 调 RAL 的 <code>write/read</code>；env 里 <code>default_map.set_sequencer(axil_agent.sqr, reg_adapter)</code> 把 RAL frontdoor 绑定到 AXI-Lite sequencer，adapter 再把 register operation 转成 <code>dma_axil_item</code> 给 driver。AXI memory agent 是 slave BFM，正常数据通过 shared memory model 预置和检查，memory sequencer 主要用于可选的 response/error injection。</p>
 <p>English: In this AXI DMA environment, each test creates a virtual sequence in <code>run_phase</code> and starts it on <code>env.vseqr</code>. The base virtual sequence declares a typed <code>p_sequencer</code> for <code>dma_virtual_sequencer</code>, so after <code>start()</code> it can access the virtual sequencer's sub-sequencer handles, memory model, RAL model, and IRQ interface. CSR accesses are issued through RAL frontdoor operations; the RAL map is connected to the AXI-Lite sequencer with a register adapter, which converts register operations into AXI-Lite sequence items. The AXI memory agent works as a slave BFM, so normal data traffic comes from the DUT as AXI master, while the memory sequencer is mainly useful for optional response or error injection.</p>
-<h3 id="_61">易错点</h3>
+<h3 id="_66">易错点</h3>
 <ul>
 <li>以为 vseq 里的 <code>csr_write()</code> 直接调用 AXI-Lite driver；实际路径是 RAL default map → adapter → AXI-Lite sequencer → driver。</li>
 <li>以为 virtual sequencer 会创建 sub-sequencer；实际 sub-sequencer 由 agent 创建，virtual sequencer 只保存 handle。</li>
@@ -2503,9 +2659,9 @@ driver.item_done()
 <p><a id="uvm-ral"></a></p>
 <h2 id="register-model-uvm-ral">Register Model / UVM RAL</h2>
 <p>标签：<code>#uvm</code> <code>#ral</code> <code>#register-model</code> <code>#dv</code> <code>#interview</code></p>
-<h3 id="_62">一句话定义</h3>
+<h3 id="_67">一句话定义</h3>
 <p>寄存器模型（UVM Register Abstraction Layer, RAL）是在 testbench 里建立一份 DUT register map 的抽象模型，让验证环境可以用统一 API 访问寄存器，而不是在每个 test 里手写 address、data、mask 和 bus transaction。</p>
-<h3 id="_63">它解决什么问题</h3>
+<h3 id="_68">它解决什么问题</h3>
 <p>如果没有 register model，test 访问寄存器通常要直接写：</p>
 <ul>
 <li>具体 address。</li>
@@ -2564,7 +2720,7 @@ driver.item_done()
 </code></pre></div>
 
 <p>所以 RAL 的重点不是只保存地址，而是同时保存 address、field bit position、access policy、reset value 和 mirror state。</p>
-<h3 id="_64">主要用途</h3>
+<h3 id="_69">主要用途</h3>
 <table>
 <thead>
 <tr>
@@ -2763,10 +2919,10 @@ update register model mirror
 </code></pre></div>
 
 <p>这样 mirror 来自真实 bus monitor transaction，而不是只相信 sequence 发起的意图，更适合检查实际总线行为。</p>
-<h3 id="_65">面试回答</h3>
+<h3 id="_70">面试回答</h3>
 <p>中文：寄存器模型的作用是把 DUT 的 register map 在 UVM testbench 中抽象出来，统一管理 address、field、reset value、access type 和 mirror value。这样 test 可以用 <code>reg.write()</code>、<code>reg.read()</code> 这类 register-level API，而不用每次手写底层 bus transaction。它还支持 frontdoor/backdoor access、mirror/check、prediction 和 register coverage。对复杂 SoC 或大量寄存器的模块来说，RAL 能提高复用性、减少 hard-code address，并且让寄存器测试、scoreboard 和 firmware-like sequence 更容易维护。</p>
 <p>English: A UVM register model abstracts the DUT register map inside the testbench. It stores register addresses, fields, access policies, reset values, and mirrored values, and provides APIs such as <code>write()</code>, <code>read()</code>, <code>mirror()</code>, and <code>predict()</code>. The benefit is that tests can operate at register level instead of manually creating bus transactions. It also supports frontdoor/backdoor access, prediction, checking, and register coverage, which makes register verification more reusable and maintainable.</p>
-<h3 id="_66">常见追问</h3>
+<h3 id="_71">常见追问</h3>
 <ul>
 <li>Register model 和普通 scoreboard 有什么关系？</li>
 <li>RAL 主要维护 register-level expected/mirror state；scoreboard 可以使用 RAL 中的值作为 reference 的一部分，但 RAL 不等于完整功能 scoreboard。</li>
@@ -2785,7 +2941,7 @@ update register model mirror
 <li>什么是 register side effect？</li>
 <li>比如 read-clear、write-one-to-clear、write-only、read-only、sticky bit，这些都要在 model access policy 和 prediction 中正确处理。</li>
 </ul>
-<h3 id="_67">易错点</h3>
+<h3 id="_72">易错点</h3>
 <ul>
 <li>以为 register model 只是“寄存器地址表”，忽略 mirror/predict/check。</li>
 <li>以为有 RAL 就不用 sequence；实际 sequence 仍负责组织测试流程。</li>
@@ -2798,7 +2954,7 @@ update register model mirror
 <hr>
 <p><a id="sv-uvm-interview-answers"></a></p>
 <h2 id="english">面试回答速查（中文 + English）</h2>
-<h3 id="_68">动态数组、关联数组、队列</h3>
+<h3 id="_73">动态数组、关联数组、队列</h3>
 <p>中文：动态数组是运行时分配大小的连续数组，适合长度运行时才知道但当前长度相对固定的数据；关联数组是 key-value 稀疏映射，适合 scoreboard 里按 ID/address 查 transaction；队列是有序动态容器，支持 push/pop，适合 FIFO 或 pending transaction list。</p>
 <p>English: A dynamic array is a runtime-sized contiguous array. An associative array is a sparse key-value container, useful for scoreboards indexed by ID or address. A queue is an ordered dynamic container with push/pop operations, useful as a FIFO or pending transaction buffer.</p>
 <h3 id="sv_1">SV 随机化</h3>

@@ -48,6 +48,7 @@
 <div class="nav-section"><div class="nav-heading">Question Bank</div>
 <a class="nav-link" href="index.html" data-search="question bank question-bank/readme.md"><span>Question Bank</span><small>question-bank/README.md</small></a>
 <a class="nav-link" href="dv-online-digest.html" data-search="dv 面经知识点汇总 question-bank/dv-online-digest.md"><span>DV 面经知识点汇总</span><small>question-bank/dv-online-digest.md</small></a>
+<a class="nav-link" href="online-resources.html" data-search="在线八股和刷题网站 question-bank/online-resources.md"><span>在线八股和刷题网站</span><small>question-bank/online-resources.md</small></a>
 <a class="nav-link active" href="question-bank.html" data-search="面试题库 question-bank/question-bank.md"><span>面试题库</span><small>question-bank/question-bank.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Projects / HR</div>
@@ -58,6 +59,7 @@
 <a class="nav-link" href="../projects-hr/int8-npu-tapeout-details.html" data-search="int8 npu 流片项目 - 详细技术实现 projects-hr/int8-npu-tapeout-details.md"><span>INT8 NPU 流片项目 - 详细技术实现</span><small>projects-hr/int8-npu-tapeout-details.md</small></a>
 <a class="nav-link" href="../projects-hr/ooo-riscv-details.html" data-search="ooo risc-v 处理器项目 - 详细技术实现 projects-hr/ooo-riscv-details.md"><span>OoO RISC-V 处理器项目 - 详细技术实现</span><small>projects-hr/ooo-riscv-details.md</small></a>
 <a class="nav-link" href="../projects-hr/projects-and-behavioral.html" data-search="projects / hr projects-hr/projects-and-behavioral.md"><span>Projects / HR</span><small>projects-hr/projects-and-behavioral.md</small></a>
+<a class="nav-link" href="../projects-hr/uvm-project-interview-briefs.html" data-search="两个 uvm 验证项目面试简述 projects-hr/uvm-project-interview-briefs.md"><span>两个 UVM 验证项目面试简述</span><small>projects-hr/uvm-project-interview-briefs.md</small></a>
 </div>
 <div class="nav-section"><div class="nav-heading">Templates</div>
 <a class="nav-link" href="../templates/interview-question-template.html" data-search="面试题标题 templates/interview-question-template.md"><span>面试题标题</span><small>templates/interview-question-template.md</small></a>
@@ -946,6 +948,18 @@
 <td></td>
 </tr>
 <tr>
+<td>Hamming/SECDED ECC 怎么算？32-bit data 为什么常见 8-bit ECC？</td>
+<td>Hamming parity 数满足 <code>2^r &gt;= m+r+1</code>；<code>m=32</code> 时 <code>r=6</code> 可定位单 bit 错。SECDED 再加 1 个 overall parity 检测 double-bit error，理论最小 7 bit。工程常用 8-bit ECC 是为了按 byte lane/x8 sideband 对齐，形成 <code>32+8=40bit</code> datapath。</td>
+<td><a href="../knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a></td>
+<td></td>
+</tr>
+<tr>
+<td>手撕 ready/valid 反压流水怎么写？</td>
+<td>用 <code>data_reg + valid_reg</code> 做一拍 buffer，<code>ready_out = !valid_reg || ready_in</code>；输入握手锁存新数据，只有输出握手且无新输入时清 valid，同周期 pop/push 时 valid 保持为 1。</td>
+<td><a href="../knowledge-base/asic-frontend.html#ready-valid-backpressure-pipeline">ready/valid 反压流水</a></td>
+<td></td>
+</tr>
+<tr>
 <td>OoO 的核心机制是什么？</td>
 <td>OoO 允许 ready 指令乱序执行，但通过 ROB 按序提交；rename 消除假相关，RS/issue queue 等待 operand ready，LSQ 处理访存相关。</td>
 <td><a href="../knowledge-base/asic-frontend.html#ooo-basics">OoO 基础</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
@@ -1080,6 +1094,12 @@
 <td></td>
 </tr>
 <tr>
+<td>AXI DMA 项目里的非法配置、非法地址和 boundary 怎么讲？</td>
+<td>非法配置是 enabled descriptor 的 <code>num_bytes=0</code>；AXI 错误响应是 slave BFM 返回 <code>SLVERR/DECERR</code>，不是按 bad address range 判；4KB boundary 测试验证 DMA master 自己拆 burst。</td>
+<td><a href="../projects-hr/axi-dma-uvm-details.html#axi-dma-invalid-cfg-boundary">非法配置、错误响应和 4KB boundary</a></td>
+<td></td>
+</tr>
+<tr>
 <td>UVM 里如何用 DPI C model 做 golden reference？</td>
 <td>UVM testbench 通过 DPI 调用 C model，根据同一指令和输入生成 expected result；scoreboard 比较 RTL monitor 收到的 actual 和 C model expected，可做 instruction-level 与 result-level check。</td>
 <td><a href="../projects-hr/projects-and-behavioral.html#star-int8-npu-tapeout">INT8 NPU 流片项目</a></td>
@@ -1098,9 +1118,9 @@
 <td></td>
 </tr>
 <tr>
-<td>DDR4 controller 项目里 APB + AXI VIP 是怎么用来验证的？</td>
+<td><a id="qb-ddr4-project"></a>DDR4 controller 项目里 APB + AXI VIP 是怎么用来验证的？</td>
 <td>APB VIP 负责配置 controller/PHY 寄存器并 polling init/training done；AXI4 VIP 负责产生 DDR memory write/read burst；真正检查的是地址映射、DDR4 command/timing、数据完整性和多层 scoreboard。</td>
-<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-controller-apb-axi-vip-details">DDR4 Controller APB + AXI VIP 详细技术实现</a></td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-review-map">DDR4 Controller APB + AXI VIP 详细技术实现</a></td>
 <td></td>
 </tr>
 <tr>
@@ -1110,9 +1130,45 @@
 <td></td>
 </tr>
 <tr>
+<td>你的 DDR4 配置为什么是 9 颗 x8，但 AXI data width 还是 256-bit？</td>
+<td>我的配置按 FR1:2、ECC enabled、x72 组织讲：8 颗 x8 做 64-bit data，1 颗 x8 做 8-bit ECC，所以总共 9 颗。AXI 256-bit 只对应 64-bit data payload 在 FR2 和双沿下的聚合：<code>64*2*2=256</code>；ECC 另走 32-bit DFI sideband，DFI total including ECC 是 <code>72*2*2=288</code>。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-my-fr2-ecc-config">我的 FR1:2 + ECC 配置</a> / <a href="../knowledge-base/protocols.html#dfi-ddr-width-fr2-ecc">DFI 位宽换算</a></td>
+<td></td>
+</tr>
+<tr>
+<td>你这个 DDR4 项目的 timing 配置是什么，依据是什么？</td>
+<td>Timing 由 CINIT 根据 <code>DEMO_DDR4_4GB_3200MTs_1x72_x8_NODIMM</code> 生成，核心条件是 DDR4-3200W、<code>tCK=625ps</code>、4Gb x8 device、1 rank、NODIMM；主要落到 <code>DRAMSET1TMG*</code>、<code>RFSHSET1TMG*</code>、<code>DFITMG*</code>。APB 字段是 controller/DFI 时钟域的调度值，不一定等于 JEDEC nCK；最终以 CINIT APB write trace 和 DDR4 VIP pin-level timing check 为准。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-timing-cinit-config">DDR4 Timing 配置</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DDR4 项目里 32-bit data 为什么是 8-bit ECC，不是 7-bit？</td>
+<td>32-bit SECDED 理论最少 7 bit：6 bit Hamming syndrome 定位单 bit，1 bit overall parity 检测 double-bit。项目里 <code>32+8=40bit</code> 是按 byte lane/x8 ECC sideband 组织，8-bit ECC lane 更适合 DDR/DFI/controller 数据通路。</td>
+<td><a href="../knowledge-base/asic-frontend.html#hamming-secded-ecc">Hamming/SECDED ECC</a> / <a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">DDR4 ECC 场景</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DDR4 项目里 AXI data width 是 256-bit，为什么地址转换还是 <code>AXI_addr &gt;&gt; 2</code>？</td>
+<td>AXI 的 <code>AWADDR/ARADDR</code> 是 byte address，256-bit 只是每 beat 搬 32 bytes。当前 controller 的 DRAM/HIF word 是 32-bit=4 bytes，所以进入 HIF 前丢掉低 2 个 byte-offset bit；一个 256-bit AXI beat 对应 8 个 HIF words。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-hif-address-map-example">AXI/HIF 地址转换</a> / <a href="../knowledge-base/protocols.html#axi-byte-address-data-width">AXI byte address</a></td>
+<td></td>
+</tr>
+<tr>
 <td>DDR4 项目有哪些高级 test 场景？</td>
 <td>QoS 场景配 <code>PCFGQOS/PCFGWQOS/PERF*</code> 后并发发带优先级的 AXI traffic；Exclusive access 用 exclusive read/write 和 normal/exclusive 干扰检查 monitor 行为；ECC/poison 看 <code>POISONCFG</code>、ISR、<code>SLVERR</code> 和 multi-beat ECC RMW；unalign 看 byte address/<code>WSTRB</code>；多端口看 port arbiter mask、<code>PCTRL.port_en</code>、QoS；low-power 看 AXI LP handshake、DDRC self-refresh 和退出后恢复。</td>
 <td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-advanced-test-scenarios">DDR4 高级测试场景分析</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DDR4 low-power test 里的 low power 是谁的低功耗？</td>
+<td>分两层：Case 1-3 是单个 AXI port 前端接口/port wrapper 的低功耗，只验证该 port idle 时 entry、busy 时 deny、traffic 来时 exit；Case 4 才是所有 port idle 后请求 DDRC 进入 self-refresh，检查 controller/DRAM 侧状态。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-lowpower-test-checks">DDR4 低功耗检查</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI port 进入 low power 是不是普通 AXI 请求触发的？</td>
+<td>不是。进入 low power 要由 low-power entry request 触发；<code>m_b_lp_accept=1</code> 表示 idle port 应接受 entry，<code>m_b_lp_accept=0</code> 表示 busy port 应拒绝 entry。已经在 low power 时，新的 AXI read/write 是 peripheral activity，用来触发 exit。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-lowpower-test-checks">DDR4 低功耗检查</a></td>
 <td></td>
 </tr>
 <tr>
@@ -1134,9 +1190,9 @@
 <td></td>
 </tr>
 <tr>
-<td>DDR PHY / wrapper 是自己写的吗？</td>
-<td>不是。这里是 Synopsys DWC DDR controller/PHY IP wrapper，把 controller 的 DFI 行为转换成 DDR4 JEDEC pin-level 信号，再接 DDR4 Memory VIP。</td>
-<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-vip-checker-scope">DDR4 VIP/checker 分工</a></td>
+<td>DDR4 项目里的 PHY 是什么，是 DDR memory model 的接口吗？</td>
+<td>不是完整 DDR PHY RTL。RTL 里主要是 controller 的 PHY-facing DFI 边界和 sideband；仿真里 DDR 侧由 TB wrapper/interface 接到 SVT DDR4 memory model，所以可以说 PHY 被 memory model 接口/包装层抽象掉了。</td>
+<td><a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-phy-memory-model-abstraction">DDR4 PHY 抽象</a></td>
 <td></td>
 </tr>
 <tr>
@@ -1247,6 +1303,12 @@
 <td>UVM TLM 通信是什么？</td>
 <td>用 port/export/imp/FIFO 在组件之间传 transaction，解耦 producer 和 consumer；常见模式是 monitor analysis port 广播，scoreboard/coverage 接收。</td>
 <td><a href="../knowledge-base/systemverilog-uvm.html#uvm-tlm">UVM TLM 通信</a></td>
+<td></td>
+</tr>
+<tr>
+<td>VIP monitor callback 怎么把 transaction 送到 scoreboard？</td>
+<td>callback 是挂在 VIP monitor 上的协议事件钩子；monitor 内部检测到 AR/AW handshake 或 transaction end 后调用 callback，callback 或 monitor 再通过 analysis port 把 transaction 广播给 scoreboard。</td>
+<td><a href="../knowledge-base/systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP Monitor Callback 到 Scoreboard</a> / <a href="../projects-hr/ddr4-controller-apb-axi-vip-details.html#ddr4-axi-monitor-callback-scoreboard">DDR4 AXI callback 实现</a></td>
 <td></td>
 </tr>
 <tr>
@@ -1378,6 +1440,12 @@
 <td></td>
 </tr>
 <tr>
+<td>为什么 AXI VIP callback 在握手成功后会被调用？</td>
+<td>触发条件写在 VIP monitor 内部；monitor 采样到 <code>ARVALID &amp;&amp; ARREADY</code> 或 <code>AWVALID &amp;&amp; AWREADY</code> 后调用对应 callback，用户 callback 只负责被调用后的动作。</td>
+<td><a href="../knowledge-base/protocols.html#axi-valid-ready">AXI valid/ready handshake</a> / <a href="../knowledge-base/systemverilog-uvm.html#uvm-vip-monitor-callback-scoreboard">VIP Monitor Callback 到 Scoreboard</a></td>
+<td></td>
+</tr>
+<tr>
 <td>AXI outstanding transaction 是什么？</td>
 <td>Master 在前一个 transaction 完成前继续发起多个 transaction，slave/interconnect 用 ID/ordering 规则追踪未完成请求。</td>
 <td><a href="../knowledge-base/protocols.html#axi-outstanding">AXI outstanding</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
@@ -1387,6 +1455,18 @@
 <td>AXI interleaving 是什么？</td>
 <td>多个 transaction 的 data/response 可能按 ID 和协议规则交错返回，验证时要检查 ordering、ID tracking 和 backpressure。</td>
 <td><a href="../knowledge-base/protocols.html#axi-interleaving">AXI interleaving</a> / <a href="../actual-interviews/asic.html#bytedance">字节面经</a></td>
+<td></td>
+</tr>
+<tr>
+<td>AXI burst 跨 4KB boundary 时是谁拆？</td>
+<td>不是 AXI bus 自动拆，而是 AXI master 在发 <code>ARLEN/AWLEN</code> 前主动拆成多笔合法 transaction；单个 INCR burst 不能跨 4KB，但整个 DMA transfer 可以跨。</td>
+<td><a href="../knowledge-base/protocols.html#axi-4kb-boundary-burst-split">AXI 4KB boundary 和 burst 拆分</a></td>
+<td></td>
+</tr>
+<tr>
+<td>DFI 接口会产生什么信号、接收什么信号？</td>
+<td>Controller 侧输出 command/address、CS/CKE/ODT/reset、写数据/mask、<code>dfi_wrdata_en</code>、<code>dfi_rddata_en</code>、init/frequency/low-power/update 请求；从 PHY 接收 <code>dfi_init_complete</code>、ack/request、<code>dfi_alert_n</code>、<code>dfi_rddata_valid</code> 和 <code>dfi_rddata</code>。</td>
+<td><a href="../knowledge-base/protocols.html#dfi-ddr-phy-interface">DFI / DDR PHY Interface</a></td>
 <td></td>
 </tr>
 <tr>
